@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizDeedz - Detailed Request Processing Flow</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .nav-links a {
+            margin: 0 10px;
+            padding: 8px 16px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .nav-links a:hover {
+            background: #2980b9;
+        }
+        .legend {
+            margin-top: 30px;
+            padding: 20px;
+            background: #ecf0f1;
+            border-radius: 8px;
+        }
+        .legend h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .process-notes {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 4px;
+        }
+        .mermaid {
+            text-align: center;
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Detailed Request Processing Flow</h1>
+        <p class="subtitle">End-to-End Request Lifecycle - Intake → Triage → Route → Execute → Complete</p>
+
+        <div class="nav-links">
+            <a href="index.html">📋 Home</a>
+            <a href="1-overview-architecture.html">🏢 Architecture</a>
+            <a href="3-ch13-confirmation-blocker.html">⚠️ Ch 13 Blockers</a>
+        </div>
+
+        <div class="mermaid">
+graph TB
+    START([📨 Request Arrives<br/>Email/Notice/Call/Letter])
+
+    subgraph "1️⃣ CAPTURE + EXTRACT"
+        A1[📥 Capture Event<br/>Save to Evidence Vault]
+        A2[🔍 Extract Key Fields<br/>- Source/sender<br/>- Case identifiers<br/>- Date/deadline info<br/>- Request text/items]
+        A3{📎 Attachments<br/>Present?}
+        A4[📄 Process PDFs<br/>Document AI / OCR<br/>Extract key/value pairs]
+    end
+
+    subgraph "2️⃣ CASE MATCHING"
+        B1{🎯 Case # Found?}
+        B2[✅ Direct Match<br/>Case # → Matter]
+        B3[🔎 Fuzzy Match<br/>Debtor Name + Last 4<br/>+ Account Crosswalk]
+        B4{Confidence<br/>Score?}
+        B5[❌ Low Confidence<br/>Route to Exception Queue<br/>Manual Match Required]
+        B6[✅ High/Medium Confidence<br/>Proceed with Match]
+    end
+
+    subgraph "3️⃣ CLASSIFICATION"
+        C1[📊 Classify Request Type<br/>Court / UST / Trustee / Creditor]
+        C2{🏛️ Chapter?}
+        C3[Ch 7 Taxonomy<br/>- NOB / Stop Action<br/>- 341 Items<br/>- Trustee Docs<br/>- Reaffirmation<br/>- General]
+        C4[Ch 13 Taxonomy<br/>- Confirmation Items<br/>- Plan Feasibility<br/>- Payment Evidence<br/>- Amendment Required<br/>- Objection Risk]
+        C5{⚠️ Confirmation<br/>Impact?}
+        C6[🔴 BLOCKER<br/>Will prevent confirmation]
+        C7[🟡 MATERIAL RISK<br/>Likely objection]
+        C8[🟢 FYI<br/>Standard follow-up]
+    end
+
+    subgraph "4️⃣ SLA + ROUTING"
+        D1{⏱️ Urgency<br/>Assessment}
+        D2[🚨 URGENT<br/>Same-Day Action<br/>- Garnishment/Levy<br/>- Confirmation Blocker<br/>- Dismissal threat]
+        D3[📅 STANDARD<br/>24-72 Hour Window<br/>- General docs<br/>- Routine inquiries]
+        D4[🎯 Assign Owner<br/>Based on Category]
+        D5{👔 Route Lane?}
+        D6[⚙️ Ops/Paralegal<br/>Can execute]
+        D7[⚖️ Attorney Review<br/>Legal judgment needed]
+        D8[⏰ Start SLA Clock<br/>Set Escalation Rules]
+    end
+
+    subgraph "5️⃣ EXECUTION"
+        E1{🖥️ System of Record?}
+        E2[📘 Create Jubilee Task<br/>+ Calendar + Notes]
+        E3[📗 Create Clio Task<br/>+ Calendar + Activity]
+        E4[💾 Update Case Vault<br/>Link Artifacts]
+        E5[📅 Create Calendar Event<br/>If Deadline/Hearing]
+        E6[🔷 Update CRM/Dynamics<br/>Stage + Risk + Next Action]
+    end
+
+    subgraph "6️⃣ VISIBILITY + GOVERNANCE"
+        F1[💬 Post Ops Brief<br/>Teams/Chat Channel<br/>- What: request summary<br/>- Who: owner<br/>- When: due date<br/>- Links: artifacts]
+        F2{🔔 Escalation<br/>Needed?}
+        F3[📣 Immediate Alert<br/>@mention Attorney/Lead<br/>High priority notification]
+        F4[📊 Update Dashboard<br/>KPI tracking<br/>SLA clock visible]
+    end
+
+    subgraph "7️⃣ EXECUTION TRACKING"
+        G1[⏳ Task In Progress<br/>Owner Working]
+        G2{✅ Completed?}
+        G3[🔄 Reminder Cadence<br/>T-48h / T-24h / T-4h]
+        G4{⏰ SLA<br/>Breached?}
+        G5[🚨 Escalate to Manager<br/>+ Attorney Lead]
+        G6[✅ Mark Complete<br/>+ Attach Evidence<br/>+ Timestamp]
+        G7[📋 Audit Trail Entry<br/>Who/What/When/Closure]
+    end
+
+    END([✅ Request Closed<br/>Evidence Archived])
+
+    %% Flow Connections - Capture
+    START --> A1
+    A1 --> A2
+    A2 --> A3
+    A3 -->|Yes| A4
+    A3 -->|No| B1
+    A4 --> B1
+
+    %% Case Matching
+    B1 -->|Yes| B2
+    B1 -->|No| B3
+    B2 --> C1
+    B3 --> B4
+    B4 -->|< 60%| B5
+    B4 -->|>= 60%| B6
+    B6 --> C1
+
+    %% Classification
+    C1 --> C2
+    C2 -->|Ch 7| C3
+    C2 -->|Ch 13| C4
+    C3 --> D1
+    C4 --> C5
+    C5 -->|Blocker| C6
+    C5 -->|Risk| C7
+    C5 -->|FYI| C8
+    C6 --> D1
+    C7 --> D1
+    C8 --> D1
+
+    %% SLA + Routing
+    D1 -->|Urgent| D2
+    D1 -->|Standard| D3
+    D2 --> D4
+    D3 --> D4
+    D4 --> D5
+    D5 -->|Ops Lane| D6
+    D5 -->|Attorney Lane| D7
+    D6 --> D8
+    D7 --> D8
+    D8 --> E1
+
+    %% Execution
+    E1 -->|Jubilee| E2
+    E1 -->|Clio| E3
+    E2 --> E4
+    E3 --> E4
+    E4 --> E5
+    E5 --> E6
+    E6 --> F1
+
+    %% Visibility
+    F1 --> F2
+    F2 -->|Yes - Urgent/Blocker| F3
+    F2 -->|No - Standard| F4
+    F3 --> F4
+    F4 --> G1
+
+    %% Tracking to Completion
+    G1 --> G2
+    G2 -->|No| G3
+    G3 --> G4
+    G4 -->|No| G2
+    G4 -->|Yes| G5
+    G5 --> G2
+    G2 -->|Yes| G6
+    G6 --> G7
+    G7 --> END
+
+    %% Exception handling
+    B5 -.Manual Review<br/>Then Rejoin.-> C1
+
+    %% Styling
+    classDef startEnd fill:#e74c3c,stroke:#c0392b,stroke-width:3px,color:#fff
+    classDef capture fill:#3498db,stroke:#2980b9,stroke-width:2px,color:#fff
+    classDef matching fill:#9b59b6,stroke:#8e44ad,stroke-width:2px,color:#fff
+    classDef classify fill:#f39c12,stroke:#d68910,stroke-width:2px,color:#fff
+    classDef route fill:#e67e22,stroke:#d35400,stroke-width:2px,color:#fff
+    classDef execute fill:#2ecc71,stroke:#27ae60,stroke-width:2px,color:#fff
+    classDef visibility fill:#1abc9c,stroke:#16a085,stroke-width:2px,color:#fff
+    classDef tracking fill:#34495e,stroke:#2c3e50,stroke-width:2px,color:#fff
+    classDef decision fill:#f1c40f,stroke:#f39c12,stroke-width:2px
+    classDef urgent fill:#c0392b,stroke:#a93226,stroke-width:3px,color:#fff
+    classDef blocker fill:#e74c3c,stroke:#c0392b,stroke-width:3px,color:#fff
+
+    class START,END startEnd
+    class A1,A2,A3,A4 capture
+    class B1,B2,B3,B4,B5,B6 matching
+    class C1,C2,C3,C4,C5,C6,C7,C8 classify
+    class D1,D2,D3,D4,D5,D6,D7,D8 route
+    class E1,E2,E3,E4,E5,E6 execute
+    class F1,F2,F3,F4 visibility
+    class G1,G2,G3,G4,G5,G6,G7 tracking
+    class D2 urgent
+    class C6 blocker
+        </div>
+
+        <div class="legend">
+            <h3>📖 Process Stages Explained</h3>
+
+            <h4>1️⃣ Capture + Extract (Blue)</h4>
+            <p>Every request is captured immediately, saved to evidence vault, and key fields extracted. PDFs/attachments are processed using Document AI for structured data extraction.</p>
+
+            <h4>2️⃣ Case Matching (Purple)</h4>
+            <p><strong>Multi-pass matching logic:</strong></p>
+            <ul>
+                <li><strong>Direct:</strong> Case # found → immediate match</li>
+                <li><strong>Fuzzy:</strong> Debtor name + identifiers + account crosswalk</li>
+                <li><strong>Confidence threshold:</strong> &lt;60% → manual review queue</li>
+                <li><strong>Exception handling:</strong> Low-confidence matches route to staff for manual assignment, then rejoin main flow</li>
+            </ul>
+
+            <h4>3️⃣ Classification (Orange/Yellow)</h4>
+            <p><strong>Request Type:</strong> Court / UST / Trustee / Creditor<br>
+            <strong>Chapter-Specific Taxonomy:</strong></p>
+            <ul>
+                <li><strong>Ch 7:</strong> NOB requests, 341 items, trustee docs, reaffirmation, general</li>
+                <li><strong>Ch 13:</strong> Confirmation items, feasibility, payment evidence, amendments, objection risk</li>
+            </ul>
+            <p><strong>Confirmation Impact Flagging (Ch 13 only):</strong></p>
+            <ul>
+                <li>🔴 <strong>BLOCKER:</strong> Will prevent confirmation (same-day handling)</li>
+                <li>🟡 <strong>MATERIAL RISK:</strong> Likely objection unless cured</li>
+                <li>🟢 <strong>FYI:</strong> Standard follow-up item</li>
+            </ul>
+
+            <h4>4️⃣ SLA + Routing (Orange)</h4>
+            <p><strong>Urgency Assessment triggers two lanes:</strong></p>
+            <ul>
+                <li>🚨 <strong>URGENT (Same-Day):</strong> Garnishment/levy, confirmation blockers, dismissal threats</li>
+                <li>📅 <strong>STANDARD (24-72h):</strong> Routine docs, general inquiries</li>
+            </ul>
+            <p><strong>Owner Assignment:</strong> Ops/Paralegal lane vs Attorney Review lane (based on category + legal judgment requirement)</p>
+
+            <h4>5️⃣ Execution (Green)</h4>
+            <p>Tasks created in system of record (Jubilee or Clio), calendar events scheduled, CRM/Dynamics updated with stage + risk + next action.</p>
+
+            <h4>6️⃣ Visibility + Governance (Teal)</h4>
+            <p><strong>Ops Brief posted to Teams/Chat:</strong> What changed, who owns it, when it's due, links to artifacts<br>
+            <strong>Escalations:</strong> Urgent items trigger immediate @mentions to attorney/lead</p>
+
+            <h4>7️⃣ Execution Tracking (Dark Gray)</h4>
+            <p><strong>SLA enforcement with reminder cadence:</strong> T-48h, T-24h, T-4h<br>
+            <strong>Escalation on SLA breach:</strong> Auto-alert to manager + attorney lead<br>
+            <strong>Audit trail:</strong> Completion timestamp + evidence attachment + closure notes</p>
+
+            <div class="process-notes">
+                <h4>⚙️ Key Operating Rules</h4>
+                <ul>
+                <li><strong>One request = one SLA clock.</strong> Every item is tracked to completion.</li>
+                <li><strong>Exception-safe.</strong> Low-confidence matches don't block the pipeline—they route to manual review.</li>
+                <li><strong>No silent failures.</strong> If SLA is breached, escalation is automatic.</li>
+                <li><strong>Audit-ready.</strong> Every step logged: who touched it, what they did, when, and closure evidence.</li>
+                </ul>
+            </div>
+
+            <h3 style="margin-top: 25px;">🎯 Measurable Outcomes</h3>
+            <ul>
+                <li>✅ <strong>Cycle Time:</strong> Average time from request received → completed</li>
+                <li>✅ <strong>SLA Compliance:</strong> % of requests completed within SLA window</li>
+                <li>✅ <strong>Escalation Rate:</strong> % requiring attorney intervention</li>
+                <li>✅ <strong>Exception Rate:</strong> % routed to manual case matching</li>
+                <li>✅ <strong>Confirmation Blocker Resolution Time:</strong> Avg time to clear Ch 13 blockers</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>

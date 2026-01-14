@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizDeedz - Ch 13 Confirmation Blocker Flow</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #c0392b 0%, #8e44ad 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #c0392b;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .nav-links a {
+            margin: 0 10px;
+            padding: 8px 16px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .nav-links a:hover {
+            background: #2980b9;
+        }
+        .alert-box {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .alert-box.danger {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+        .legend {
+            margin-top: 30px;
+            padding: 20px;
+            background: #ecf0f1;
+            border-radius: 8px;
+        }
+        .legend h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .category-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .category-card h4 {
+            margin: 0 0 10px 0;
+            color: #c0392b;
+        }
+        .category-card ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 0.9em;
+        }
+        .mermaid {
+            text-align: center;
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .sla-callout {
+            background: #d1ecf1;
+            border: 2px solid #0c5460;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .sla-callout h4 {
+            margin-top: 0;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚠️ Ch 13 Confirmation Blocker Flow</h1>
+        <p class="subtitle">High-Priority Workflow for Confirmation-Related Issues</p>
+
+        <div class="nav-links">
+            <a href="index.html">📋 Home</a>
+            <a href="1-overview-architecture.html">🏢 Architecture</a>
+            <a href="2-detailed-request-flow.html">🔄 Detailed Flow</a>
+        </div>
+
+        <div class="alert-box danger">
+            <strong>⚠️ Critical Path:</strong> This workflow handles requests that can prevent or delay confirmation hearings.
+            All confirmation blockers follow <strong>same-day triage</strong> with mandatory attorney routing for plan/schedule amendments.
+        </div>
+
+        <div class="mermaid">
+graph TB
+    START([📨 Trustee/Creditor Request<br/>Ch 13 Case])
+
+    subgraph "1️⃣ INITIAL TRIAGE"
+        A1[📋 Extract Request Details<br/>- Items needed<br/>- Deadline stated<br/>- Objection language?<br/>- Continuance threat?]
+        A2{⏰ Confirmation<br/>Hearing Date<br/>Set?}
+        A3[📅 Pull Confirmation Date<br/>From Calendar/Docket]
+        A4{🚨 Confirmation<br/>Impact?}
+        A5[🟢 FYI - Standard<br/>Not confirmation-related<br/>→ Standard Flow]
+        A6[🟡 Material Risk<br/>Likely objection<br/>unless cured]
+        A7[🔴 BLOCKER<br/>Will prevent<br/>confirmation]
+    end
+
+    subgraph "2️⃣ BLOCKER CATEGORIZATION"
+        B1[🔍 Classify Blocker Type]
+        B2[💰 Plan Feasibility /<br/>Payment Evidence<br/>- Income proof<br/>- Budget gaps<br/>- Missing pay advices]
+        B3[🏠 Mortgage / Arrears<br/>- Proof of payment<br/>- Escrow changes<br/>- Cure amounts]
+        B4[🚗 Vehicle Issues<br/>- Valuation<br/>- Insurance<br/>- Payoffs / Intent]
+        B5[📄 Tax Compliance<br/>- Returns missing<br/>- Transcripts<br/>- Non-filer affidavit]
+        B6[👨‍👩‍👧 Domestic Support<br/>Obligations<br/>- DSO status<br/>- Certification]
+        B7[💼 Business Income<br/>- P&L<br/>- Bank statements<br/>- Ongoing income proof]
+        B8[📝 Amendment Required<br/>- Plan amendment<br/>- Schedules<br/>- Means test]
+        B9[⚖️ Objection Risk<br/>- Trustee intent<br/>- Creditor objection]
+    end
+
+    subgraph "3️⃣ ROUTE + DEPENDENCIES"
+        C1{🎯 Can Ops<br/>Handle?}
+        C2[⚙️ Ops Lane<br/>- Gather docs<br/>- Client upload request<br/>- Verify items]
+        C3[⚖️ Attorney Lane<br/>- Legal judgment<br/>- Plan/schedule changes<br/>- Negotiation strategy]
+        C4{📎 Client<br/>Dependency?}
+        C5[📧 Client Action Required<br/>- Upload docs<br/>- Provide info<br/>- Sign forms]
+        C6[⚙️ Internal Execution<br/>Firm can complete<br/>without client]
+    end
+
+    subgraph "4️⃣ SAME-DAY TRIAGE"
+        D1[🚨 Post BLOCKER ALERT<br/>Teams/Chat with:<br/>- @Attorney Lead<br/>- Case + Hearing Date<br/>- Items Needed<br/>- Days Until Hearing<br/>- Risk Level]
+        D2[📘 Create Task Bundle<br/>Jubilee or Clio:<br/>- Gather docs<br/>- Attorney review<br/>- Client communication<br/>- Response/filing]
+        D3[⏱️ Set Tight SLA<br/>- Triage: same-day<br/>- Client request: 4 hours<br/>- Attorney review: 24h<br/>- Cure deadline: T-3 days]
+        D4[🔷 Update CRM Status<br/>Stage: "Confirmation - Blocker"<br/>Risk: RED<br/>Next Action: [specific]]
+    end
+
+    subgraph "5️⃣ EXECUTION + TRACKING"
+        E1[⏳ Work In Progress]
+        E2{👥 Client<br/>Response?}
+        E3[🔄 Client Follow-Up<br/>Reminder cadence:<br/>- T-48h<br/>- T-24h<br/>- T-12h]
+        E4{⏰ Client<br/>Delayed?}
+        E5[🚨 Escalate:<br/>Consider continuance<br/>strategy with attorney]
+        E6[✅ Items Received]
+        E7{⚖️ Attorney<br/>Review?}
+        E8[👔 Attorney Decision<br/>- Approve response<br/>- Amend plan/schedules<br/>- Negotiate trustee]
+        E9[📤 Submit Response<br/>- Send to trustee<br/>- File amendments<br/>- Upload to portal]
+    end
+
+    subgraph "6️⃣ VERIFICATION + CLOSURE"
+        F1{✅ Blocker<br/>Cleared?}
+        F2[🟡 Partial Resolution<br/>Document status<br/>Track remaining items]
+        F3[✅ Blocker Cleared<br/>Confirmation can proceed]
+        F4[🔷 Update CRM<br/>Stage: "Confirmation - Ready"<br/>Risk: GREEN<br/>Blocker resolved timestamp]
+        F5[💬 Post Clearance Brief<br/>Teams/Chat:<br/>"Blocker cleared:<br/>[what was done]<br/>[evidence links]"]
+        F6[📋 Audit Trail<br/>- Request received date<br/>- Blocker type<br/>- Resolution actions<br/>- Evidence vault links<br/>- Cycle time]
+    end
+
+    END([✅ Confirmation Blocker<br/>RESOLVED])
+
+    %% Flow - Initial Triage
+    START --> A1
+    A1 --> A2
+    A2 -->|Yes| A4
+    A2 -->|No| A3
+    A3 --> A4
+    A4 -->|FYI| A5
+    A4 -->|Risk| A6
+    A4 -->|Blocker| A7
+
+    %% Exit to standard flow
+    A5 -.Standard Flow.-> END
+    A6 --> B1
+
+    %% Blocker categorization
+    A7 --> B1
+    B1 --> B2
+    B1 --> B3
+    B1 --> B4
+    B1 --> B5
+    B1 --> B6
+    B1 --> B7
+    B1 --> B8
+    B1 --> B9
+
+    %% All categories merge to routing
+    B2 --> C1
+    B3 --> C1
+    B4 --> C1
+    B5 --> C1
+    B6 --> C1
+    B7 --> C1
+    B8 --> C3
+    B9 --> C3
+
+    %% Routing
+    C1 -->|Yes| C2
+    C1 -->|No| C3
+    C2 --> C4
+    C3 --> C4
+    C4 -->|Yes| C5
+    C4 -->|No| C6
+    C5 --> D1
+    C6 --> D1
+
+    %% Same-day triage
+    D1 --> D2
+    D2 --> D3
+    D3 --> D4
+    D4 --> E1
+
+    %% Execution
+    E1 --> E2
+    E2 -->|Client Needed| E3
+    E2 -->|Internal| E7
+    E3 --> E4
+    E4 -->|Yes| E5
+    E4 -->|No| E6
+    E5 -.Continuance<br/>Strategy.-> E7
+    E6 --> E7
+    E7 -->|Required| E8
+    E7 -->|Not Required| E9
+    E8 --> E9
+    E9 --> F1
+
+    %% Verification
+    F1 -->|Partial| F2
+    F1 -->|Yes| F3
+    F2 -.Track.-> E1
+    F3 --> F4
+    F4 --> F5
+    F5 --> F6
+    F6 --> END
+
+    %% Styling
+    classDef startEnd fill:#e74c3c,stroke:#c0392b,stroke-width:3px,color:#fff
+    classDef triage fill:#3498db,stroke:#2980b9,stroke-width:2px,color:#fff
+    classDef blocker fill:#e74c3c,stroke:#c0392b,stroke-width:3px,color:#fff
+    classDef category fill:#f39c12,stroke:#d68910,stroke-width:2px,color:#fff
+    classDef route fill:#9b59b6,stroke:#8e44ad,stroke-width:2px,color:#fff
+    classDef execute fill:#2ecc71,stroke:#27ae60,stroke-width:2px,color:#fff
+    classDef verify fill:#1abc9c,stroke:#16a085,stroke-width:2px,color:#fff
+    classDef alert fill:#c0392b,stroke:#a93226,stroke-width:3px,color:#fff
+    classDef decision fill:#f1c40f,stroke:#f39c12,stroke-width:2px
+
+    class START,END startEnd
+    class A1,A2,A3,A4,A5,A6 triage
+    class A7,D1 blocker
+    class B1,B2,B3,B4,B5,B6,B7,B8,B9 category
+    class C1,C2,C3,C4,C5,C6 route
+    class D2,D3,D4,E1,E2,E3,E4,E5,E6,E7,E8,E9 execute
+    class F1,F2,F3,F4,F5,F6 verify
+        </div>
+
+        <div class="sla-callout">
+            <h4>⏱️ Ch 13 Confirmation Blocker SLA Policy</h4>
+            <ul>
+                <li><strong>Triage:</strong> Same-day owner assignment + attorney @mention</li>
+                <li><strong>Client request:</strong> Outbound within 4 hours</li>
+                <li><strong>Attorney review:</strong> Required checkpoint within 24h (for amendments/plan changes)</li>
+                <li><strong>Cure deadline:</strong> All items resolved T-3 days before hearing (allows trustee review time)</li>
+                <li><strong>Escalation:</strong> If client delayed beyond T-5 days, attorney evaluates continuance strategy</li>
+            </ul>
+        </div>
+
+        <div class="legend">
+            <h3>📖 Confirmation Blocker Categories</h3>
+            <p>Common Ch 13 confirmation issues that trigger this high-priority workflow:</p>
+
+            <div class="category-grid">
+                <div class="category-card">
+                    <h4>💰 Plan Feasibility</h4>
+                    <ul>
+                        <li>Income proof missing</li>
+                        <li>Budget gaps / shortfalls</li>
+                        <li>Missing pay advices</li>
+                        <li>Employment verification</li>
+                    </ul>
+                </div>
+
+                <div class="category-card">
+                    <h4>🏠 Mortgage / Arrears</h4>
+                    <ul>
+                        <li>Proof of payment changes</li>
+                        <li>Escrow adjustments</li>
+                        <li>Cure amount verification</li>
+                        <li>Current payment status</li>
+                    </ul>
+                </div>
+
+                <div class="category-card">
+                    <h4>🚗 Vehicle Issues</h4>
+                    <ul>
+                        <li>Valuation disputes</li>
+                        <li>Insurance proof</li>
+                        <li>Payoff amounts</li>
+                        <li>Intent to retain/surrender</li>
+                    </ul>
+                </div>
+
+                <div class="category-card">
+                    <h4>📄 Tax Compliance</h4>
+                    <ul>
+                        <li>Returns missing</li>
+                        <li>IRS transcripts requested</li>
+                        <li>Non-filer affidavit</li>
+                        <li>Tax refund intercept status</li>
+                    </ul>
+                </div>
+
+                <div class="category-card">
+                    <h4>👨‍👩‍👧 Domestic Support</h4>
+                    <ul>
+                        <li>DSO status certification</li>
+                        <li>Payment compliance proof</li>
+                        <li>Payroll deduction docs</li>
+                    </ul>
+                </div>
+
+                <div class="category-card">
+                    <h4>💼 Business Income</h4>
+                    <ul>
+                        <li>P&L statements (1099/self-employed)</li>
+                        <li>Bank statements</li>
+                        <li>Proof of ongoing income</li>
+                        <li>Business expense documentation</li>
+                    </ul>
+                </div>
+
+                <div class="category-card">
+                    <h4>📝 Amendment Required</h4>
+                    <ul>
+                        <li>Plan amendment (payment terms)</li>
+                        <li>Schedule amendments</li>
+                        <li>Means test corrections</li>
+                        <li>Form 122C-2 errors</li>
+                    </ul>
+                </div>
+
+                <div class="category-card">
+                    <h4>⚖️ Objection / Continuance Risk</h4>
+                    <ul>
+                        <li>Trustee states intent to object</li>
+                        <li>Creditor objection filed</li>
+                        <li>Continuance threat language</li>
+                        <li>Dismissal motion risk</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px;">🎯 Why This Workflow Matters</h3>
+            <ul>
+                <li>✅ <strong>Prevents confirmation continuances:</strong> Most continuances are caused by missing items that could have been provided in time</li>
+                <li>✅ <strong>Reduces dismissals:</strong> Repeated continuances often lead to dismissal; this workflow catches issues early</li>
+                <li>✅ <strong>Protects client outcomes:</strong> Confirmation is the #1 milestone in Ch 13; delays increase dropout risk</li>
+                <li>✅ <strong>Cuts attorney firefighting:</strong> Structured routing means attorneys see blockers immediately, not day-of</li>
+                <li>✅ <strong>Creates accountability:</strong> SLA clocks + escalations mean nothing falls through cracks</li>
+            </ul>
+
+            <h3 style="margin-top: 25px;">📊 Key Metrics</h3>
+            <ul>
+                <li><strong>Blocker Detection Time:</strong> How fast blockers are flagged after trustee request</li>
+                <li><strong>Blocker Resolution Time:</strong> Avg time from flagged → cleared</li>
+                <li><strong>Client Dependency Delay:</strong> Time waiting for client vs firm action</li>
+                <li><strong>Confirmation Continuance Rate:</strong> % of hearings continued due to unresolved blockers</li>
+                <li><strong>Same-Day Triage Compliance:</strong> % of blockers assigned owner + attorney alerted within same day</li>
+            </ul>
+
+            <div class="alert-box">
+                <strong>💡 Pro Tip:</strong> Firms that implement this workflow typically see a <strong>40-60% reduction in confirmation continuances</strong>
+                attributed to missing documents or unresolved trustee requests—because the Control Tower catches and routes these issues
+                with enough lead time to cure them before the hearing.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>

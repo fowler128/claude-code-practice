@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizDeedz Requests Control Tower - Intake Flowcharts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .tagline {
+            font-size: 1.3em;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .intro-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 40px;
+        }
+
+        .intro-card h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .intro-card p {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .highlight-box {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .highlight-box strong {
+            color: #2c3e50;
+        }
+
+        .flowchart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .flowchart-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .flowchart-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .flowchart-card .icon-section {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4em;
+            color: white;
+        }
+
+        .flowchart-card.architecture .icon-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .flowchart-card.detailed .icon-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .flowchart-card.blocker .icon-section {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .flowchart-card .content {
+            padding: 25px;
+        }
+
+        .flowchart-card h3 {
+            color: #2c3e50;
+            margin-bottom: 12px;
+            font-size: 1.5em;
+        }
+
+        .flowchart-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .flowchart-card .features {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+
+        .flowchart-card .features li {
+            color: #555;
+            padding: 5px 0;
+            font-size: 0.95em;
+        }
+
+        .flowchart-card .features li:before {
+            content: "✓ ";
+            color: #27ae60;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .flowchart-card .view-button {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s;
+            font-weight: 600;
+        }
+
+        .flowchart-card .view-button:hover {
+            background: #2980b9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .stat-card .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .label {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            padding: 20px;
+            opacity: 0.9;
+        }
+
+        footer a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .tagline {
+                font-size: 1.1em;
+            }
+
+            .flowchart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏢 BizDeedz Requests Control Tower™</h1>
+            <p class="tagline">Bankruptcy Intake Process Flowcharts</p>
+        </header>
+
+        <div class="intro-card">
+            <h2>📋 About This Project</h2>
+            <p>
+                The <strong>BizDeedz Requests Control Tower™</strong> is a comprehensive bankruptcy operations automation system
+                designed to capture, classify, route, and track inbound requests across <strong>four critical channels</strong>:
+            </p>
+            <ul style="list-style: none; padding: 20px; background: #f8f9fa; border-radius: 8px; margin: 15px 0;">
+                <li style="padding: 8px 0;">📨 <strong>Court/ECF Notices</strong> - Docket updates, hearings, deficiencies</li>
+                <li style="padding: 8px 0;">🏛️ <strong>US Trustee Requests</strong> - Compliance and administrative requirements</li>
+                <li style="padding: 8px 0;">👔 <strong>Trustee Requests</strong> - Document requests, questions, cure items</li>
+                <li style="padding: 8px 0;">💳 <strong>Creditor Communications</strong> - NOB requests, stop actions, claim inquiries</li>
+            </ul>
+
+            <div class="highlight-box">
+                <strong>💡 The Problem This Solves:</strong> High-volume consumer bankruptcy firms miss critical requests because
+                information is fragmented across PACER, email inboxes, voicemail, and portal messages. The Control Tower creates
+                <strong>one unified intake pipeline</strong> with SLA enforcement, automatic routing, escalations, and audit trails.
+            </div>
+
+            <p>
+                This system integrates with <strong>Jubilee</strong> (or <strong>Clio</strong>), <strong>MS Dynamics/Power Automate</strong>
+                (or <strong>Google Workspace</strong>), and <strong>PACER APIs</strong> to deliver:
+            </p>
+            <ul style="padding-left: 40px; margin: 15px 0; line-height: 1.8;">
+                <li>Real-time request capture and classification</li>
+                <li>Ch 7 vs Ch 13 workflow routing</li>
+                <li>Confirmation blocker detection and escalation (Ch 13)</li>
+                <li>Daily ops briefs posted to Teams/Chat</li>
+                <li>KPI dashboards for leadership visibility</li>
+                <li>Complete audit trail for compliance</li>
+            </ul>
+        </div>
+
+        <h2 style="text-align: center; color: white; margin-bottom: 30px; font-size: 2em;">📊 Explore the Flowcharts</h2>
+
+        <div class="flowchart-grid">
+            <div class="flowchart-card architecture" onclick="window.location.href='1-overview-architecture.html'">
+                <div class="icon-section">🏢</div>
+                <div class="content">
+                    <h3>Overview Architecture</h3>
+                    <p>High-level system design showing all 4 request streams, intake layers, processing engine, and outputs.</p>
+                    <ul class="features">
+                        <li>Multi-stream intake coordination</li>
+                        <li>Jubilee-first vs Clio-first routing</li>
+                        <li>Governance & visibility layers</li>
+                        <li>Business system integration</li>
+                    </ul>
+                    <a href="1-overview-architecture.html" class="view-button">View Architecture →</a>
+                </div>
+            </div>
+
+            <div class="flowchart-card detailed" onclick="window.location.href='2-detailed-request-flow.html'">
+                <div class="icon-section">🔄</div>
+                <div class="content">
+                    <h3>Detailed Request Flow</h3>
+                    <p>Step-by-step processing logic from intake through completion, including all decision points and SLA rules.</p>
+                    <ul class="features">
+                        <li>Case matching with confidence scoring</li>
+                        <li>Ch 7 / Ch 13 classification taxonomy</li>
+                        <li>Urgent vs standard SLA assignment</li>
+                        <li>Exception queue handling</li>
+                    </ul>
+                    <a href="2-detailed-request-flow.html" class="view-button">View Detailed Flow →</a>
+                </div>
+            </div>
+
+            <div class="flowchart-card blocker" onclick="window.location.href='3-ch13-confirmation-blocker.html'">
+                <div class="icon-section">⚠️</div>
+                <div class="content">
+                    <h3>Ch 13 Confirmation Blocker</h3>
+                    <p>High-priority workflow for confirmation-related issues with same-day triage and attorney routing.</p>
+                    <ul class="features">
+                        <li>8 blocker categories (feasibility, mortgage, tax, etc.)</li>
+                        <li>Same-day triage + attorney alerts</li>
+                        <li>Client dependency tracking</li>
+                        <li>Continuance prevention strategy</li>
+                    </ul>
+                    <a href="3-ch13-confirmation-blocker.html" class="view-button">View Blocker Flow →</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="intro-card">
+            <h2>📈 Expected Outcomes</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="number">40-60%</div>
+                    <div class="label">Reduction in Confirmation Continuances</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">25-40%</div>
+                    <div class="label">Faster Request Cycle Time</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">90%+</div>
+                    <div class="label">On-Time SLA Compliance</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">100%</div>
+                    <div class="label">Request Audit Trail Coverage</div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px; color: #2c3e50;">💼 Pricing Model</h3>
+            <p style="margin: 15px 0; line-height: 1.8;">
+                <strong>Implementation:</strong> $10,000 - $22,500 (one-time, includes setup + playbooks + governance)<br>
+                <strong>Monthly Service:</strong> $2,000 - $7,500/mo (tiered by volume: 150 / 400 / 900 requests/mo included)<br>
+                <strong>Overage:</strong> $3-5 per request beyond included volume<br>
+                <strong>Complexity Adders:</strong> +20-40% for Ch 13 confirmation blocker routing, +15-30% for distributed inboxes
+            </p>
+
+            <div class="highlight-box">
+                <strong>🎯 Value Proposition:</strong> This isn't just automation—it's <strong>operational risk containment</strong>.
+                Firms that implement the Control Tower see measurable reductions in missed requests, confirmation delays, dismissals,
+                and attorney interruptions, with complete audit trails for compliance.
+            </div>
+
+            <h3 style="margin-top: 30px; color: #2c3e50;">🔧 Technology Stack</h3>
+            <p style="margin: 15px 0; line-height: 1.8;">
+                <strong>Execution Systems:</strong> Jubilee Pro or Clio (firm's choice)<br>
+                <strong>Microsoft Stack:</strong> MS Dynamics (CRM), Power Automate, Teams, SharePoint<br>
+                <strong>Google Stack:</strong> Gmail, Drive, Calendar, Chat, Sheets/AppSheet<br>
+                <strong>Court Access:</strong> PACER Authentication + Case Locator APIs<br>
+                <strong>AI/Extraction:</strong> Document AI / Form Parser for PDF processing
+            </p>
+        </div>
+
+        <footer>
+            <p>
+                <strong>BizDeedz Requests Control Tower™</strong> | Bankruptcy Operations Automation<br>
+                Created: January 2026 | <a href="https://github.com/anthropics/claude-code" target="_blank">Powered by Claude Code</a>
+            </p>
+            <p style="margin-top: 15px; font-size: 0.9em;">
+                📧 For implementation inquiries or technical questions, contact your BizDeedz representative.
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Add smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

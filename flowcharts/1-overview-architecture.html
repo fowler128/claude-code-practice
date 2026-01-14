@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizDeedz Requests Control Tower - Overview Architecture</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .nav-links a {
+            margin: 0 10px;
+            padding: 8px 16px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .nav-links a:hover {
+            background: #2980b9;
+        }
+        .legend {
+            margin-top: 30px;
+            padding: 20px;
+            background: #ecf0f1;
+            border-radius: 8px;
+        }
+        .legend h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .legend-item {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+        }
+        .legend-box {
+            width: 40px;
+            height: 25px;
+            margin-right: 10px;
+            border-radius: 4px;
+            border: 2px solid #34495e;
+        }
+        .mermaid {
+            text-align: center;
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏢 BizDeedz Requests Control Tower™</h1>
+        <p class="subtitle">Overview Architecture - Multi-Stream Intake to Execution</p>
+
+        <div class="nav-links">
+            <a href="index.html">📋 Home</a>
+            <a href="2-detailed-request-flow.html">🔄 Detailed Flow</a>
+            <a href="3-ch13-confirmation-blocker.html">⚠️ Ch 13 Blockers</a>
+        </div>
+
+        <div class="mermaid">
+graph TB
+    subgraph "INBOUND REQUEST STREAMS"
+        A1[📨 Court/ECF Notices<br/>Docket, Hearings, Deficiencies]
+        A2[🏛️ US Trustee Requests<br/>Compliance, Admin]
+        A3[👔 Trustee Requests<br/>Docs, Questions, Cure Items]
+        A4[💳 Creditor Communications<br/>NOB, Stop Actions, Claims]
+    end
+
+    subgraph "INTAKE LAYER"
+        B1[📥 Shared Inbox<br/>courtnotices@firm.com]
+        B2[📧 Individual Inboxes<br/>+ Auto-forwarding Rules]
+        B3[📞 Phone/Mail/Fax<br/>Manual Entry Forms]
+    end
+
+    subgraph "CAPTURE + CLASSIFICATION ENGINE"
+        C1{🔍 Case Matching<br/>Case# / Debtor Name /<br/>Account Crosswalk}
+        C2[📊 Request Classification<br/>Category + Ch7/Ch13 Variant]
+        C3[⚠️ Confirmation Impact<br/>Blocker / Risk / FYI]
+        C4[🎯 Route Assignment<br/>Ops / Paralegal / Attorney]
+        C5[⏱️ SLA Clock Start<br/>Urgent vs Standard]
+    end
+
+    subgraph "SYSTEM ROUTING OPTIONS"
+        D1{System of Record?}
+        D2[📘 Jubilee-First<br/>BK execution hub]
+        D3[📗 Clio-First<br/>Firm management hub]
+    end
+
+    subgraph "EXECUTION LAYER"
+        E1[✅ Create Tasks<br/>Owner + Due Date]
+        E2[📅 Calendar Events<br/>Hearings, Deadlines]
+        E3[🔄 Status Updates<br/>Stage, Risk Flags]
+    end
+
+    subgraph "GOVERNANCE + VISIBILITY"
+        F1[💾 Evidence Vault<br/>Drive/SharePoint]
+        F2[💬 Ops Briefs<br/>Teams/Chat Channel]
+        F3[📊 Dashboard<br/>KPIs + SLA Tracking]
+        F4[🔔 Escalations<br/>Overdue + High Risk]
+    end
+
+    subgraph "BUSINESS SYSTEMS"
+        G1[🔷 MS Dynamics<br/>CRM Stage + Pipeline]
+        G2[📊 Sheets/AppSheet<br/>Case Tracker]
+    end
+
+    subgraph "OUTPUTS"
+        H1[📋 Daily Ops Brief<br/>What Changed + Next Actions]
+        H2[📈 Weekly Leadership Digest<br/>Risk + Throughput + Backlog]
+        H3[✅ Audit Trail<br/>Who, What, When, Closure Evidence]
+    end
+
+    %% Connections - Inbound to Intake
+    A1 --> B1
+    A2 --> B1
+    A3 --> B1
+    A3 --> B2
+    A4 --> B1
+    A4 --> B2
+    A4 --> B3
+
+    %% Intake to Processing
+    B1 --> C1
+    B2 --> C1
+    B3 --> C1
+
+    %% Processing Flow
+    C1 --> C2
+    C2 --> C3
+    C3 --> C4
+    C4 --> C5
+
+    %% System Routing
+    C5 --> D1
+    D1 -->|Jubilee Firms| D2
+    D1 -->|Clio Firms| D3
+
+    %% Execution
+    D2 --> E1
+    D3 --> E1
+    E1 --> E2
+    E1 --> E3
+
+    %% Governance
+    E1 --> F1
+    E2 --> F2
+    E3 --> F3
+    C5 --> F4
+
+    %% Business Systems
+    E3 --> G1
+    E3 --> G2
+
+    %% Final Outputs
+    F2 --> H1
+    F3 --> H2
+    F1 --> H3
+
+    %% Styling
+    classDef requestStream fill:#e74c3c,stroke:#c0392b,stroke-width:2px,color:#fff
+    classDef intake fill:#3498db,stroke:#2980b9,stroke-width:2px,color:#fff
+    classDef processing fill:#f39c12,stroke:#d68910,stroke-width:2px,color:#fff
+    classDef system fill:#9b59b6,stroke:#8e44ad,stroke-width:2px,color:#fff
+    classDef execution fill:#2ecc71,stroke:#27ae60,stroke-width:2px,color:#fff
+    classDef governance fill:#1abc9c,stroke:#16a085,stroke-width:2px,color:#fff
+    classDef business fill:#34495e,stroke:#2c3e50,stroke-width:2px,color:#fff
+    classDef output fill:#e67e22,stroke:#d35400,stroke-width:2px,color:#fff
+
+    class A1,A2,A3,A4 requestStream
+    class B1,B2,B3 intake
+    class C1,C2,C3,C4,C5 processing
+    class D1,D2,D3 system
+    class E1,E2,E3 execution
+    class F1,F2,F3,F4 governance
+    class G1,G2 business
+    class H1,H2,H3 output
+        </div>
+
+        <div class="legend">
+            <h3>📖 Architecture Components</h3>
+            <div class="legend-item">
+                <div class="legend-box" style="background:#e74c3c;"></div>
+                <strong>Request Streams:</strong> Court/ECF, US Trustee, Trustee, Creditor - all inbound channels
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background:#3498db;"></div>
+                <strong>Intake Layer:</strong> Shared/distributed mailboxes, phone logs, manual entry
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background:#f39c12;"></div>
+                <strong>Processing Engine:</strong> Case matching, classification, routing, SLA initiation
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background:#9b59b6;"></div>
+                <strong>System Routing:</strong> Jubilee-first vs Clio-first execution models
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background:#2ecc71;"></div>
+                <strong>Execution Layer:</strong> Tasks, calendar events, status updates
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background:#1abc9c;"></div>
+                <strong>Governance:</strong> Evidence vault, ops briefs, dashboards, escalations
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background:#e67e22;"></div>
+                <strong>Outputs:</strong> Daily briefs, leadership digests, audit trails
+            </div>
+
+            <h3 style="margin-top: 25px;">🎯 Key Design Principles</h3>
+            <ul>
+                <li><strong>One Stream, Multiple Sources:</strong> All request types flow through unified processing</li>
+                <li><strong>Dual System Support:</strong> Works with Jubilee-first OR Clio-first firms</li>
+                <li><strong>SLA-Driven:</strong> Every request gets a clock, escalation rules apply automatically</li>
+                <li><strong>Exception-Safe:</strong> Low-confidence matches route to human review queue</li>
+                <li><strong>Audit-Ready:</strong> Complete trail from intake → classification → execution → closure</li>
+            </ul>
+
+            <h3 style="margin-top: 25px;">💡 Value Proposition</h3>
+            <ul>
+                <li>✅ <strong>Prevents missed requests</strong> across 4 high-risk channels</li>
+                <li>✅ <strong>Reduces confirmation continuances</strong> via Ch 13 blocker flagging</li>
+                <li>✅ <strong>Cuts attorney interruptions</strong> with structured routing</li>
+                <li>✅ <strong>Creates measurable KPIs</strong> for cycle time and SLA compliance</li>
+                <li>✅ <strong>Maintains one authoritative brief</strong> per case in Teams/Chat</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>
