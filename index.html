@@ -413,7 +413,18 @@
     </style>
 </head>
 <body>
-    <!-- Navigation -->
+    
+    
+        .privacy-notice {
+          font-size: 0.85rem;
+          color: #666;
+          margin-bottom: 20px;
+        }
+    
+        .privacy-notice a {
+          color: #0066cc;
+          text-decoration: underline;
+        }<!-- Navigation -->
     <nav>
         <div class="nav-container">
             <div class="logo">BizDeedz</div>
@@ -569,6 +580,10 @@
                             placeholder="Tell us about your AI goals and challenges..."></textarea>
                     </div>
 
+                                    <p class="privacy-notice">
+                                                          <small>We'll use your email and company info to respond to your request. <a href="#privacy-policy">View our privacy policy</a>a></small>
+                                    </p>p></small>
+
                     <button type="submit" class="submit-button" id="submitBtn">
                         <span class="btn-text">Submit Request</span>
                     </button>
@@ -599,6 +614,14 @@
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
+
+                    // ============================================
+                    // Configuration: Set to true for demo mode (no API calls)
+                    // Set to false and configure PRODUCTION_ENDPOINT when ready for real backend
+                    // ============================================
+                    const DEMO_MODE = true;
+                    const PRODUCTION_ENDPOINT = 'YOUR_BACKEND_ENDPOINT'; // e.g., 'https://api.example.com/contact'
+                
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
                     target.scrollIntoView({
@@ -703,6 +726,7 @@
 
             try {
                 // DEMO MODE: Simulate API call
+                      if (DEMO_MODE) {
                 // In production, replace this with actual fetch() to your backend
                 console.log('📧 Form data (DEMO - not sent):', formData);
 
@@ -718,6 +742,9 @@
                 } else {
                     throw new Error('Submission failed');
                 }
+                      } else {
+                                  // Production: Use real backend API
+                          
 
                 /* PRODUCTION CODE (replace the simulation above with this):
                 const response = await fetch('YOUR_BACKEND_ENDPOINT', {
@@ -737,6 +764,7 @@
                 contactForm.reset();
                 */
 
+                      }
             } catch (error) {
                 console.error('Form submission error:', error);
                 showMessage('⚠ Unable to submit form. Please check your connection and try again, or email us directly.', 'error');
