@@ -58,6 +58,36 @@ This document serves as the central index for all Claude skills organized by pro
 
 ---
 
+### AI Readiness Audit Discovery
+**File**: [`skills/bizdeedz/ai_readiness_audit.md`](skills/bizdeedz/ai_readiness_audit.md)
+
+**Purpose**: Complete lead generation and qualification system through an interactive AI Readiness Audit form with automated scoring, tiering, and multi-platform integration.
+
+**Key Capabilities**:
+- Professional 5-step wizard form with progress tracking
+- Intelligent lead scoring (0-100) and automatic tiering (HIGH/MEDIUM/LOW)
+- Multi-platform integration (Google Sheets, Make.com, Zapier, CRM)
+- UTM tracking and spam protection
+- Automated email notifications and follow-up routing
+- Mobile-responsive design matching BizDeedz brand
+
+**When to Use**:
+- Generating qualified leads from website traffic
+- Automating lead capture and qualification
+- Building lead generation landing pages
+- Assessing prospect AI/automation readiness
+- Creating data-driven lead routing systems
+
+**Typical Input**: Website visitors completing audit form
+**Typical Output**: Scored and tiered leads with full data in CRM/spreadsheet, automated notifications
+
+**Components**:
+- `ai_readiness_audit_form.html` - Interactive wizard form
+- `lead_scoring_logic.js` - Scoring engine and validation
+- `ai_readiness_audit.md` - Complete setup and integration guide
+
+---
+
 ## Turea
 
 *Skills to be added as they are created.*
@@ -108,17 +138,23 @@ Each skill document should include:
 
 ### By Use Case
 
+**Lead Generation**:
+- AI Readiness Audit Discovery → Capture and qualify leads via interactive form
+
 **Lead Management**:
 - Lead Scoring Router → Score and route inbound leads
+- AI Readiness Audit Discovery → Automated lead scoring and tiering
 
 **Content Creation**:
 - LinkedIn Post Factory → Generate LinkedIn content packages
 
 **Sales Enablement**:
 - Lead Scoring Router → CRM notes and follow-up guidance
+- AI Readiness Audit Discovery → Intelligent lead routing and prioritization
 
 **Marketing Operations**:
 - LinkedIn Post Factory → Multi-channel content repurposing
+- AI Readiness Audit Discovery → Lead capture automation and CRM integration
 
 ---
 
@@ -172,6 +208,10 @@ Scoring priorities:
 ---
 
 ## Version History
+- **v1.1** (January 2026): Added AI Readiness Audit Discovery system
+  - Complete lead generation form with wizard interface
+  - Intelligent scoring and tiering engine
+  - Multi-platform integration guides
 - **v1.0** (January 2026): Initial skills index with BizDeedz skills
   - Lead Scoring Router
   - LinkedIn Post Factory

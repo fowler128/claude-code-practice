@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Readiness Audit - BizDeedz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #0ea5e9;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --background-light: #f9fafb;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: var(--white);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .form-card {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .progress-bar-container {
+            background: var(--background-light);
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .step-indicator {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .step-title {
+            font-size: 1rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .form-content {
+            padding: 40px 30px;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-intro {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--background-light);
+        }
+
+        .section-intro h2 {
+            font-size: 1.75rem;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .section-intro p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .required {
+            color: var(--error-color);
+            margin-left: 3px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="url"],
+        .form-group input[type="number"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+        }
+
+        .help-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        .radio-group,
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .radio-option,
+        .checkbox-option {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .radio-option:hover,
+        .checkbox-option:hover {
+            border-color: var(--primary-color);
+            background: rgba(37, 99, 235, 0.02);
+        }
+
+        .radio-option input[type="radio"],
+        .checkbox-option input[type="checkbox"] {
+            margin-right: 12px;
+            margin-top: 3px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .radio-option label,
+        .checkbox-option label {
+            cursor: pointer;
+            margin: 0;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .conditional-field {
+            display: none;
+            margin-top: 16px;
+            padding: 16px;
+            background: var(--background-light);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .conditional-field.visible {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 500px;
+            }
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.85rem;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .error-message.visible {
+            display: block;
+        }
+
+        .form-group.error input,
+        .form-group.error select,
+        .form-group.error textarea {
+            border-color: var(--error-color);
+        }
+
+        .form-navigation {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding-top: 30px;
+            border-top: 2px solid var(--background-light);
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:disabled {
+            background: var(--text-secondary);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--background-light);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        .btn-submit {
+            background: var(--success-color);
+        }
+
+        .btn-submit:hover {
+            background: #059669;
+        }
+
+        .consent-box {
+            background: var(--background-light);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 24px;
+        }
+
+        .consent-box .checkbox-option {
+            border: none;
+            padding: 0;
+        }
+
+        .consent-box label {
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        .consent-box a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .consent-box a:hover {
+            text-decoration: underline;
+        }
+
+        .honeypot {
+            position: absolute;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 60px 30px;
+        }
+
+        .success-message.visible {
+            display: block;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--success-color);
+            border-radius: 50%;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 3rem;
+        }
+
+        .success-message h2 {
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .success-message p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.75rem;
+            }
+
+            .header p {
+                font-size: 0.95rem;
+            }
+
+            .form-content {
+                padding: 30px 20px;
+            }
+
+            .progress-bar-container {
+                padding: 15px 20px;
+            }
+
+            .section-intro h2 {
+                font-size: 1.5rem;
+            }
+
+            .form-navigation {
+                flex-direction: column-reverse;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI Readiness Audit</h1>
+            <p>Discover your automation potential in 5 minutes</p>
+        </div>
+
+        <div class="form-card">
+            <div class="progress-bar-container">
+                <div class="progress-info">
+                    <span class="step-indicator">Step <span id="current-step">1</span> of 5</span>
+                    <span class="step-title" id="step-title">Business Overview</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" id="progress-fill" style="width: 20%"></div>
+                </div>
+            </div>
+
+            <form id="audit-form" class="form-content">
+                <!-- Honeypot field for spam protection -->
+                <input type="text" name="website" class="honeypot" tabindex="-1" autocomplete="off">
+
+                <!-- Section 1: Business Overview -->
+                <div class="form-section active" data-section="1">
+                    <div class="section-intro">
+                        <h2>Business Overview</h2>
+                        <p>Let's start with the basics about your company and role.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="company_name">Company Name <span class="required">*</span></label>
+                        <input type="text" id="company_name" name="company_name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="full_name">Your Full Name <span class="required">*</span></label>
+                        <input type="text" id="full_name" name="full_name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Business Email <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" required>
+                        <span class="help-text">We'll send your personalized audit report here</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="job_title">Your Job Title <span class="required">*</span></label>
+                        <input type="text" id="job_title" name="job_title" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="company_size">Company Size <span class="required">*</span></label>
+                        <select id="company_size" name="company_size" required>
+                            <option value="">Select company size...</option>
+                            <option value="1-10">1-10 employees</option>
+                            <option value="11-50">11-50 employees</option>
+                            <option value="51-200">51-200 employees</option>
+                            <option value="201-500">201-500 employees</option>
+                            <option value="500+">500+ employees</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="industry">Industry <span class="required">*</span></label>
+                        <select id="industry" name="industry" required>
+                            <option value="">Select industry...</option>
+                            <option value="saas">SaaS / Software</option>
+                            <option value="ecommerce">E-commerce / Retail</option>
+                            <option value="professional-services">Professional Services</option>
+                            <option value="marketing-agency">Marketing / Agency</option>
+                            <option value="manufacturing">Manufacturing</option>
+                            <option value="healthcare">Healthcare</option>
+                            <option value="finance">Finance / Insurance</option>
+                            <option value="real-estate">Real Estate</option>
+                            <option value="education">Education</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="website">Company Website</label>
+                        <input type="url" id="website_url" name="website_url" placeholder="https://example.com">
+                    </div>
+                </div>
+
+                <!-- Section 2: Current Operations -->
+                <div class="form-section" data-section="2">
+                    <div class="section-intro">
+                        <h2>Current Operations</h2>
+                        <p>Help us understand how your business operates today.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>What are your biggest operational challenges? <span class="required">*</span></label>
+                        <span class="help-text">Select all that apply</span>
+                        <div class="checkbox-group">
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="challenge_manual" name="challenges" value="manual-processes">
+                                <label for="challenge_manual">Too many manual, repetitive tasks</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="challenge_data" name="challenges" value="data-chaos">
+                                <label for="challenge_data">Data scattered across multiple systems</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="challenge_leads" name="challenges" value="lead-follow-up">
+                                <label for="challenge_leads">Leads falling through the cracks</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="challenge_reporting" name="challenges" value="reporting">
+                                <label for="challenge_reporting">Time-consuming reporting and analytics</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="challenge_team" name="challenges" value="team-capacity">
+                                <label for="challenge_team">Team capacity maxed out</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="challenge_customer" name="challenges" value="customer-service">
+                                <label for="challenge_customer">Slow customer response times</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="challenge_scaling" name="challenges" value="scaling">
+                                <label for="challenge_scaling">Can't scale without hiring more people</label>
+                            </div>
+                        </div>
+                        <span class="error-message" id="challenges-error">Please select at least one challenge</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tools_used">What tools/platforms does your team use daily? <span class="required">*</span></label>
+                        <span class="help-text">List your main tools (CRM, project management, email, etc.)</span>
+                        <textarea id="tools_used" name="tools_used" placeholder="Example: Salesforce, Slack, Google Workspace, Asana" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="data_quality">How would you describe your data quality? <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="data_clean" name="data_quality" value="clean" required>
+                                <label for="data_clean">
+                                    <strong>Clean & organized</strong> - Data is structured, up-to-date, in one place
+                                </label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="data_mixed" name="data_quality" value="mixed">
+                                <label for="data_mixed">
+                                    <strong>Mixed bag</strong> - Some data is good, some needs cleanup
+                                </label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="data_chaotic" name="data_quality" value="chaotic">
+                                <label for="data_chaotic">
+                                    <strong>Chaotic</strong> - Data is scattered, inconsistent, or outdated
+                                </label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="data_unsure" name="data_quality" value="unsure">
+                                <label for="data_unsure">
+                                    <strong>Not sure</strong> - Haven't really assessed our data situation
+                                </label>
+                            </div>
+                        </div>
+                        <span class="error-message" id="data-quality-error">Please select your data quality level</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="process_documentation">Are your processes documented? <span class="required">*</span></label>
+                        <select id="process_documentation" name="process_documentation" required>
+                            <option value="">Select...</option>
+                            <option value="fully">Yes, fully documented with SOPs</option>
+                            <option value="partially">Partially documented</option>
+                            <option value="tribal">Mostly tribal knowledge</option>
+                            <option value="none">No documentation</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hours_wasted">How many hours per week does your team spend on repetitive tasks? <span class="required">*</span></label>
+                        <select id="hours_wasted" name="hours_wasted" required>
+                            <option value="">Select...</option>
+                            <option value="0-5">0-5 hours</option>
+                            <option value="5-10">5-10 hours</option>
+                            <option value="10-20">10-20 hours</option>
+                            <option value="20-40">20-40 hours</option>
+                            <option value="40+">40+ hours</option>
+                        </select>
+                        <span class="help-text">Include tasks like data entry, copy-paste, manual reporting, etc.</span>
+                    </div>
+                </div>
+
+                <!-- Section 3: AI & Automation Experience -->
+                <div class="form-section" data-section="3">
+                    <div class="section-intro">
+                        <h2>AI & Automation Experience</h2>
+                        <p>Tell us about your current experience with AI and automation.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ai_experience">What's your experience level with AI/automation? <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="ai_none" name="ai_experience" value="none" required>
+                                <label for="ai_none">
+                                    <strong>Just exploring</strong> - New to AI and automation
+                                </label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="ai_basic" name="ai_experience" value="basic">
+                                <label for="ai_basic">
+                                    <strong>Basic</strong> - Used ChatGPT or simple automation tools
+                                </label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="ai_moderate" name="ai_experience" value="moderate">
+                                <label for="ai_moderate">
+                                    <strong>Moderate</strong> - Have some automations running (Zapier, Make, etc.)
+                                </label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="ai_advanced" name="ai_experience" value="advanced">
+                                <label for="ai_advanced">
+                                    <strong>Advanced</strong> - Actively using AI/automation across multiple processes
+                                </label>
+                            </div>
+                        </div>
+                        <span class="error-message" id="ai-experience-error">Please select your experience level</span>
+                    </div>
+
+                    <div class="form-group conditional-field" id="ai-tools-field">
+                        <label for="ai_tools_current">What AI/automation tools are you currently using?</label>
+                        <textarea id="ai_tools_current" name="ai_tools_current" placeholder="Example: ChatGPT for content, Zapier for lead routing, HubSpot workflows"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>What would you like to automate? <span class="required">*</span></label>
+                        <span class="help-text">Select your top priorities</span>
+                        <div class="checkbox-group">
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="automate_leads" name="automation_goals" value="lead-management">
+                                <label for="automate_leads">Lead capture, scoring, and routing</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="automate_followup" name="automation_goals" value="follow-up">
+                                <label for="automate_followup">Automated follow-up sequences</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="automate_content" name="automation_goals" value="content">
+                                <label for="automate_content">Content creation and repurposing</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="automate_reporting" name="automation_goals" value="reporting">
+                                <label for="automate_reporting">Reporting and analytics</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="automate_customer" name="automation_goals" value="customer-support">
+                                <label for="automate_customer">Customer support and inquiries</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="automate_data" name="automation_goals" value="data-entry">
+                                <label for="automate_data">Data entry and management</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="automate_scheduling" name="automation_goals" value="scheduling">
+                                <label for="automate_scheduling">Scheduling and calendar management</label>
+                            </div>
+                        </div>
+                        <span class="error-message" id="automation-goals-error">Please select at least one automation goal</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="biggest_bottleneck">What's your single biggest bottleneck right now? <span class="required">*</span></label>
+                        <textarea id="biggest_bottleneck" name="biggest_bottleneck" placeholder="Describe the one thing that, if automated, would have the biggest impact" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ai_concerns">Do you have any concerns about implementing AI/automation?</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="concern_cost" name="ai_concerns" value="cost">
+                                <label for="concern_cost">Cost and ROI uncertainty</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="concern_complexity" name="ai_concerns" value="complexity">
+                                <label for="concern_complexity">Too complex or technical</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="concern_security" name="ai_concerns" value="security">
+                                <label for="concern_security">Data security and privacy</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="concern_team" name="ai_concerns" value="team-adoption">
+                                <label for="concern_team">Team adoption and training</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="concern_quality" name="ai_concerns" value="quality">
+                                <label for="concern_quality">Quality and accuracy of AI outputs</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="concern_none" name="ai_concerns" value="none">
+                                <label for="concern_none">No major concerns</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Implementation Timeline & Budget -->
+                <div class="form-section" data-section="4">
+                    <div class="section-intro">
+                        <h2>Implementation Timeline & Budget</h2>
+                        <p>Help us understand your timeline and investment capacity.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="timeline">When are you looking to implement AI/automation solutions? <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="timeline_asap" name="timeline" value="asap" required>
+                                <label for="timeline_asap">
+                                    <strong>ASAP</strong> - Need to implement within 1-2 weeks
+                                </label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="timeline_month" name="timeline" value="1-month">
+                                <label for="timeline_month">
+                                    <strong>Within 1 month</strong> - Ready to start soon
+                                </label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="timeline_quarter" name="timeline" value="1-3-months">
+                                <label for="timeline_quarter">
+                                    <strong>1-3 months</strong> - Planning phase
+                                </label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="timeline_exploring" name="timeline" value="exploring">
+                                <label for="timeline_exploring">
+                                    <strong>Just exploring</strong> - No specific timeline yet
+                                </label>
+                            </div>
+                        </div>
+                        <span class="error-message" id="timeline-error">Please select your timeline</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="decision_maker">Are you the primary decision maker for this initiative? <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="decision_yes" name="decision_maker" value="yes" required>
+                                <label for="decision_yes">Yes, I can make the final decision</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="decision_influence" name="decision_maker" value="influence">
+                                <label for="decision_influence">I have significant influence on the decision</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="decision_team" name="decision_maker" value="team-decision">
+                                <label for="decision_team">Team decision with multiple stakeholders</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="decision_recommend" name="decision_maker" value="recommend">
+                                <label for="decision_recommend">I can recommend but someone else decides</label>
+                            </div>
+                        </div>
+                        <span class="error-message" id="decision-maker-error">Please select your decision authority</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="budget_allocated">Do you have a budget allocated for this project? <span class="required">*</span></label>
+                        <select id="budget_allocated" name="budget_allocated" required>
+                            <option value="">Select...</option>
+                            <option value="yes-approved">Yes, budget is approved</option>
+                            <option value="yes-need-approval">Yes, but needs approval</option>
+                            <option value="need-to-create">Need to create a budget case</option>
+                            <option value="unsure">Not sure yet</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="budget_range">What's your estimated budget range for AI/automation implementation? <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="budget_low" name="budget_range" value="under-1000" required>
+                                <label for="budget_low">Under $1,000</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="budget_mid1" name="budget_range" value="1000-2500">
+                                <label for="budget_mid1">$1,000 - $2,500</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="budget_mid2" name="budget_range" value="2500-5000">
+                                <label for="budget_mid2">$2,500 - $5,000</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="budget_mid3" name="budget_range" value="5000-10000">
+                                <label for="budget_mid3">$5,000 - $10,000</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="budget_high" name="budget_range" value="10000+">
+                                <label for="budget_high">$10,000+</label>
+                            </div>
+                        </div>
+                        <span class="error-message" id="budget-range-error">Please select your budget range</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="roi_timeframe">What ROI timeframe are you expecting? <span class="required">*</span></label>
+                        <select id="roi_timeframe" name="roi_timeframe" required>
+                            <option value="">Select...</option>
+                            <option value="immediate">Immediate impact (0-3 months)</option>
+                            <option value="short-term">Short-term (3-6 months)</option>
+                            <option value="medium-term">Medium-term (6-12 months)</option>
+                            <option value="long-term">Long-term (12+ months)</option>
+                            <option value="unsure">Not sure / need guidance</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="success_metric">How will you measure success? <span class="required">*</span></label>
+                        <textarea id="success_metric" name="success_metric" placeholder="Example: 50% reduction in manual tasks, 30% faster lead response time, $50K in labor savings" required></textarea>
+                    </div>
+                </div>
+
+                <!-- Section 5: Additional Information -->
+                <div class="form-section" data-section="5">
+                    <div class="section-intro">
+                        <h2>Final Questions</h2>
+                        <p>Just a few more details to complete your audit.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hear_about">How did you hear about BizDeedz?</label>
+                        <select id="hear_about" name="hear_about">
+                            <option value="">Select...</option>
+                            <option value="linkedin">LinkedIn</option>
+                            <option value="google">Google Search</option>
+                            <option value="referral">Referral from colleague/friend</option>
+                            <option value="social-media">Social media (other than LinkedIn)</option>
+                            <option value="podcast">Podcast</option>
+                            <option value="email">Email / Newsletter</option>
+                            <option value="event">Event or conference</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="additional_context">Anything else we should know?</label>
+                        <textarea id="additional_context" name="additional_context" placeholder="Share any additional context, specific requirements, or questions you have"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="preferred_contact">Preferred contact method <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="contact_email" name="preferred_contact" value="email" required checked>
+                                <label for="contact_email">Email</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="contact_phone" name="preferred_contact" value="phone">
+                                <label for="contact_phone">Phone call</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="contact_video" name="preferred_contact" value="video">
+                                <label for="contact_video">Video call (Zoom/Meet)</label>
+                            </div>
+                        </div>
+                        <span class="error-message" id="preferred-contact-error">Please select a contact method</span>
+                    </div>
+
+                    <div class="form-group conditional-field" id="phone-field">
+                        <label for="phone">Phone Number</label>
+                        <input type="text" id="phone" name="phone" placeholder="+1 (555) 123-4567">
+                    </div>
+
+                    <div class="consent-box">
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="consent" name="consent" required>
+                            <label for="consent">
+                                I agree to receive my personalized AI Readiness Audit report and occasional emails from BizDeedz about AI and automation strategies. I can unsubscribe anytime. View our <a href="#" target="_blank">Privacy Policy</a>.
+                            </label>
+                        </div>
+                        <span class="error-message" id="consent-error">Please agree to continue</span>
+                    </div>
+                </div>
+
+                <!-- Form Navigation -->
+                <div class="form-navigation">
+                    <button type="button" class="btn btn-secondary" id="prev-btn" style="display: none;">
+                        ← Previous
+                    </button>
+                    <button type="button" class="btn btn-primary" id="next-btn">
+                        Next →
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-submit" id="submit-btn" style="display: none;">
+                        Submit Audit
+                    </button>
+                </div>
+            </form>
+
+            <!-- Success Message -->
+            <div class="success-message" id="success-message">
+                <div class="success-icon">✓</div>
+                <h2>Thank You!</h2>
+                <p>Your AI Readiness Audit has been submitted successfully.</p>
+                <p style="margin-top: 16px;">We'll analyze your responses and send your personalized report within 24 hours.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="lead_scoring_logic.js"></script>
+</body>
+</html>
