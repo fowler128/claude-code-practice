@@ -2,9 +2,17 @@
 
 A modern iOS application for legal professionals to track court filings and document submissions across Texas counties.
 
-## Overview
+## Quick Start (macOS)
 
-BizDeedz Filing Tracker is built using the **EDGE** (Efficiency, Data, Governance, Execution) methodology and **FLOW** (Function, Logic, Optimization, Witness) framework to provide paralegals and law firms with a streamlined document tracking solution.
+```bash
+cd BizDeedz
+./setup.sh
+```
+
+This will:
+1. Install XcodeGen (if needed)
+2. Generate the Xcode project
+3. Open the project in Xcode
 
 ## Features
 
@@ -14,13 +22,14 @@ BizDeedz Filing Tracker is built using the **EDGE** (Efficiency, Data, Governanc
 - **Audit Trail**: Complete status history logging for compliance (FLOW Witness)
 - **2026 Texas Court Rules**: Built-in compliance with latest court requirements
 - **Holiday Detection**: Automatic detection of Texas court holidays that may affect filings
+- **EDGE Governance Score**: Visual metric showing filing success rate
 
 ## Tech Stack
 
 - **UI**: SwiftUI (iOS 17.0+)
 - **Backend**: Firebase Firestore
 - **Authentication**: Firebase Auth
-- **Payments**: Superwall integration ready
+- **Project Generation**: XcodeGen
 
 ## Project Structure
 
@@ -41,23 +50,75 @@ BizDeedz/
 │   │   └── FirebaseService.swift      # Firebase integration
 │   └── Firebase/
 │       └── firestore.rules            # Security rules
+├── Resources/
+│   ├── Info.plist                     # App configuration
+│   └── Assets.xcassets/               # App icons & colors
+├── Tests/
+│   └── FilingModelTests.swift         # Unit tests
+├── project.yml                        # XcodeGen configuration
+├── setup.sh                           # One-command setup script
 └── README.md
 ```
 
-## Setup Instructions
+## Manual Setup (Alternative)
 
-1. Clone the repository
-2. Open in Xcode 15.0+
-3. Add Firebase SDK via Swift Package Manager
-4. Add your `GoogleService-Info.plist`
-5. Deploy Firestore rules: `firebase deploy --only firestore:rules`
-6. Build and run
+If you prefer not to use the setup script:
 
-## Pricing
+1. Install XcodeGen:
+   ```bash
+   brew install xcodegen
+   ```
 
-- **Solo Paralegal**: $29/month
-- **Law Firm**: $199/month
-- **Enterprise**: Custom pricing
+2. Generate Xcode project:
+   ```bash
+   cd BizDeedz
+   xcodegen generate
+   ```
+
+3. Open the project:
+   ```bash
+   open BizDeedz.xcodeproj
+   ```
+
+## Firebase Setup (Required)
+
+1. Go to [Firebase Console](https://console.firebase.google.com)
+2. Create a new project named "BizDeedz"
+3. Add an iOS app with bundle ID: `com.bizdeedz.filingtracker`
+4. Download `GoogleService-Info.plist`
+5. Drag it into Xcode (Resources folder)
+6. Deploy Firestore rules:
+   ```bash
+   firebase deploy --only firestore:rules
+   ```
+
+## Building & Running
+
+1. In Xcode, select your Team in Signing & Capabilities
+2. Select iPhone 15 Pro simulator
+3. Press `Cmd + R` to build and run
+
+## Running Tests
+
+```bash
+xcodebuild test -scheme BizDeedz -destination 'platform=iOS Simulator,name=iPhone 15 Pro'
+```
+
+## Pricing Tiers
+
+| Tier | Price | Features |
+|------|-------|----------|
+| Trial | Free (7 days) | Full access |
+| Solo Paralegal | $29/mo | Single user |
+| Law Firm | $199/mo | Up to 10 users |
+| Enterprise | Custom | Unlimited users |
+
+## Requirements
+
+- macOS 13.0+
+- Xcode 15.0+
+- iOS 17.0+ deployment target
+- Firebase account
 
 ## License
 
