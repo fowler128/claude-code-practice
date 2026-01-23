@@ -1,0 +1,119 @@
+rules_version = '2';
+
+// BizDeedz Firestore Security Rules
+// Implements EDGE Governance: Data Privacy & Access Control
+// Last Updated: January 2026
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if user owns the resource
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Check if the request data has the correct userId
+    function hasValidUserId() {
+      return request.resource.data.userId == request.auth.uid;
+    }
+
+    // Check if resource exists and user owns it
+    function ownsExistingResource() {
+      return isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // ============================================
+    // USER PROFILES
+    // Only the owner can read/write their profile
+    // ============================================
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
+    }
+
+    // ============================================
+    // FILINGS COLLECTION
+    // Users can only access their own filings
+    // ============================================
+    match /filings/{filingId} {
+      // Read: Only if user owns the filing
+      allow read: if ownsExistingResource();
+
+      // Create: Only if userId in document matches auth uid
+      allow create: if isAuthenticated() && hasValidUserId();
+
+      // Update: Only if user owns the existing document
+      // AND they're not trying to change the userId
+      allow update: if ownsExistingResource()
+        && request.resource.data.userId == resource.data.userId;
+
+      // Delete: Only if user owns the filing
+      allow delete: if ownsExistingResource();
+
+      // ============================================
+      // STATUS HISTORY SUBCOLLECTION
+      // Inherits access from parent filing document
+      // ============================================
+      match /statusHistory/{historyId} {
+        // Read: Only if user owns the parent filing
+        allow read: if isAuthenticated()
+          && get(/databases/$(database)/documents/filings/$(filingId)).data.userId == request.auth.uid;
+
+        // Write: Only if user owns the parent filing
+        allow write: if isAuthenticated()
+          && get(/databases/$(database)/documents/filings/$(filingId)).data.userId == request.auth.uid;
+      }
+    }
+
+    // ============================================
+    // AUDIT LOGS COLLECTION
+    // Write-only for users (for compliance logging)
+    // Read access restricted to admins
+    // ============================================
+    match /auditLogs/{logId} {
+      // Users can create audit log entries for their actions
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid;
+
+      // Users cannot read or modify audit logs (immutable)
+      allow read, update, delete: if false;
+    }
+
+    // ============================================
+    // TEXAS COURT HOLIDAYS (Public Read)
+    // Reference data for 2026 court holidays
+    // ============================================
+    match /courtHolidays/{year} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Admin only via console
+    }
+
+    // ============================================
+    // SUBSCRIPTION DATA
+    // Linked to user profiles, managed by Superwall/Stripe
+    // ============================================
+    match /subscriptions/{userId} {
+      allow read: if isOwner(userId);
+      // Write operations handled by backend/webhooks
+      allow write: if false;
+    }
+
+    // ============================================
+    // DEFAULT: Deny all other access
+    // ============================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
