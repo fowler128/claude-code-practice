@@ -103,7 +103,7 @@
 
         .form-row-3 {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 10px;
         }
 
@@ -241,6 +241,18 @@
             color: #2c5282;
         }
 
+        .info-box.warning {
+            background: #fffaf0;
+            border-color: #fbd38d;
+            color: #744210;
+        }
+
+        .info-box.conduit {
+            background: #f0fff4;
+            border-color: #9ae6b4;
+            color: #22543d;
+        }
+
         .info-box strong {
             display: block;
             margin-bottom: 5px;
@@ -251,6 +263,15 @@
             padding: 15px;
             border-radius: 8px;
             border-left: 4px solid #805ad5;
+            margin-bottom: 15px;
+        }
+
+        .till-rate-section {
+            background: #fffaf0;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #dd6b20;
+            margin-bottom: 15px;
         }
 
         @media (max-width: 768px) {
@@ -290,6 +311,37 @@
         .amortization-table th:first-child {
             text-align: left;
         }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: auto;
+        }
+
+        .sub-section {
+            background: #edf2f7;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .legal-note {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 0.85rem;
+        }
+
+        .legal-note a {
+            color: #63b3ed;
+        }
     </style>
 </head>
 <body>
@@ -303,6 +355,12 @@
             <!-- Plan Details -->
             <div class="card">
                 <h2>Plan Details</h2>
+
+                <div class="info-box conduit">
+                    <strong>SD Texas Conduit Requirement</strong>
+                    Per Local Rule 3015-1, home mortgage payments are made through the Chapter 13 trustee (conduit treatment). The trustee fee applies to all payments including conduit mortgage payments.
+                </div>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label for="planMonths">Plan Length (Months)</label>
@@ -315,6 +373,26 @@
                     <div class="form-group">
                         <label for="trusteeFee">Trustee Fee (%)</label>
                         <input type="number" id="trusteeFee" value="10" step="0.1" min="0" max="15">
+                    </div>
+                </div>
+
+                <div class="till-rate-section">
+                    <div class="form-group">
+                        <label for="primeRate">Current Prime Rate (%)</label>
+                        <input type="number" id="primeRate" value="6.75" step="0.25" min="0" max="20">
+                        <small style="color: #718096; display: block; margin-top: 5px;">
+                            As of January 2026. Used for Till rate calculation.
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label for="riskAdjustment">Risk Adjustment (%)</label>
+                        <input type="number" id="riskAdjustment" value="1.5" step="0.25" min="0" max="5">
+                        <small style="color: #718096; display: block; margin-top: 5px;">
+                            Typically 1-3% per Till v. SCS Credit Corp.
+                        </small>
+                    </div>
+                    <div class="form-group" style="margin-top: 10px;">
+                        <strong style="color: #744210;">Till Rate: <span id="tillRateDisplay">8.25%</span></strong>
                     </div>
                 </div>
 
@@ -333,8 +411,15 @@
             <div class="card">
                 <h2>Secured Creditors</h2>
                 <div class="info-box">
-                    <strong>Long-term Debt Treatment</strong>
-                    Mortgage payments made directly outside the plan. Only arrears are paid through the plan with interest.
+                    <strong>Conduit Mortgage Treatment (SD Texas)</strong>
+                    Ongoing mortgage payments go THROUGH the trustee. Both arrears and current payments are included in the plan payment. Trustee fee (10%) applies to conduit payments.
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="useTillRate" checked onchange="updateTillRateDisplay()">
+                        <span>Use Till Rate for arrears interest (recommended)</span>
+                    </label>
                 </div>
 
                 <div id="securedCreditors">
@@ -349,7 +434,7 @@
                 <h2>Priority Creditors</h2>
                 <div class="info-box">
                     <strong>Priority Claims</strong>
-                    Must be paid in full (100%). No interest accrues on priority claims.
+                    Must be paid in full (100%). No interest accrues on priority claims. Common priority claims include IRS taxes, state taxes (TWC), and domestic support obligations.
                 </div>
 
                 <div id="priorityCreditors">
@@ -364,7 +449,7 @@
                 <h2>Unsecured Creditors</h2>
                 <div class="info-box">
                     <strong>Unsecured Claims</strong>
-                    Paid based on disposable income. May receive 0-100% of claims.
+                    Paid based on disposable income. May receive 0-100% of claims. No interest.
                 </div>
 
                 <div class="form-group">
@@ -385,7 +470,12 @@
                 <h2>Plan Payment Summary</h2>
 
                 <div class="breakdown-section">
-                    <h3>Secured Claims (Through Plan)</h3>
+                    <h3>Conduit Mortgage Payments (Through Trustee)</h3>
+                    <div id="conduitBreakdown"></div>
+                </div>
+
+                <div class="breakdown-section">
+                    <h3>Secured Claims - Arrears (Through Plan)</h3>
                     <div id="securedBreakdown"></div>
                 </div>
 
@@ -410,12 +500,12 @@
                 </div>
 
                 <div class="result-item">
-                    <span class="label">Total Plan Cost</span>
+                    <span class="label">Total Plan Cost (60 months)</span>
                     <span class="value" id="totalPlanCost">$0.00</span>
                 </div>
 
                 <div class="result-item monthly-payment">
-                    <span class="label">Monthly Payment</span>
+                    <span class="label">Monthly Plan Payment</span>
                     <span class="value" id="monthlyPayment">$0.00</span>
                 </div>
             </div>
@@ -424,13 +514,13 @@
                 <h2>Payment Breakdown Details</h2>
 
                 <div class="breakdown-section">
-                    <h3>Monthly Distribution</h3>
+                    <h3>Monthly Distribution (Before Trustee Fee)</h3>
                     <table class="amortization-table">
                         <thead>
                             <tr>
                                 <th>Category</th>
                                 <th>Monthly</th>
-                                <th>Total</th>
+                                <th>Total (60 mo)</th>
                             </tr>
                         </thead>
                         <tbody id="monthlyBreakdown">
@@ -439,13 +529,15 @@
                 </div>
 
                 <div class="breakdown-section">
-                    <h3>Outside Plan Payments</h3>
-                    <div id="outsidePlanPayments"></div>
+                    <h3>Interest Rate Used</h3>
+                    <div id="interestRateInfo"></div>
                 </div>
 
-                <div class="result-item" style="margin-top: 20px;">
-                    <span class="label">Total Monthly Obligation</span>
-                    <span class="value" id="totalMonthlyObligation">$0.00</span>
+                <div class="legal-note">
+                    <strong>Legal References:</strong><br>
+                    <a href="https://www.txs.uscourts.gov/page/bankruptcy-local-rules" target="_blank">SD Texas Local Bankruptcy Rules</a> |
+                    <a href="https://www.law.cornell.edu/supct/html/02-1016.ZS.html" target="_blank">Till v. SCS Credit Corp.</a><br><br>
+                    <strong>Note:</strong> This calculator is for estimation purposes only. Consult with a bankruptcy attorney for actual plan calculations. Trustee fees and interest rates may vary.
                 </div>
             </div>
         </div>
@@ -457,28 +549,34 @@
         let priorityCreditors = [];
         let creditorIdCounter = 0;
 
+        // Update Till rate display
+        function updateTillRateDisplay() {
+            const primeRate = parseFloat(document.getElementById('primeRate').value) || 0;
+            const riskAdjustment = parseFloat(document.getElementById('riskAdjustment').value) || 0;
+            const tillRate = primeRate + riskAdjustment;
+            document.getElementById('tillRateDisplay').textContent = tillRate.toFixed(2) + '%';
+        }
+
         // Initialize with sample data
         function initializeData() {
-            // ABC Mortgage with arrears
+            // ABC Mortgage with arrears - CONDUIT treatment
             addSecuredCreditor({
                 name: 'ABC Mortgage',
                 arrearsAmount: 125000,
                 arrearsRate: 7.25,
-                hasLongTermDebt: true,
-                longTermPayment: 2100,
-                principalBalance: 190000,
-                principalRate: 7.25
+                isConduit: true,
+                conduitPayment: 2100,
+                principalBalance: 190000
             });
 
-            // HOA Dues
+            // HOA Dues - paid through plan
             addSecuredCreditor({
                 name: 'HOA Dues',
                 arrearsAmount: 20000,
                 arrearsRate: 8.25,
-                hasLongTermDebt: false,
-                longTermPayment: 0,
-                principalBalance: 0,
-                principalRate: 0
+                isConduit: false,
+                conduitPayment: 0,
+                principalBalance: 0
             });
 
             // Priority Creditors
@@ -491,6 +589,13 @@
                 name: 'IRS',
                 amount: 5000
             });
+
+            // Update Till rate display
+            updateTillRateDisplay();
+
+            // Add event listeners for Till rate inputs
+            document.getElementById('primeRate').addEventListener('input', updateTillRateDisplay);
+            document.getElementById('riskAdjustment').addEventListener('input', updateTillRateDisplay);
         }
 
         // Add secured creditor
@@ -499,11 +604,10 @@
             const defaultData = {
                 name: '',
                 arrearsAmount: 0,
-                arrearsRate: 7.25,
-                hasLongTermDebt: false,
-                longTermPayment: 0,
-                principalBalance: 0,
-                principalRate: 0
+                arrearsRate: 8.25,
+                isConduit: false,
+                conduitPayment: 0,
+                principalBalance: 0
             };
 
             const creditor = data || defaultData;
@@ -521,29 +625,33 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Arrears Amount ($)</label>
+                            <label>Pre-Petition Arrears ($)</label>
                             <input type="number" value="${creditor.arrearsAmount}" step="100" onchange="updateSecuredCreditor(${id}, 'arrearsAmount', parseFloat(this.value))">
                         </div>
                         <div class="form-group">
-                            <label>Interest Rate (%)</label>
+                            <label>Contract Interest Rate (%)</label>
                             <input type="number" value="${creditor.arrearsRate}" step="0.125" onchange="updateSecuredCreditor(${id}, 'arrearsRate', parseFloat(this.value))">
+                            <small style="color: #718096;">Used if Till rate not selected</small>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" ${creditor.hasLongTermDebt ? 'checked' : ''} onchange="toggleLongTermDebt(${id}, this.checked)">
-                            Has Long-Term Debt (paid outside plan)
-                        </label>
-                    </div>
-                    <div id="longterm-${id}" class="${creditor.hasLongTermDebt ? '' : 'hidden'}">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Monthly Payment ($)</label>
-                                <input type="number" value="${creditor.longTermPayment}" step="10" onchange="updateSecuredCreditor(${id}, 'longTermPayment', parseFloat(this.value))">
-                            </div>
-                            <div class="form-group">
-                                <label>Principal Balance ($)</label>
-                                <input type="number" value="${creditor.principalBalance}" step="1000" onchange="updateSecuredCreditor(${id}, 'principalBalance', parseFloat(this.value))">
+                    <div class="sub-section">
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" ${creditor.isConduit ? 'checked' : ''} onchange="toggleConduit(${id}, this.checked)">
+                                <span>Conduit Payment (ongoing mortgage through trustee)</span>
+                            </label>
+                        </div>
+                        <div id="conduit-${id}" class="${creditor.isConduit ? '' : 'hidden'}">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Monthly Conduit Payment ($)</label>
+                                    <input type="number" value="${creditor.conduitPayment}" step="10" onchange="updateSecuredCreditor(${id}, 'conduitPayment', parseFloat(this.value))">
+                                    <small style="color: #718096;">Current monthly mortgage payment</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Principal Balance ($)</label>
+                                    <input type="number" value="${creditor.principalBalance}" step="1000" onchange="updateSecuredCreditor(${id}, 'principalBalance', parseFloat(this.value))">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -559,14 +667,14 @@
             }
         }
 
-        function toggleLongTermDebt(id, checked) {
+        function toggleConduit(id, checked) {
             const creditor = securedCreditors.find(c => c.id === id);
             if (creditor) {
-                creditor.hasLongTermDebt = checked;
+                creditor.isConduit = checked;
             }
-            const longTermDiv = document.getElementById(`longterm-${id}`);
-            if (longTermDiv) {
-                longTermDiv.classList.toggle('hidden', !checked);
+            const conduitDiv = document.getElementById(`conduit-${id}`);
+            if (conduitDiv) {
+                conduitDiv.classList.toggle('hidden', !checked);
             }
         }
 
@@ -659,21 +767,28 @@
             const trusteeFeePercent = parseFloat(document.getElementById('trusteeFee').value);
             const unsecuredPercent = parseFloat(document.getElementById('unsecuredPercent').value);
             const totalUnsecured = parseFloat(document.getElementById('totalUnsecured').value) || 0;
+            const useTillRate = document.getElementById('useTillRate').checked;
+            const primeRate = parseFloat(document.getElementById('primeRate').value) || 0;
+            const riskAdjustment = parseFloat(document.getElementById('riskAdjustment').value) || 0;
+            const tillRate = primeRate + riskAdjustment;
 
             // Calculate secured claims
-            let securedTotal = 0;
+            let securedArrearsTotal = 0;
             let securedBreakdownHtml = '';
             let securedMonthlyTotal = 0;
-            let outsidePlanTotal = 0;
-            let outsidePlanHtml = '';
+            let conduitMonthlyTotal = 0;
+            let conduitBreakdownHtml = '';
+            let interestRateUsed = useTillRate ? tillRate : null;
 
             securedCreditors.forEach(creditor => {
+                // Calculate arrears with interest
                 if (creditor.arrearsAmount > 0) {
-                    const arrearsTotal = calculateAmortizedTotal(creditor.arrearsAmount, creditor.arrearsRate, planMonths);
-                    const arrearsMonthly = calculateMonthlyPayment(creditor.arrearsAmount, creditor.arrearsRate, planMonths);
+                    const rateToUse = useTillRate ? tillRate : creditor.arrearsRate;
+                    const arrearsTotal = calculateAmortizedTotal(creditor.arrearsAmount, rateToUse, planMonths);
+                    const arrearsMonthly = calculateMonthlyPayment(creditor.arrearsAmount, rateToUse, planMonths);
                     const interestPaid = arrearsTotal - creditor.arrearsAmount;
 
-                    securedTotal += arrearsTotal;
+                    securedArrearsTotal += arrearsTotal;
                     securedMonthlyTotal += arrearsMonthly;
 
                     securedBreakdownHtml += `
@@ -682,18 +797,24 @@
                             <span class="value">${formatCurrency(arrearsTotal)}</span>
                         </div>
                         <div class="result-item" style="font-size: 0.85rem; padding: 5px 0;">
-                            <span class="label" style="padding-left: 15px;">Principal: ${formatCurrency(creditor.arrearsAmount)} | Interest: ${formatCurrency(interestPaid)} @ ${creditor.arrearsRate}%</span>
+                            <span class="label" style="padding-left: 15px;">Principal: ${formatCurrency(creditor.arrearsAmount)} | Interest: ${formatCurrency(interestPaid)} @ ${rateToUse.toFixed(2)}%</span>
                             <span class="value"></span>
                         </div>
                     `;
                 }
 
-                if (creditor.hasLongTermDebt && creditor.longTermPayment > 0) {
-                    outsidePlanTotal += creditor.longTermPayment;
-                    outsidePlanHtml += `
+                // Calculate conduit payments (ongoing mortgage through trustee)
+                if (creditor.isConduit && creditor.conduitPayment > 0) {
+                    conduitMonthlyTotal += creditor.conduitPayment;
+                    const conduitTotal = creditor.conduitPayment * planMonths;
+                    conduitBreakdownHtml += `
                         <div class="result-item">
-                            <span class="label">${creditor.name || 'Secured Creditor'} (Long-term)</span>
-                            <span class="value">${formatCurrency(creditor.longTermPayment)}/mo</span>
+                            <span class="label">${creditor.name || 'Secured Creditor'} (Conduit)</span>
+                            <span class="value">${formatCurrency(creditor.conduitPayment)}/mo</span>
+                        </div>
+                        <div class="result-item" style="font-size: 0.85rem; padding: 5px 0;">
+                            <span class="label" style="padding-left: 15px;">Total over ${planMonths} months: ${formatCurrency(conduitTotal)}</span>
+                            <span class="value"></span>
                         </div>
                     `;
                 }
@@ -729,10 +850,14 @@
             `;
 
             // Calculate totals
-            const totalToCreditors = securedTotal + priorityTotal + unsecuredPayment;
+            // Total conduit payments over plan term
+            const conduitTotalOverPlan = conduitMonthlyTotal * planMonths;
 
-            // Trustee fee is calculated on total payments
-            // Payment = TotalToCreditors / (1 - trusteeFeePercent/100)
+            // Total to creditors = arrears + conduit + priority + unsecured
+            const totalToCreditors = securedArrearsTotal + conduitTotalOverPlan + priorityTotal + unsecuredPayment;
+
+            // Trustee fee applies to ALL payments (including conduit)
+            // Total Plan Cost = Total to Creditors / (1 - fee%)
             const totalPlanCost = totalToCreditors / (1 - trusteeFeePercent / 100);
             const trusteeFeeAmount = totalPlanCost - totalToCreditors;
             const monthlyPayment = totalPlanCost / planMonths;
@@ -744,9 +869,14 @@
 
             const monthlyBreakdownHtml = `
                 <tr>
-                    <td>Secured (Arrears + Interest)</td>
+                    <td>Conduit Mortgage</td>
+                    <td>${formatCurrency(conduitMonthlyTotal)}</td>
+                    <td>${formatCurrency(conduitTotalOverPlan)}</td>
+                </tr>
+                <tr>
+                    <td>Arrears (Principal + Interest)</td>
                     <td>${formatCurrency(securedMonthlyTotal)}</td>
-                    <td>${formatCurrency(securedTotal)}</td>
+                    <td>${formatCurrency(securedArrearsTotal)}</td>
                 </tr>
                 <tr>
                     <td>Priority Claims</td>
@@ -758,20 +888,43 @@
                     <td>${formatCurrency(unsecuredMonthly)}</td>
                     <td>${formatCurrency(unsecuredPayment)}</td>
                 </tr>
+                <tr style="border-top: 1px solid rgba(255,255,255,0.3);">
+                    <td>Subtotal to Creditors</td>
+                    <td>${formatCurrency(conduitMonthlyTotal + securedMonthlyTotal + priorityMonthly + unsecuredMonthly)}</td>
+                    <td>${formatCurrency(totalToCreditors)}</td>
+                </tr>
                 <tr>
-                    <td>Trustee Fee</td>
+                    <td>Trustee Fee (${trusteeFeePercent}%)</td>
                     <td>${formatCurrency(trusteeMonthly)}</td>
                     <td>${formatCurrency(trusteeFeeAmount)}</td>
                 </tr>
                 <tr style="font-weight: bold; border-top: 2px solid rgba(255,255,255,0.3);">
-                    <td>Plan Payment</td>
+                    <td>Total Plan Payment</td>
                     <td>${formatCurrency(monthlyPayment)}</td>
                     <td>${formatCurrency(totalPlanCost)}</td>
                 </tr>
             `;
 
+            // Interest rate info
+            const interestRateHtml = useTillRate ? `
+                <div class="result-item">
+                    <span class="label">Till Rate (Prime + Risk)</span>
+                    <span class="value">${primeRate}% + ${riskAdjustment}% = ${tillRate.toFixed(2)}%</span>
+                </div>
+                <div class="result-item" style="font-size: 0.85rem; padding: 5px 0;">
+                    <span class="label">Per Till v. SCS Credit Corp., 541 U.S. 465 (2004)</span>
+                    <span class="value"></span>
+                </div>
+            ` : `
+                <div class="result-item">
+                    <span class="label">Using Contract Rates</span>
+                    <span class="value">Varies by creditor</span>
+                </div>
+            `;
+
             // Update UI
-            document.getElementById('securedBreakdown').innerHTML = securedBreakdownHtml || '<div class="result-item"><span class="label">No secured claims</span><span class="value">$0.00</span></div>';
+            document.getElementById('conduitBreakdown').innerHTML = conduitBreakdownHtml || '<div class="result-item"><span class="label">No conduit payments</span><span class="value">$0.00</span></div>';
+            document.getElementById('securedBreakdown').innerHTML = securedBreakdownHtml || '<div class="result-item"><span class="label">No arrears</span><span class="value">$0.00</span></div>';
             document.getElementById('priorityBreakdown').innerHTML = priorityBreakdownHtml || '<div class="result-item"><span class="label">No priority claims</span><span class="value">$0.00</span></div>';
             document.getElementById('unsecuredBreakdown').innerHTML = unsecuredBreakdownHtml;
 
@@ -782,8 +935,7 @@
             document.getElementById('monthlyPayment').textContent = formatCurrency(monthlyPayment);
 
             document.getElementById('monthlyBreakdown').innerHTML = monthlyBreakdownHtml;
-            document.getElementById('outsidePlanPayments').innerHTML = outsidePlanHtml || '<div class="result-item"><span class="label">No outside plan payments</span><span class="value">$0.00</span></div>';
-            document.getElementById('totalMonthlyObligation').textContent = formatCurrency(monthlyPayment + outsidePlanTotal);
+            document.getElementById('interestRateInfo').innerHTML = interestRateHtml;
 
             // Show results
             document.getElementById('resultsCard').style.display = 'block';
