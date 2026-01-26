@@ -25,6 +25,8 @@ This will clone and install all repositories automatically.
 | **resume-cli** | JSON Resume variants | Job Search |
 | **actual** | Personal finance/budgeting | Personal |
 | **clawdbot** | Personal AI assistant (WhatsApp, Telegram, Discord, iMessage) | All |
+| **notion-sdk-js** | Notion API client (dashboards, CRM, content vault) | BizDeedz |
+| **google-api-python-client** | Google Workspace (Sheets, Drive, Gmail) | All |
 
 ---
 
@@ -248,6 +250,98 @@ pnpm build
 
 ---
 
+## 7. Notion + Google Workspace (Command Center Plumbing)
+
+### notion-sdk-js
+Official Notion API client for JavaScript/TypeScript.
+
+```bash
+cd notion-sdk-js
+npm install
+```
+
+**Use for:**
+- BizDeedz Command Center dashboards
+- Client CRM in Notion
+- Content vault operations
+- Automated database updates
+
+**Example:**
+```javascript
+const { Client } = require('@notionhq/client');
+
+const notion = new Client({ auth: process.env.NOTION_API_KEY });
+
+// Query a database
+const response = await notion.databases.query({
+  database_id: 'your-database-id',
+  filter: {
+    property: 'Status',
+    select: { equals: 'Active' }
+  }
+});
+
+// Create a page
+await notion.pages.create({
+  parent: { database_id: 'your-database-id' },
+  properties: {
+    'Name': { title: [{ text: { content: 'New Client' } }] },
+    'Status': { select: { name: 'Lead' } }
+  }
+});
+```
+
+### google-api-python-client
+Official Google API client for Python - access Sheets, Drive, Gmail, Calendar.
+
+```bash
+cd google-api-python-client
+pip install -e .
+```
+
+**Use for:**
+- Spreadsheet automation (tracking, reporting)
+- Document generation and storage
+- Email workflows
+- Calendar management
+
+**Example:**
+```python
+from googleapiclient.discovery import build
+from google.oauth2 import service_account
+
+# Setup credentials
+creds = service_account.Credentials.from_service_account_file(
+    'credentials.json',
+    scopes=['https://www.googleapis.com/auth/spreadsheets']
+)
+
+# Access Google Sheets
+sheets = build('sheets', 'v4', credentials=creds)
+
+# Read data
+result = sheets.spreadsheets().values().get(
+    spreadsheetId='your-sheet-id',
+    range='Sheet1!A1:D10'
+).execute()
+
+# Write data
+sheets.spreadsheets().values().update(
+    spreadsheetId='your-sheet-id',
+    range='Sheet1!A1',
+    valueInputOption='RAW',
+    body={'values': [['New', 'Data', 'Here']]}
+).execute()
+```
+
+**Setup Required:**
+1. Create a Google Cloud project
+2. Enable APIs (Sheets, Drive, Gmail, etc.)
+3. Create service account or OAuth credentials
+4. Download credentials.json
+
+---
+
 ## Implementation Sequence
 
 ### If Prioritizing BizDeedz Revenue:
@@ -283,6 +377,12 @@ BROWSERBASE_PROJECT_ID=your_id
 
 # JobSpy (optional - for proxy rotation)
 PROXY_URL=your_proxy
+
+# Notion (for Command Center)
+NOTION_API_KEY=your_integration_token
+
+# Google Workspace (create in Google Cloud Console)
+GOOGLE_APPLICATION_CREDENTIALS=path/to/credentials.json
 ```
 
 ---
@@ -307,3 +407,5 @@ Use proxies and add delays between scrapes. Indeed is most permissive.
 2. **Setup Actual** - Import bank data for runway visibility
 3. **Configure OpenSkills** - Load document skills for BizDeedz proposals
 4. **Build First Crew** - Create lead research agent with CrewAI
+5. **Setup Notion Integration** - Create API integration for Command Center
+6. **Configure Google APIs** - Enable Sheets/Drive for automation workflows

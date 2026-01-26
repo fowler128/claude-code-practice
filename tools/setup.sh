@@ -147,6 +147,32 @@ else
 fi
 
 # -----------------------------------------------------------------------------
+# 9. Notion SDK (Command Center Plumbing)
+# -----------------------------------------------------------------------------
+echo ""
+echo ">>> Installing Notion SDK..."
+if [ ! -d "notion-sdk-js" ]; then
+    git clone https://github.com/makenotion/notion-sdk-js.git
+    cd notion-sdk-js && npm install && cd ..
+    success "notion-sdk-js installed"
+else
+    warning "notion-sdk-js already exists, skipping"
+fi
+
+# -----------------------------------------------------------------------------
+# 10. Google API Python Client (Workspace Automation)
+# -----------------------------------------------------------------------------
+echo ""
+echo ">>> Installing Google API Python Client..."
+if [ ! -d "google-api-python-client" ]; then
+    git clone https://github.com/googleapis/google-api-python-client.git
+    cd google-api-python-client && pip install -e . && cd ..
+    success "google-api-python-client installed"
+else
+    warning "google-api-python-client already exists, skipping"
+fi
+
+# -----------------------------------------------------------------------------
 # Summary
 # -----------------------------------------------------------------------------
 echo ""
@@ -155,19 +181,22 @@ echo "Setup Complete!"
 echo "=============================================="
 echo ""
 echo "Installed tools:"
-echo "  - anthropics-skills  : Claude agent skills"
-echo "  - openskills         : Universal skills loader"
-echo "  - stagehand          : AI browser automation"
-echo "  - langgraph          : Multi-step workflows"
-echo "  - crewAI             : Multi-agent orchestration"
-echo "  - JobSpy             : Job scraping pipeline"
-echo "  - resume-cli         : JSON Resume generator"
-echo "  - actual             : Personal budgeting"
-echo "  - clawdbot           : Personal AI assistant (WhatsApp, Telegram, Discord, iMessage)"
+echo "  - anthropics-skills       : Claude agent skills"
+echo "  - openskills              : Universal skills loader"
+echo "  - stagehand               : AI browser automation"
+echo "  - langgraph               : Multi-step workflows"
+echo "  - crewAI                  : Multi-agent orchestration"
+echo "  - JobSpy                  : Job scraping pipeline"
+echo "  - resume-cli              : JSON Resume generator"
+echo "  - actual                  : Personal budgeting"
+echo "  - clawdbot                : Personal AI assistant"
+echo "  - notion-sdk-js           : Notion API client (dashboards, CRM)"
+echo "  - google-api-python-client: Google Workspace (Sheets, Drive, Gmail)"
 echo ""
 echo "Next steps:"
-echo "  1. Test JobSpy:    cd JobSpy && python -c \"from jobspy import scrape_jobs; print('OK')\""
-echo "  2. Test LangGraph: python -c \"import langgraph; print('OK')\""
-echo "  3. Test CrewAI:    python -c \"from crewai import Agent; print('OK')\""
-echo "  4. Test Clawdbot:  cd clawdbot && npx clawdbot --version"
+echo "  1. Test JobSpy:     python -c \"from jobspy import scrape_jobs; print('OK')\""
+echo "  2. Test LangGraph:  python -c \"import langgraph; print('OK')\""
+echo "  3. Test CrewAI:     python -c \"from crewai import Agent; print('OK')\""
+echo "  4. Test Notion SDK: node -e \"const { Client } = require('./notion-sdk-js'); console.log('OK')\""
+echo "  5. Test Google API: python -c \"from googleapiclient.discovery import build; print('OK')\""
 echo ""
