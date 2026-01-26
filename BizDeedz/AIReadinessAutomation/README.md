@@ -1,23 +1,33 @@
 # BizDeedz AI Readiness Email Automation
 
-A booking-first lead nurturing funnel powered by Google Sheets + Google Apps Script + Gmail + Google Calendar Appointment Schedules. No n8n or external automation tools required.
+A complete lead nurturing system with two implementation options:
+1. **Simple**: Google Apps Script (rule-based automation)
+2. **Advanced**: Python Autonomous Agent (AI-powered with Claude)
 
 ## Overview
 
 This automation system handles the complete lead journey for AI Readiness Audits:
 
 ```
-Form Submission → Booking Invite → Follow-ups → Pre-Call Checklist → Scorecard Delivery
+Form Submission → AI Analysis → Booking Invite → Smart Follow-ups → Booking Detection → Pre-Call Checklist → Qualification → Scorecard Delivery
 ```
 
-### Trigger Events
+## Choose Your Implementation
 
-| Event | Action |
-|-------|--------|
-| New Lead Submitted | Sends booking invite email |
-| Lead Booked | Sends pre-call checklist |
-| No Booking (24h/72h/7d) | Sends follow-up reminders |
-| Post-Call (Qualified) | Sends scorecard delivery email |
+| Feature | Google Apps Script | Python Agent |
+|---------|-------------------|--------------|
+| Setup Complexity | Easy | Moderate |
+| AI Personalization | None | Full |
+| Reply Handling | Manual | Autonomous |
+| Booking Detection | Manual | Automatic |
+| Decision Making | Rule-based | AI-powered |
+| Infrastructure | Google only | Python server |
+
+---
+
+# Option 1: Google Apps Script (Simple)
+
+Rule-based automation using only Google services.
 
 ## File Structure
 
@@ -83,12 +93,6 @@ const BOOKING_LINK_DEFAULT = "YOUR_GOOGLE_APPOINTMENT_SCHEDULE_LINK";
 - Type: Minutes timer
 - Interval: Every 5 minutes
 
-**Trigger 4: Process Qualified Leads (Optional)**
-- Function: `processQualified`
-- Event source: Time-driven
-- Type: Minutes timer
-- Interval: Every 5 minutes
-
 ### Step 5: Deploy as Web App (for form submissions)
 
 1. In Apps Script, click **Deploy → New deployment**
@@ -110,6 +114,239 @@ const BOOKING_LINK_DEFAULT = "YOUR_GOOGLE_APPOINTMENT_SCHEDULE_LINK";
 3. Replace with your Web app URL from Step 5
 4. Host the HTML file on your website or use it directly
 
+---
+
+# Option 2: Python Autonomous Agent (Advanced)
+
+Full AI-powered autonomous agent using Claude for intelligent decision-making.
+
+## Agent Architecture
+
+```
+agent/
+├── __init__.py           # Package exports
+├── agent.py              # Core Claude agent with tool use
+├── config.py             # Configuration management
+├── memory.py             # SQLite-based conversation memory
+├── orchestrator.py       # Main coordinator
+├── state.py              # Lead state machine
+├── run_agent.py          # Entry point
+│
+├── tools/
+│   ├── sheets.py         # Google Sheets operations
+│   ├── gmail.py          # Email sending/reading
+│   └── calendar.py       # Booking detection
+│
+├── handlers/
+│   ├── new_lead.py       # New submission processing
+│   ├── reply.py          # Email reply handling
+│   ├── booking.py        # Booking detection
+│   └── followup.py       # Follow-up decisions
+│
+└── prompts/
+    └── system.py         # AI system prompts
+```
+
+## What the Agent Does
+
+### 1. Intelligent Lead Analysis
+When a new lead submits the form, the agent:
+- Analyzes their practice area, firm size, and stated needs
+- Assigns a priority score (high/medium/low)
+- Generates personalization notes for all future communications
+
+### 2. Personalized Email Generation
+Every email is AI-generated based on:
+- Lead's specific context and needs
+- Previous conversation history
+- Current stage in the funnel
+
+### 3. Autonomous Reply Handling
+When a lead replies, the agent:
+- Analyzes intent (booking, question, pause, unsubscribe)
+- Generates an appropriate response
+- Updates lead status automatically
+- Escalates complex situations to humans
+
+### 4. Automatic Booking Detection
+The agent monitors your calendar to:
+- Detect when leads book appointments
+- Match bookings to leads automatically
+- Trigger pre-call checklist emails
+
+### 5. Smart Follow-up Decisions
+Instead of fixed timing, the agent considers:
+- How engaged the lead has been
+- What their responses indicate
+- Optimal timing for each individual
+
+## Agent Setup
+
+### Prerequisites
+
+- Python 3.10+
+- Anthropic API key
+- Google Cloud project with enabled APIs:
+  - Google Sheets API
+  - Gmail API
+  - Google Calendar API
+
+### Step 1: Install Dependencies
+
+```bash
+cd BizDeedz/AIReadinessAutomation
+pip install -r requirements.txt
+```
+
+### Step 2: Set Up Google Cloud Credentials
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Create a new project or select existing
+3. Enable these APIs:
+   - Google Sheets API
+   - Gmail API
+   - Google Calendar API
+4. Create OAuth 2.0 credentials:
+   - Go to APIs & Services → Credentials
+   - Create OAuth client ID → Desktop app
+   - Download the JSON file as `credentials.json`
+5. Place `credentials.json` in the `AIReadinessAutomation` directory
+
+### Step 3: Configure Environment
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` with your values:
+
+```bash
+# Required
+ANTHROPIC_API_KEY=sk-ant-api03-xxxxx
+SPREADSHEET_ID=your-google-sheet-id
+FROM_EMAIL=your-email@gmail.com
+BOOKING_LINK=https://calendar.google.com/calendar/appointments/xxxxx
+
+# Optional
+LOG_LEVEL=INFO
+MEMORY_DB_PATH=agent_memory.db
+```
+
+### Step 4: First Run (OAuth Setup)
+
+```bash
+python run_agent.py --once
+```
+
+This will:
+1. Open a browser for Google OAuth
+2. Request permissions for Sheets, Gmail, Calendar
+3. Save the token for future use
+4. Run a single processing cycle
+
+### Step 5: Run Continuously
+
+```bash
+# Default: polls every 5 minutes
+python run_agent.py
+
+# Custom interval (10 minutes)
+python run_agent.py --interval 600
+
+# Run in background
+nohup python run_agent.py > agent.log 2>&1 &
+```
+
+## Agent Commands
+
+```bash
+# Run single cycle
+python run_agent.py --once
+
+# Run continuously
+python run_agent.py
+
+# Custom polling interval (seconds)
+python run_agent.py --interval 300
+
+# View pipeline status
+python run_agent.py --status
+
+# View follow-up schedule
+python run_agent.py --schedule
+
+# Get specific lead details
+python run_agent.py --lead john@example.com
+
+# Debug mode
+python run_agent.py --log-level DEBUG
+```
+
+## Lead States (Agent)
+
+The agent uses an expanded state machine:
+
+| State | Description |
+|-------|-------------|
+| `NEW_SUBMISSION` | Just submitted form |
+| `ANALYZING` | Agent is analyzing the lead |
+| `BOOKING_INVITE_SENT` | Initial outreach sent |
+| `FOLLOW_UP_1` | First follow-up sent |
+| `FOLLOW_UP_2` | Second follow-up sent |
+| `FOLLOW_UP_3` | Final follow-up sent |
+| `REPLY_RECEIVED` | Lead replied, needs processing |
+| `CONVERSATION_ACTIVE` | Ongoing conversation |
+| `BOOKED` | Appointment scheduled |
+| `CHECKLIST_SENT` | Pre-call checklist sent |
+| `CALL_COMPLETED` | Call finished |
+| `QUALIFIED` | Good fit, ready for scorecard |
+| `NOT_A_FIT` | Disqualified |
+| `SCORECARD_DELIVERED` | Final deliverable sent |
+| `PAUSED` | Lead requested pause |
+| `UNSUBSCRIBED` | Lead opted out |
+| `ESCALATED` | Needs human review |
+
+## Memory System
+
+The agent maintains persistent memory in SQLite:
+
+- **Conversation History**: Full email thread per lead
+- **Action Log**: Every action taken with timestamps
+- **Analysis Cache**: AI analysis results
+- **Processing State**: Tracks what's been processed
+
+Database location: `agent_memory.db` (configurable)
+
+## Customizing Agent Behavior
+
+### Modify System Prompts
+
+Edit `agent/prompts/system.py` to change:
+- Brand voice and tone
+- Decision-making criteria
+- Email generation guidelines
+- Qualification criteria
+
+### Adjust Follow-up Timing
+
+In `config.py` or `.env`:
+```python
+follow_up_hours = [24, 72, 168]  # 24h, 72h, 7d
+max_follow_ups = 3
+```
+
+### Add New Tools
+
+Create new tools in `agent/tools/` following the pattern:
+1. Extend `GoogleBaseTool` or `BaseTool`
+2. Define `ToolDefinition` for each capability
+3. Implement `execute()` method
+4. Register in orchestrator
+
+---
+
+# Common Configuration
+
 ## Sheet Structure
 
 Your "Leads" sheet should have these columns:
@@ -130,137 +367,10 @@ Your "Leads" sheet should have these columns:
 | lastEmailSent | Timestamp of last email |
 | followUpStage | Current follow-up stage (0-3) |
 | notes | Internal notes and tracking |
-
-## Lead Statuses
-
-| Status | Description | Triggered Action |
-|--------|-------------|------------------|
-| `NEW_SUBMISSION` | Just submitted form | Sends booking invite |
-| `BOOKING_INVITE_SENT` | Received booking invite | Follow-up sequence starts |
-| `BOOKED` | Scheduled a call | Sends pre-call checklist |
-| `NO_SHOW` | Missed scheduled call | (Manual handling) |
-| `QUALIFIED` | Completed call, good fit | Sends scorecard email |
-| `NOT_A_FIT` | Completed call, not qualified | (No automated action) |
-| `SCORECARD_DELIVERED` | Received final deliverable | (Sequence complete) |
-
-## Email Templates
-
-### Email A: Booking Invite
-- **Sent when:** Status = `NEW_SUBMISSION`
-- **Subject:** AI Readiness Scorecard - Book Your Diagnostic ({firmName})
-- **Content:** Confirmation, booking link, what to prepare, expectations
-
-### Email B: Follow-ups (3 stages)
-- **Sent when:** Status = `BOOKING_INVITE_SENT` + time elapsed
-- **Stage 1 (24h):** "Quick nudge: book your AI Readiness diagnostic"
-- **Stage 2 (72h):** "Still want the AI Readiness Scorecard?"
-- **Stage 3 (7d):** "Last call: AI Readiness diagnostic link"
-
-### Email C: Pre-Call Checklist
-- **Sent when:** Status = `BOOKED`
-- **Subject:** Your AI Readiness Diagnostic - Prep Checklist ({firmName})
-- **Content:** What to bring/prepare for the call
-
-### Email D: Scorecard Delivered
-- **Sent when:** Status = `QUALIFIED`
-- **Subject:** Your AI Readiness Scorecard - {firmName}
-- **Content:** Summary, next steps, call to action
-
-## Manual Operations
-
-### Marking a Lead as Booked
-
-When someone books through Google Calendar:
-
-1. Open your Google Sheet
-2. Find the lead's row by email
-3. Change the `status` column to `BOOKED`
-4. The next trigger run will send the pre-call checklist
-
-### Marking a Lead as Qualified
-
-After a successful call:
-
-1. Find the lead's row
-2. Change `status` to `QUALIFIED`
-3. The automation will send the scorecard delivery email
-
-### Stopping Follow-ups for a Lead
-
-To stop follow-ups (e.g., if they reply "pause"):
-
-1. Find the lead's row
-2. Change `status` to anything other than `BOOKING_INVITE_SENT`
-3. Options: `PAUSED`, `NOT_A_FIT`, or manually to `BOOKED`
-
-## Testing
-
-### Add a Test Lead
-
-1. In Apps Script, select `testAddLead` from the function dropdown
-2. Click **Run**
-3. Check your sheet - a test lead should appear
-4. Wait for `processNewSubmissions` trigger (or run it manually)
-5. Check the test email inbox for the booking invite
-
-### Test Specific Functions
-
-You can run any function manually in Apps Script:
-
-- `processNewSubmissions()` - Process all NEW_SUBMISSION leads
-- `sendFollowUps()` - Send any due follow-ups
-- `processBooked()` - Send pre-call checklists to BOOKED leads
-- `processQualified()` - Send scorecard emails to QUALIFIED leads
-
-## Troubleshooting
-
-### Emails not sending
-
-1. Check Apps Script Executions log (View → Executions)
-2. Ensure Gmail quota isn't exceeded (100/day for free accounts)
-3. Verify email addresses are valid
-4. Check that triggers are set up correctly
-
-### Form submissions not appearing
-
-1. Verify the Web app URL in `lead-form.html`
-2. Check that the deployment is set to "Anyone" access
-3. Look at Apps Script Executions for errors
-4. Test the doPost function directly with test data
-
-### Follow-ups not sending at expected times
-
-1. Remember: times are calculated from `lastEmailSent`, not original submission
-2. The trigger interval affects precision (e.g., hourly trigger = up to 1h delay)
-3. Check that `followUpStage` is incrementing correctly
-
-## Customization
-
-### Modify Email Templates
-
-Edit the template functions in `Code.gs`:
-- `emailBookingInvite_()` - Booking invite
-- `emailFollowUp_()` - Follow-up sequence
-- `emailPreCallChecklist_()` - Pre-call prep
-- `emailScorecardDelivered_()` - Final delivery
-
-### Change Follow-up Timing
-
-Modify the hour thresholds in `sendFollowUps()`:
-- Stage 1: `hoursSince >= 24` (24 hours)
-- Stage 2: `hoursSince >= 72` (3 days)
-- Stage 3: `hoursSince >= 168` (7 days)
-
-### Add HTML Formatting to Emails
-
-Replace `GmailApp.sendEmail()` with `GmailApp.sendEmail()` using `htmlBody`:
-
-```javascript
-GmailApp.sendEmail(lead.email, tpl.subject, tpl.body, {
-  name: FROM_NAME,
-  htmlBody: '<html>Your HTML here</html>'
-});
-```
+| conversationHistory | (Agent only) JSON conversation |
+| aiAnalysis | (Agent only) AI analysis results |
+| priority | (Agent only) high/medium/low |
+| qualificationScore | (Agent only) 0-100 score |
 
 ## Google Calendar Appointment Schedule Setup
 
@@ -272,31 +382,38 @@ GmailApp.sendEmail(lead.email, tpl.subject, tpl.body, {
    - Title: "AI Readiness Diagnostic"
    - Duration: 30 minutes
    - Availability: Your preferred times
-6. Copy the booking link and add it to `BOOKING_LINK_DEFAULT` in Code.gs
+6. Copy the booking link
 
 ## Security Considerations
 
-- The Web app runs with your permissions - be careful with access settings
-- Don't store sensitive data in plain text in the sheet
-- Consider adding validation to the doPost function
-- Regularly review the execution logs for unusual activity
+- Store API keys in environment variables, never in code
+- Use OAuth tokens (not API keys) for Google APIs
+- Regularly rotate credentials
+- Review agent logs for unusual activity
+- Enable 2FA on all accounts
 
 ## Quotas and Limits
 
-**Google Apps Script:**
-- Email: 100 emails/day (free), 1,500/day (Workspace)
-- Triggers: 20 triggers per script
-- Execution time: 6 minutes max per execution
+**Anthropic API:**
+- Rate limits vary by tier
+- Monitor usage in Anthropic Console
 
-**Gmail:**
-- Total daily sending varies by account type
-- Consider upgrading to Workspace for higher limits
+**Google APIs:**
+- Sheets: 300 requests/minute
+- Gmail: 250 quota units/second
+- Calendar: 1,000,000 queries/day
+
+**Gmail Sending:**
+- Free: 100 emails/day
+- Workspace: 2,000 emails/day
+
+---
 
 ## Support
 
 For questions or issues:
-1. Check the Troubleshooting section above
-2. Review Apps Script execution logs
+1. Check the Troubleshooting section in each implementation
+2. Review execution/agent logs
 3. Contact BizDeedz support
 
 ---
