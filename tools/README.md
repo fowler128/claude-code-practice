@@ -24,6 +24,7 @@ This will clone and install all repositories automatically.
 | **JobSpy** | Job pipeline scraping | Job Search |
 | **resume-cli** | JSON Resume variants | Job Search |
 | **actual** | Personal finance/budgeting | Personal |
+| **clawdbot** | Personal AI assistant (WhatsApp, Telegram, Discord, iMessage) | All |
 
 ---
 
@@ -202,6 +203,48 @@ npm start
 - Financial clarity during job transition
 
 **Note:** Requires Node.js v22+. Access via browser at localhost:5006.
+
+---
+
+## 6. Clawdbot (Personal AI Assistant)
+
+Open-source personal AI assistant that bridges messaging platforms to AI agents.
+
+```bash
+cd clawdbot
+npm install  # or pnpm install
+npx clawdbot onboard --install-daemon
+```
+
+**Supported Platforms:**
+- WhatsApp (via Baileys)
+- Telegram (Bot API / grammY)
+- Discord (Bot API)
+- iMessage (imsg CLI)
+- Mattermost (via plugin)
+
+**Use for:**
+- Personal AI assistant across all your messaging apps
+- Automating responses and workflows via chat
+- Bridging AI capabilities to mobile/messaging
+
+**Example:**
+```bash
+# Install globally
+npm install -g clawdbot@latest
+
+# Run onboarding
+clawdbot onboard --install-daemon
+
+# Or build from source
+git clone https://github.com/clawdbot/clawdbot.git
+cd clawdbot
+pnpm install
+pnpm ui:build
+pnpm build
+```
+
+**Note:** Requires Node.js v22+.
 
 ---
 

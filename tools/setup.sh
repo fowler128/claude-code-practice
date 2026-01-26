@@ -132,6 +132,21 @@ else
 fi
 
 # -----------------------------------------------------------------------------
+# 8. Clawdbot (Personal AI Assistant)
+# -----------------------------------------------------------------------------
+echo ""
+echo ">>> Installing Clawdbot..."
+if [ ! -d "clawdbot" ]; then
+    git clone https://github.com/clawdbot/clawdbot.git
+    cd clawdbot
+    npm install 2>/dev/null || pnpm install 2>/dev/null || warning "Clawdbot install had issues (requires Node 22+)"
+    cd ..
+    success "clawdbot installed"
+else
+    warning "clawdbot already exists, skipping"
+fi
+
+# -----------------------------------------------------------------------------
 # Summary
 # -----------------------------------------------------------------------------
 echo ""
@@ -148,9 +163,11 @@ echo "  - crewAI             : Multi-agent orchestration"
 echo "  - JobSpy             : Job scraping pipeline"
 echo "  - resume-cli         : JSON Resume generator"
 echo "  - actual             : Personal budgeting"
+echo "  - clawdbot           : Personal AI assistant (WhatsApp, Telegram, Discord, iMessage)"
 echo ""
 echo "Next steps:"
 echo "  1. Test JobSpy:    cd JobSpy && python -c \"from jobspy import scrape_jobs; print('OK')\""
 echo "  2. Test LangGraph: python -c \"import langgraph; print('OK')\""
 echo "  3. Test CrewAI:    python -c \"from crewai import Agent; print('OK')\""
+echo "  4. Test Clawdbot:  cd clawdbot && npx clawdbot --version"
 echo ""
