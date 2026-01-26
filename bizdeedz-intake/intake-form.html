@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BizDeedz Intake & Qualification</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .container {
+      width: 100%;
+      max-width: 760px;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.25);
+      overflow: hidden;
+    }
+    .header {
+      padding: 22px 26px;
+      color: #fff;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    }
+    .header h1 { font-size: 20px; margin-bottom: 6px; }
+    .header p { font-size: 13px; opacity: 0.9; line-height: 1.35; }
+    .progress { height: 8px; background: rgba(255,255,255,0.25); border-radius: 999px; overflow: hidden; margin-top: 14px; }
+    .progress > div { height: 100%; width: 0%; background: rgba(255,255,255,0.95); transition: width .25s ease; }
+
+    .content { padding: 26px; }
+    .step-title { font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 14px; }
+    .subtle { color: #6b7280; font-size: 13px; margin-bottom: 18px; line-height: 1.45; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+
+    .field { margin-bottom: 14px; }
+    label { display: block; font-size: 13px; font-weight: 650; color: #111827; margin-bottom: 8px; }
+    input[type="text"], input[type="email"], input[type="tel"], input[type="url"], select, textarea {
+      width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px; outline: none;
+      transition: border-color .2s ease, box-shadow .2s ease; background: #fff;
+    }
+    textarea { min-height: 110px; resize: vertical; }
+    input:focus, select:focus, textarea:focus { border-color: #667eea; box-shadow: 0 0 0 4px rgba(102,126,234,0.18); }
+
+    .options { display: grid; gap: 10px; }
+    .option {
+      display: flex; gap: 10px; align-items: flex-start;
+      padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; cursor: pointer;
+      transition: border-color .2s ease, background .2s ease; background: #fff;
+    }
+    .option:hover { border-color: #667eea; background: #f5f7ff; }
+    .option input { margin-top: 2px; }
+    .option .txt { font-size: 13px; color: #374151; line-height: 1.35; }
+    .option strong { color: #111827; }
+
+    .divider { height: 1px; background: #eef2ff; margin: 18px 0; }
+    .buttons { display: flex; gap: 12px; justify-content: space-between; margin-top: 18px; flex-wrap: wrap; }
+    button { border: 0; cursor: pointer; border-radius: 10px; padding: 12px 16px; font-weight: 700; font-size: 14px; transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease; }
+    .btn-secondary { background: #f3f4f6; color: #111827; min-width: 120px; }
+    .btn-secondary:hover { background: #e5e7eb; }
+    .btn-primary { background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); color: #fff; flex: 1; min-width: 180px; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 20px rgba(102,126,234,0.25); }
+    .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .hidden { display: none; }
+    .notice { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; font-size: 12.5px; color: #374151; line-height: 1.4; }
+    .success { text-align: center; padding: 18px; }
+    .success .check { font-size: 54px; line-height: 1; margin: 8px 0 12px; }
+    .success h2 { color: #16a34a; margin-bottom: 8px; }
+    .success p { color: #4b5563; line-height: 1.45; }
+    .cta { margin-top: 14px; display: inline-block; text-decoration: none; font-weight: 800; padding: 12px 16px; border-radius: 10px; background: #111827; color: #fff; }
+    .cta:hover { opacity: 0.92; }
+    .error { margin-top: 10px; color: #b91c1c; font-size: 13px; font-weight: 650; }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>BizDeedz Intake & Qualification</h1>
+      <p>Decision-grade intake for law firms. Booking comes first. Submit, then book your diagnostic.</p>
+      <div class="progress"><div id="progressFill"></div></div>
+    </div>
+
+    <div class="content">
+      <form id="intakeForm" novalidate>
+        <!-- STEP 1 -->
+        <section class="step" data-step="1">
+          <div class="step-title">Step 1: Contact + Firm</div>
+          <p class="subtle">We use this to confirm routing and follow-up.</p>
+
+          <div class="grid">
+            <div class="field">
+              <label for="name">Your name *</label>
+              <input id="name" name="name" type="text" required />
+            </div>
+
+            <div class="field">
+              <label for="role">Your role *</label>
+              <select id="role" name="role" required>
+                <option value="">Select</option>
+                <option>Partner / Owner</option>
+                <option>Managing Attorney</option>
+                <option>Operations / Admin</option>
+                <option>Intake Manager</option>
+                <option>Paralegal / Staff</option>
+                <option>Other</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="email">Email *</label>
+              <input id="email" name="email" type="email" required />
+            </div>
+
+            <div class="field">
+              <label for="phone">Phone *</label>
+              <input id="phone" name="phone" type="tel" required />
+            </div>
+
+            <div class="field">
+              <label for="firmName">Firm name *</label>
+              <input id="firmName" name="firmName" type="text" required />
+            </div>
+
+            <div class="field">
+              <label for="website">Firm website (optional)</label>
+              <input id="website" name="website" type="url" placeholder="https://..." />
+            </div>
+          </div>
+
+          <div class="divider"></div>
+          <div class="notice"><strong>Note:</strong> BizDeedz provides operational strategy and workflow automation guidance. No legal advice.</div>
+        </section>
+
+        <!-- STEP 2 -->
+        <section class="step hidden" data-step="2">
+          <div class="step-title">Step 2: Firm Profile</div>
+          <p class="subtle">This helps us assess complexity and implementation feasibility.</p>
+
+          <div class="grid">
+            <div class="field">
+              <label for="practiceArea">Primary practice area *</label>
+              <input id="practiceArea" name="practiceArea" type="text" placeholder="e.g., Bankruptcy, PI, Family, Immigration" required />
+            </div>
+
+            <div class="field">
+              <label for="teamSize">Team size *</label>
+              <select id="teamSize" name="teamSize" required>
+                <option value="">Select</option>
+                <option value="1-5">1-5</option>
+                <option value="6-10">6-10</option>
+                <option value="11-25">11-25</option>
+                <option value="26-50">26-50</option>
+                <option value="51+">51+</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="monthlyLeads">Approx monthly lead volume *</label>
+              <select id="monthlyLeads" name="monthlyLeads" required>
+                <option value="">Select</option>
+                <option value="0-10">0-10</option>
+                <option value="11-25">11-25</option>
+                <option value="26-50">26-50</option>
+                <option value="51-100">51-100</option>
+                <option value="100+">100+</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="urgency">Timeline / urgency *</label>
+              <select id="urgency" name="urgency" required>
+                <option value="">Select</option>
+                <option value="0-30">0-30 days</option>
+                <option value="31-60">31-60 days</option>
+                <option value="61-90">61-90 days</option>
+                <option value="90+">90+ days</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="bottleneck">What is the #1 bottleneck right now? *</label>
+            <textarea id="bottleneck" name="bottleneck" required placeholder="After-hours leads, intake handoffs, rework, deadlines, attorney review bottleneck..."></textarea>
+          </div>
+        </section>
+
+        <!-- STEP 3 -->
+        <section class="step hidden" data-step="3">
+          <div class="step-title">Step 3: Current Stack</div>
+          <p class="subtle">We use this to estimate lift and fix-first prerequisites.</p>
+
+          <div class="grid">
+            <div class="field">
+              <label for="pms">Practice management system *</label>
+              <input id="pms" name="pms" type="text" placeholder="e.g., Clio, MyCase, Filevine, PracticePanther" required />
+            </div>
+
+            <div class="field">
+              <label for="emailPlatform">Email platform *</label>
+              <select id="emailPlatform" name="emailPlatform" required>
+                <option value="">Select</option>
+                <option>Google Workspace / Gmail</option>
+                <option>Microsoft 365 / Outlook</option>
+                <option>Other</option>
+                <option>Not sure</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="docManagement">Document storage *</label>
+              <select id="docManagement" name="docManagement" required>
+                <option value="">Select</option>
+                <option>Google Drive</option>
+                <option>OneDrive / SharePoint</option>
+                <option>Box</option>
+                <option>Dropbox</option>
+                <option>Other</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="intakeTools">Intake tools (optional)</label>
+              <input id="intakeTools" name="intakeTools" type="text" placeholder="Website form, call center, RingCentral, SMS, CRM..." />
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="field">
+            <label>Primary need *</label>
+            <div class="options">
+              <label class="option">
+                <input type="radio" name="primaryNeed" value="AI Readiness Scorecard" required />
+                <div class="txt"><strong>AI Readiness Scorecard</strong><br/>Assessment + fix-first roadmap.</div>
+              </label>
+              <label class="option">
+                <input type="radio" name="primaryNeed" value="Intake Continuity System" required />
+                <div class="txt"><strong>Intake Continuity System</strong><br/>Captured-to-consult pipeline and follow-up SLAs.</div>
+              </label>
+              <label class="option">
+                <input type="radio" name="primaryNeed" value="Implementation Sprint" required />
+                <div class="txt"><strong>Implementation Sprint</strong><br/>Build and wire the stack (automation + SOPs + dashboards).</div>
+              </label>
+              <label class="option">
+                <input type="radio" name="primaryNeed" value="Not Sure" required />
+                <div class="txt"><strong>Not sure yet</strong><br/>Diagnostic first.</div>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 4 -->
+        <section class="step hidden" data-step="4">
+          <div class="step-title">Step 4: Booking Gate + Permission</div>
+          <p class="subtle">Submit, then book your diagnostic on Google Calendar.</p>
+
+          <div class="field">
+            <label>Are you the decision-maker? *</label>
+            <div class="options">
+              <label class="option">
+                <input type="radio" name="decisionMaker" value="Yes" required />
+                <div class="txt"><strong>Yes</strong><br/>I can approve budget and process changes.</div>
+              </label>
+              <label class="option">
+                <input type="radio" name="decisionMaker" value="Shared" required />
+                <div class="txt"><strong>Shared</strong><br/>I influence; approval is shared.</div>
+              </label>
+              <label class="option">
+                <input type="radio" name="decisionMaker" value="No" required />
+                <div class="txt"><strong>No</strong><br/>I'm not the final decision-maker.</div>
+              </label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="budgetReadiness">Budget readiness *</label>
+            <select id="budgetReadiness" name="budgetReadiness" required>
+              <option value="">Select</option>
+              <option value="Ready">Ready to invest now</option>
+              <option value="Exploring">Exploring options</option>
+              <option value="NotSure">Not sure yet</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label class="option" style="cursor: default;">
+              <input type="checkbox" id="consent" name="consent" value="Yes" required />
+              <div class="txt">
+                <strong>I consent to be contacted</strong><br/>
+                BizDeedz may contact me about this request. (Operational guidance only, no legal advice.)
+              </div>
+            </label>
+          </div>
+
+          <div class="notice">
+            <strong>Next step:</strong> after submission, you'll be redirected to book your diagnostic on Google Calendar.
+          </div>
+        </section>
+
+        <!-- STEP 5 SUCCESS -->
+        <section class="step hidden" data-step="5">
+          <div class="success">
+            <div class="check">&#10003;</div>
+            <h2>Submitted</h2>
+            <p>Your intake was received. Next step: book your diagnostic.</p>
+            <a id="bookingCta" class="cta" href="#" target="_blank" rel="noopener">Book on Google Calendar</a>
+          </div>
+        </section>
+
+        <div class="buttons">
+          <button type="button" id="prevBtn" class="btn-secondary hidden">&larr; Previous</button>
+          <button type="button" id="nextBtn" class="btn-primary">Next &rarr;</button>
+          <button type="submit" id="submitBtn" class="btn-primary hidden">Submit</button>
+        </div>
+
+        <div id="errorMsg" class="error hidden"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ============================================================
+    // CONFIG - Replace these with your actual URLs
+    // ============================================================
+    const WEBHOOK_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+    const BOOKING_URL = "PASTE_YOUR_GOOGLE_CALENDAR_APPOINTMENT_SCHEDULE_LINK_HERE";
+    // ============================================================
+
+    const form = document.getElementById("intakeForm");
+    const steps = Array.from(document.querySelectorAll(".step"));
+    const progressFill = document.getElementById("progressFill");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const submitBtn = document.getElementById("submitBtn");
+    const errorMsg = document.getElementById("errorMsg");
+    const bookingCta = document.getElementById("bookingCta");
+
+    bookingCta.href = BOOKING_URL;
+
+    let currentStep = 1;
+    const lastInputStep = 4;
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.classList.remove("hidden");
+    }
+
+    function clearError() {
+      errorMsg.textContent = "";
+      errorMsg.classList.add("hidden");
+    }
+
+    function showStep(stepNum) {
+      steps.forEach(s => s.classList.add("hidden"));
+      const target = document.querySelector(`.step[data-step="${stepNum}"]`);
+      if (target) target.classList.remove("hidden");
+
+      prevBtn.classList.toggle("hidden", stepNum === 1 || stepNum > lastInputStep);
+      nextBtn.classList.toggle("hidden", stepNum >= lastInputStep || stepNum > lastInputStep);
+      submitBtn.classList.toggle("hidden", stepNum !== lastInputStep);
+
+      const pct = Math.round((Math.min(stepNum, lastInputStep) / lastInputStep) * 100);
+      progressFill.style.width = pct + "%";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function validateCurrentStep() {
+      clearError();
+      const stepEl = document.querySelector(`.step[data-step="${currentStep}"]`);
+      if (!stepEl) return true;
+
+      const required = Array.from(stepEl.querySelectorAll("[required]"));
+
+      for (const el of required) {
+        if (el.type === "radio") {
+          const checked = stepEl.querySelector(`input[name="${el.name}"]:checked`);
+          if (!checked) {
+            showError("Please complete all required selections.");
+            return false;
+          }
+        } else if (el.type === "checkbox") {
+          if (!el.checked) {
+            showError("Please check the consent box to continue.");
+            return false;
+          }
+        } else {
+          if (!String(el.value || "").trim()) {
+            showError("Please complete all required fields.");
+            return false;
+          }
+        }
+      }
+
+      const email = form.querySelector('input[name="email"]')?.value?.trim() || "";
+      if (email && !/^\S+@\S+\.\S+$/.test(email)) {
+        showError("Please enter a valid email address.");
+        return false;
+      }
+
+      return true;
+    }
+
+    function normalizeFirmName(v) {
+      return (v || "").trim().toLowerCase().replace(/\s+/g, " ");
+    }
+
+    function leadKey(email, firmName) {
+      return (email || "").trim().toLowerCase() + "|" + normalizeFirmName(firmName);
+    }
+
+    prevBtn.addEventListener("click", () => {
+      clearError();
+      if (currentStep > 1) {
+        currentStep -= 1;
+        showStep(currentStep);
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (!validateCurrentStep()) return;
+      if (currentStep < lastInputStep) {
+        currentStep += 1;
+        showStep(currentStep);
+      }
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!validateCurrentStep()) return;
+
+      const fd = new FormData(form);
+      const payload = Object.fromEntries(fd.entries());
+
+      payload.timestamp = new Date().toISOString();
+      payload.source = "web-intake";
+      payload.leadKey = leadKey(payload.email, payload.firmName);
+
+      try {
+        // For Google Apps Script Web Apps, browsers often run into CORS.
+        // 'no-cors' lets the request complete even if we can't read the response.
+        await fetch(WEBHOOK_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload),
+        });
+
+        // Show success and redirect to booking gate
+        currentStep = 5;
+        showStep(currentStep);
+
+        setTimeout(() => {
+          window.location.href = BOOKING_URL;
+        }, 900);
+
+        form.reset();
+      } catch (err) {
+        console.error(err);
+        showError("Submission failed. Please try again or contact BizDeedz directly.");
+      }
+    });
+
+    showStep(currentStep);
+  </script>
+</body>
+</html>
