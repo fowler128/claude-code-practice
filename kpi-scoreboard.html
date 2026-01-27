@@ -26,7 +26,7 @@
                               border-radius: 20px;
                               padding: 40px;
                               box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-                              max-width: 1000px;
+                              max-width: 1200px;
                               width: 100%;
                 }
 
@@ -83,46 +83,58 @@
                 .negative {
                               color: #f87171;
                 }
+
+                .loading {
+                              text-align: center;
+                              padding: 40px;
+                              font-size: 1.2em;
+                              color: #666;
+                }
             </style>
   </head>
   <body>
         <div class="scoreboard">
                   <h1>KPI Scoreboard</h1>
-                <div class="kpi-grid">
-                            <div class="kpi-card">
-                                            <div class="kpi-label">Revenue</div>div>
-                                            <div class="kpi-value">$2.5M</div>div>
-                                            <div class="kpi-change positive">Up 12% vs last month</div>div>
-                            </div>div>
-                            <div class="kpi-card">
-                                            <div class="kpi-label">Customer Satisfaction</div>div>
-                                            <div class="kpi-value">94%</div>div>
-                                            <div class="kpi-change positive">Up 2% vs last month</div>div>
-                            </div>div>
-                            <div class="kpi-card">
-                                            <div class="kpi-label">New Customers</div>div>
-                                            <div class="kpi-value">342</div>div>
-                                            <div class="kpi-change negative">Down 5% vs last month</div>div>
-                            </div>div>
-                            <div class="kpi-card">
-                                            <div class="kpi-label">Conversion Rate</div>div>
-                                            <div class="kpi-value">3.8%</div>div>
-                                            <div class="kpi-change positive">Up 0.3% vs last month</div>div>
-                            </div>div>
-                            <div class="kpi-card">
-                                            <div class="kpi-label">Avg Order Value</div>div>
-                                            <div class="kpi-value">$156</div>div>
-                                            <div class="kpi-change positive">Up 8% vs last month</div>div>
-                            </div>div>
-                            <div class="kpi-card">
-                                            <div class="kpi-label">Churn Rate</div>div>
-                                            <div class="kpi-value">2.1%</div>div>
-                                            <div class="kpi-change negative">Up 0.5% vs last month</div>div>
-                            </div>div>
-                </div>div>
+                <div id="kpi-container" class="kpi-grid"></div>div>
         </div>div>
+  
+      <script>
+                const kpiData = [
+                  { label: 'Revenue', value: '$2.5M', change: '+12%', positive: true },
+                  { label: 'Customer Satisfaction', value: '94%', change: '+2%', positive: true },
+                  { label: 'New Customers', value: '342', change: '-5%', positive: false },
+                  { label: 'Conversion Rate', value: '3.8%', change: '+0.3%', positive: true },
+                  { label: 'Avg Order Value', value: '$156', change: '+8%', positive: true },
+                  { label: 'Churn Rate', value: '2.1%', change: '+0.5%', positive: false }
+                          ];
+
+                function renderKPIs() {
+                              const container = document.getElementById('kpi-container');
+                              container.innerHTML = '';
+
+                              kpiData.forEach(kpi => {
+                                                const card = document.createElement('div');
+                                                card.className = 'kpi-card';
+                                                card.innerHTML = `
+                                                                    <div class="kpi-label">${kpi.label}</div>
+                                                                                        <div class="kpi-value">${kpi.value}</div>
+                                                                                                            <div class="kpi-change ${kpi.positive ? 'positive' : 'negative'}">${kpi.positive ? 'Up' : 'Down'} ${kpi.change} vs last month</div>
+                                                                                                                            `;
+                                                container.appendChild(card);
+                              });
+                }
+
+                document.addEventListener('DOMContentLoaded', renderKPIs);
+
+                window.updateKPIs = function(newData) {
+                              kpiData.length = 0;
+                              kpiData.push(...newData);
+                              renderKPIs();
+                };
+      </script>
   </body>
-</html>html></h1>
+</html>html>
+      </script></h1>
   </body>
       </style></title>
   </head>
