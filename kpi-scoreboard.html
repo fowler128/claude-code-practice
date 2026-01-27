@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KPI Scoreboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #f8fafc;
+        }
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 2.5rem;
+            font-size: 0.9rem;
+        }
+        .brands {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        @media (max-width: 768px) { .brands { grid-template-columns: 1fr; } }
+        .brand-card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #334155;
+        }
+        .brand-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #334155;
+        }
+        .brand-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        .brand-name.bizdeedz { color: #38bdf8; }
+        .brand-name.turea { color: #a78bfa; }
+        .brand-score {
+            font-size: 0.8rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+        .score-green { background: #065f46; color: #6ee7b7; }
+        .score-yellow { background: #713f12; color: #fde047; }
+        .score-red { background: #7f1d1d; color: #fca5a5; }
+        .kpi-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #1e293b;
+        }
+        .kpi-row:last-child { border-bottom: none; }
+        .kpi-info { flex: 1; }
+        .kpi-label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 0.25rem;
+        }
+        .kpi-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+        .kpi-meta {
+            text-align: right;
+            min-width: 100px;
+        }
+        .kpi-target {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .kpi-delta {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 0.15rem;
+        }
+        .delta-up { color: #4ade80; }
+        .delta-down { color: #f87171; }
+        .delta-flat { color: #94a3b8; }
+        .bar-bg {
+            height: 4px;
+            background: #334155;
+            border-radius: 2px;
+            margin-top: 0.4rem;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.6s ease;
+        }
+        .bar-green { background: #4ade80; }
+        .bar-yellow { background: #facc15; }
+        .bar-red { background: #f87171; }
+        .last-updated {
+            text-align: center;
+            color: #475569;
+            font-size: 0.8rem;
+            margin-top: 2rem;
+        }
+        .edit-btn {
+            background: none;
+            border: 1px solid #475569;
+            color: #94a3b8;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+        .edit-btn:hover { border-color: #94a3b8; color: #e2e8f0; }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 400px;
+        }
+        .modal h3 { margin-bottom: 1rem; }
+        .modal label {
+            display: block;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 0.25rem;
+            margin-top: 0.75rem;
+        }
+        .modal input {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 6px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+            justify-content: flex-end;
+        }
+        .modal-actions button {
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .btn-save { background: #3b82f6; color: #fff; }
+        .btn-cancel { background: #334155; color: #e2e8f0; }
+    </style>
+</head>
+<body>
+    <h1>KPI Scoreboard</h1>
+    <p class="subtitle">Automation-driven metrics &middot; BizDeedz &amp; Turea</p>
+
+    <div class="brands" id="brands"></div>
+    <p class="last-updated" id="updated"></p>
+
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <h3 id="modal-title">Edit KPI</h3>
+            <label>Current Value</label>
+            <input id="modal-value" type="text">
+            <label>Target</label>
+            <input id="modal-target" type="text">
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="btn-save" onclick="saveModal()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'kpi_scoreboard_data';
+
+        const defaults = {
+            bizdeedz: {
+                name: 'BizDeedz',
+                kpis: [
+                    { id: 'bd_lead_booking', label: 'Lead → Booking Rate', value: 32, target: 45, unit: '%', prev: 28 },
+                    { id: 'bd_followup_sla', label: 'Follow-Up SLA Met', value: 78, target: 95, unit: '%', prev: 72 },
+                    { id: 'bd_noshow', label: 'No-Show Rate', value: 18, target: 10, unit: '%', prev: 22, inverse: true },
+                    { id: 'bd_ttfr', label: 'Time to First Response', value: 14, target: 5, unit: 'min', prev: 20, inverse: true },
+                    { id: 'bd_conversion', label: 'Conversion to Paid', value: 12, target: 20, unit: '%', prev: 9 },
+                ]
+            },
+            turea: {
+                name: 'Turea',
+                kpis: [
+                    { id: 'tu_followers', label: 'Follower Growth', value: 340, target: 500, unit: '/wk', prev: 280 },
+                    { id: 'tu_newsletter', label: 'Newsletter Subs', value: 85, target: 150, unit: '/wk', prev: 60 },
+                    { id: 'tu_dms', label: 'Inbound DMs', value: 42, target: 30, unit: '/wk', prev: 35 },
+                    { id: 'tu_speaking', label: 'Speaking Inquiries', value: 3, target: 5, unit: '/mo', prev: 1 },
+                    { id: 'tu_content', label: 'Content Velocity', value: 8, target: 12, unit: 'posts/wk', prev: 6 },
+                ]
+            }
+        };
+
+        function load() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) return JSON.parse(raw);
+            } catch (e) {}
+            return JSON.parse(JSON.stringify(defaults));
+        }
+
+        function save(data) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        let data = load();
+        let editCtx = null;
+
+        function pct(kpi) {
+            if (kpi.inverse) {
+                if (kpi.target === 0) return kpi.value === 0 ? 100 : 0;
+                return Math.max(0, Math.min(100, ((kpi.prev - kpi.value) / (kpi.prev - kpi.target)) * 100));
+            }
+            if (kpi.target === 0) return 100;
+            return Math.max(0, Math.min(100, (kpi.value / kpi.target) * 100));
+        }
+
+        function barClass(p) { return p >= 75 ? 'bar-green' : p >= 40 ? 'bar-yellow' : 'bar-red'; }
+
+        function deltaHTML(kpi) {
+            const diff = kpi.value - kpi.prev;
+            if (diff === 0) return `<span class="delta-flat">— flat</span>`;
+            const better = kpi.inverse ? diff < 0 : diff > 0;
+            const arrow = better ? '↑' : '↓';
+            const cls = better ? 'delta-up' : 'delta-down';
+            return `<span class="${cls}">${arrow} ${Math.abs(diff)}${kpi.unit}</span>`;
+        }
+
+        function brandScore(brand) {
+            const avg = brand.kpis.reduce((s, k) => s + pct(k), 0) / brand.kpis.length;
+            return avg;
+        }
+
+        function scoreClass(s) { return s >= 70 ? 'score-green' : s >= 40 ? 'score-yellow' : 'score-red'; }
+
+        function render() {
+            const container = document.getElementById('brands');
+            container.innerHTML = '';
+            for (const [key, brand] of Object.entries(data)) {
+                const score = brandScore(brand);
+                const card = document.createElement('div');
+                card.className = 'brand-card';
+                card.innerHTML = `
+                    <div class="brand-header">
+                        <span class="brand-name ${key}">${brand.name}</span>
+                        <span class="brand-score ${scoreClass(score)}">${Math.round(score)}% on track</span>
+                    </div>
+                    ${brand.kpis.map((kpi, i) => {
+                        const p = pct(kpi);
+                        return `
+                        <div class="kpi-row">
+                            <div class="kpi-info">
+                                <div class="kpi-label">${kpi.label}</div>
+                                <div class="kpi-value">${kpi.value}<small style="font-size:0.6em;color:#64748b;margin-left:2px">${kpi.unit}</small></div>
+                                <div class="bar-bg"><div class="bar-fill ${barClass(p)}" style="width:${p}%"></div></div>
+                            </div>
+                            <div class="kpi-meta">
+                                <div class="kpi-target">Target: ${kpi.target}${kpi.unit}</div>
+                                <div class="kpi-delta">${deltaHTML(kpi)}</div>
+                                <button class="edit-btn" onclick="openEdit('${key}',${i})">Edit</button>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                `;
+                container.appendChild(card);
+            }
+            document.getElementById('updated').textContent = 'Last updated: ' + new Date().toLocaleString();
+        }
+
+        function openEdit(brandKey, idx) {
+            editCtx = { brandKey, idx };
+            const kpi = data[brandKey].kpis[idx];
+            document.getElementById('modal-title').textContent = 'Edit: ' + kpi.label;
+            document.getElementById('modal-value').value = kpi.value;
+            document.getElementById('modal-target').value = kpi.target;
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            editCtx = null;
+        }
+
+        function saveModal() {
+            if (!editCtx) return;
+            const kpi = data[editCtx.brandKey].kpis[editCtx.idx];
+            const newVal = parseFloat(document.getElementById('modal-value').value);
+            const newTarget = parseFloat(document.getElementById('modal-target').value);
+            if (!isNaN(newVal)) { kpi.prev = kpi.value; kpi.value = newVal; }
+            if (!isNaN(newTarget)) kpi.target = newTarget;
+            save(data);
+            closeModal();
+            render();
+        }
+
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+        render();
+    </script>
+</body>
+</html>
