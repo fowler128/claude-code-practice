@@ -15,8 +15,8 @@ def multiply(a, b):
 def divide(a, b):
       """Divide a by b"""
       if b == 0:
-                return "Cannot divide by zero"
-            return a / b
+            return "Cannot divide by zero"
+      return a / b
 
 # Test the functions
 print("5 + 3 =", add(5, 3))
