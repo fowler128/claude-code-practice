@@ -8,9 +8,8 @@ import {
   TrendingUp,
   type LucideIcon,
 } from 'lucide-react';
-import type { Question } from '../../types/assessment.types';
 import type { ExtendedPillarDefinition } from '../../constants/pillars';
-import { QuestionCard, type QuestionResponse } from './QuestionCard';
+import { QuestionCard, type QuestionResponse, type Question } from './QuestionCard';
 import { ProgressBar } from '../ui';
 
 /**
@@ -27,7 +26,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
 
 export interface PillarSectionProps {
   /** Pillar definition with questions */
-  pillar: PillarDefinition;
+  pillar: ExtendedPillarDefinition;
   /** Array of responses for this pillar's questions */
   responses: QuestionResponse[];
   /** Callback when a response changes */

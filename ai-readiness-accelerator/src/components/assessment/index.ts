@@ -36,6 +36,7 @@ export {
   QuestionCard,
   type QuestionCardProps,
   type QuestionResponse,
+  type Question,
 } from './QuestionCard';
 
 // Likert scale rating component

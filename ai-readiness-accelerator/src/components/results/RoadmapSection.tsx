@@ -12,7 +12,6 @@ import {
   CheckCircle,
   Circle,
   Target,
-  ChevronRight,
 } from 'lucide-react';
 import type { Roadmap, RoadmapPhase, RoadmapTask } from '../../types/results.types';
 import { Card } from '../ui';
