@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Readiness Scorecard | BizDeedz Legal Operations</title>
+    <meta name="description" content="Get your AI Readiness Scorecard for bankruptcy and legal operations teams. Stop buying AI tools that multiply your chaos.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a365d;
+            --primary-light: #2c5282;
+            --accent: #ed8936;
+            --accent-hover: #dd6b20;
+            --text: #2d3748;
+            --text-light: #718096;
+            --bg-light: #f7fafc;
+            --white: #ffffff;
+            --success: #38a169;
+            --warning: #d69e2e;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--white);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Skip Link for Accessibility */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--primary);
+            color: var(--white);
+            padding: 8px 16px;
+            z-index: 100;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--white);
+            padding: 16px 0;
+            border-bottom: 1px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .nav-cta {
+            background: var(--accent);
+            color: var(--white);
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .nav-cta:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: var(--white);
+            padding: 80px 0 100px;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-size: 2.75rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            max-width: 700px;
+            margin: 0 auto 32px;
+        }
+
+        .hero-cta {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--white);
+            padding: 16px 36px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .hero-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        }
+
+        .hero-note {
+            margin-top: 16px;
+            font-size: 0.9rem;
+            opacity: 0.85;
+        }
+
+        /* Problem Section */
+        .problem {
+            padding: 80px 0;
+            background: var(--bg-light);
+        }
+
+        .problem h2 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+
+        .problem-lead {
+            text-align: center;
+            font-size: 1.15rem;
+            color: var(--text-light);
+            max-width: 700px;
+            margin: 0 auto 48px;
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .problem-card {
+            background: var(--white);
+            padding: 28px;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .problem-card h3 {
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+
+        .problem-card p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        /* Social Proof Strip */
+        .proof-strip {
+            background: var(--primary);
+            color: var(--white);
+            padding: 32px 0;
+        }
+
+        .proof-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 32px;
+            text-align: center;
+        }
+
+        .proof-item {
+            padding: 8px;
+        }
+
+        .proof-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .proof-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Who This Is For Section */
+        .qualification {
+            padding: 80px 0;
+        }
+
+        .qualification h2 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 48px;
+            color: var(--primary);
+        }
+
+        .qual-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px;
+        }
+
+        .qual-box {
+            padding: 32px;
+            border-radius: 12px;
+        }
+
+        .qual-box.for {
+            background: #f0fff4;
+            border: 2px solid var(--success);
+        }
+
+        .qual-box.not-for {
+            background: #fffaf0;
+            border: 2px solid var(--warning);
+        }
+
+        .qual-box h3 {
+            font-size: 1.25rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qual-box.for h3 {
+            color: var(--success);
+        }
+
+        .qual-box.not-for h3 {
+            color: var(--warning);
+        }
+
+        .qual-box ul {
+            list-style: none;
+        }
+
+        .qual-box li {
+            padding: 10px 0;
+            padding-left: 28px;
+            position: relative;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .qual-box li:last-child {
+            border-bottom: none;
+        }
+
+        .qual-box.for li::before {
+            content: "\2713";
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .qual-box.not-for li::before {
+            content: "\2717";
+            position: absolute;
+            left: 0;
+            color: var(--warning);
+            font-weight: bold;
+        }
+
+        /* Deliverables Section */
+        .deliverables {
+            padding: 80px 0;
+            background: var(--bg-light);
+        }
+
+        .deliverables h2 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+
+        .deliverables-lead {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--text-light);
+            max-width: 700px;
+            margin: 0 auto 48px;
+        }
+
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .pillar-card {
+            background: var(--white);
+            padding: 28px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .pillar-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 1.5rem;
+            color: var(--white);
+        }
+
+        .pillar-card h3 {
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .pillar-card p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Proof of Work Preview */
+        .deliverable-preview {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .preview-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .preview-header h3 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .preview-header p {
+            color: var(--text-light);
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .preview-item {
+            background: var(--bg-light);
+            border-radius: 12px;
+            padding: 24px;
+            border: 2px dashed #cbd5e0;
+        }
+
+        .preview-item h4 {
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .preview-item ul {
+            list-style: none;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .preview-item li {
+            padding: 6px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .preview-item li::before {
+            content: "\2022";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+
+        /* Why I Built This */
+        .about {
+            padding: 80px 0;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 48px;
+            align-items: start;
+        }
+
+        .about-image {
+            background: var(--bg-light);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .about-avatar {
+            width: 120px;
+            height: 120px;
+            background: var(--primary);
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--white);
+        }
+
+        .about-name {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .about-title {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .about-text h2 {
+            font-size: 1.75rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .about-text p {
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+
+        .about-text p:last-of-type {
+            margin-bottom: 0;
+        }
+
+        /* Offer Section */
+        .offer {
+            padding: 80px 0;
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .offer-content {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .offer h2 {
+            font-size: 2rem;
+            margin-bottom: 24px;
+        }
+
+        .offer-price {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .offer-details {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 32px;
+        }
+
+        .offer-cta {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--white);
+            padding: 18px 48px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .offer-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+
+        .offer-scarcity {
+            margin-top: 20px;
+            padding: 16px 24px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .offer-scarcity strong {
+            color: var(--accent);
+        }
+
+        .offer-scarcity-reason {
+            font-size: 0.9rem;
+            opacity: 0.85;
+            margin-top: 4px;
+        }
+
+        /* Booking Section */
+        .booking {
+            padding: 80px 0;
+            background: var(--bg-light);
+        }
+
+        .booking h2 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+
+        .booking-lead {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+
+        .booking-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .booking-form {
+            background: var(--white);
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--primary);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-submit {
+            width: 100%;
+            background: var(--accent);
+            color: var(--white);
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .form-submit:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Trust Block */
+        .trust-block {
+            background: var(--white);
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        .trust-block h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .trust-item:last-child {
+            border-bottom: none;
+        }
+
+        .trust-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .trust-text {
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--primary);
+            color: var(--white);
+            padding: 48px 0 24px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 24px;
+        }
+
+        .footer-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-links a {
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+        }
+
+        .footer-legal {
+            text-align: center;
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        .footer-disclaimer {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            margin-top: 12px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+
+            .booking-container {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="#main" class="skip-link">Skip to content</a>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="container nav-content">
+            <div class="logo">BizDeedz Legal Ops</div>
+            <a href="#booking" class="nav-cta">Book Your Call</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="main">
+        <div class="container">
+            <div class="hero-badge">For Bankruptcy &amp; High-Volume Legal Operations Teams</div>
+            <h1>Stop Buying AI Tools That Multiply Your Chaos</h1>
+            <p class="hero-subtitle">AI fails when your intake-to-file workflow has no single source of truth, no definition of done, and no quality gates. Get a clear assessment before you invest.</p>
+            <a href="#booking" class="hero-cta">Get Your AI Readiness Scorecard</a>
+            <p class="hero-note">60-90 minute diagnostic + prioritized 30/60/90 plan in 5-7 days</p>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="problem">
+        <div class="container">
+            <h2>The Real Reason AI Implementations Fail</h2>
+            <p class="problem-lead">Most firms fail at AI not because of the tools. They fail because their workflows can't handle the speed and scale AI creates.</p>
+            <div class="problem-grid">
+                <div class="problem-card">
+                    <h3>No Single Source of Truth</h3>
+                    <p>Documents scattered across email, shared drives, and case management systems. AI amplifies this chaos exponentially.</p>
+                </div>
+                <div class="problem-card">
+                    <h3>Missing Quality Gates</h3>
+                    <p>No clear checkpoints between intake and filing. Errors propagate faster when AI accelerates your broken process.</p>
+                </div>
+                <div class="problem-card">
+                    <h3>Undefined "Definition of Done"</h3>
+                    <p>Without clear completion criteria, AI-generated work sits in limbo. Speed without quality destroys client trust.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof Strip -->
+    <section class="proof-strip">
+        <div class="container">
+            <div class="proof-grid">
+                <div class="proof-item">
+                    <div class="proof-number">30</div>
+                    <div class="proof-label">Years in Federal Legal Operations</div>
+                </div>
+                <div class="proof-item">
+                    <div class="proof-number">10K+</div>
+                    <div class="proof-label">Monthly Matters Managed</div>
+                </div>
+                <div class="proof-item">
+                    <div class="proof-number">90</div>
+                    <div class="proof-label">Federal Districts Covered</div>
+                </div>
+                <div class="proof-item">
+                    <div class="proof-number">5-7</div>
+                    <div class="proof-label">Day Turnaround</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Who This Is For -->
+    <section class="qualification" id="qualification">
+        <div class="container">
+            <h2>Is This Right For You?</h2>
+            <div class="qual-grid">
+                <div class="qual-box for">
+                    <h3><span>This IS For You If:</span></h3>
+                    <ul>
+                        <li>You run high-volume bankruptcy or legal operations</li>
+                        <li>You're an operational leader responsible for intake and document flow</li>
+                        <li>Your team experiences pain points in intake-to-filing workflows</li>
+                        <li>You want AI to enhance (not replace) your team's capabilities</li>
+                        <li>You have access to baseline operational data and metrics</li>
+                        <li>You're willing to change workflows based on assessment findings</li>
+                    </ul>
+                </div>
+                <div class="qual-box not-for">
+                    <h3><span>This is NOT For You If:</span></h3>
+                    <ul>
+                        <li>You want AI to replace staff rather than augment them</li>
+                        <li>You're unwilling to change existing workflows</li>
+                        <li>You have no access to baseline data or operational metrics</li>
+                        <li>You're looking for a quick tech fix without process work</li>
+                        <li>Your firm handles fewer than 50 matters per month</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Deliverables Section -->
+    <section class="deliverables" id="deliverables">
+        <div class="container">
+            <h2>What You'll Receive</h2>
+            <p class="deliverables-lead">A scored rubric, risk register, and sequenced 30/60/90 execution plan tied to measurable KPIs.</p>
+
+            <div class="pillars-grid">
+                <div class="pillar-card">
+                    <div class="pillar-icon">G</div>
+                    <h3>Governance</h3>
+                    <p>Decision rights, approval chains, and accountability structures</p>
+                </div>
+                <div class="pillar-card">
+                    <div class="pillar-icon">W</div>
+                    <h3>Workflow</h3>
+                    <p>Process mapping, bottleneck identification, and quality gates</p>
+                </div>
+                <div class="pillar-card">
+                    <div class="pillar-icon">D</div>
+                    <h3>Data &amp; Systems</h3>
+                    <p>Integration points, data quality, and system readiness</p>
+                </div>
+                <div class="pillar-card">
+                    <div class="pillar-icon">A</div>
+                    <h3>Adoption &amp; Capacity</h3>
+                    <p>Team readiness, training needs, and change management</p>
+                </div>
+            </div>
+
+            <!-- Proof of Work Preview -->
+            <div class="deliverable-preview">
+                <div class="preview-header">
+                    <h3>Sample Deliverable Package</h3>
+                    <p>Here's what your assessment package includes:</p>
+                </div>
+                <div class="preview-grid">
+                    <div class="preview-item">
+                        <h4>AI Readiness Scorecard</h4>
+                        <ul>
+                            <li>Scored assessment across 4 dimensions</li>
+                            <li>Benchmark comparison to similar firms</li>
+                            <li>Clear pass/fail indicators per category</li>
+                            <li>Priority ranking for improvements</li>
+                        </ul>
+                    </div>
+                    <div class="preview-item">
+                        <h4>Workflow Risk Map</h4>
+                        <ul>
+                            <li>Top 5 risk exposures ranked by severity</li>
+                            <li>Visual process flow with pain points</li>
+                            <li>AI readiness status per workflow stage</li>
+                            <li>Quick-win opportunities identified</li>
+                        </ul>
+                    </div>
+                    <div class="preview-item">
+                        <h4>30/60/90 Day Plan</h4>
+                        <ul>
+                            <li>Sequenced execution roadmap</li>
+                            <li>Measurable KPIs for each phase</li>
+                            <li>Resource requirements outlined</li>
+                            <li>Decision checkpoints defined</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why I Built This -->
+    <section class="about" id="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-image">
+                    <div class="about-avatar">JF</div>
+                    <div class="about-name">John Fowler</div>
+                    <div class="about-title">Legal Operations Consultant</div>
+                </div>
+                <div class="about-text">
+                    <h2>Why I Built This Assessment</h2>
+                    <p>After 30 years in federal legal operations managing high-volume bankruptcy workflows, I've seen the same pattern repeat: firms invest in powerful AI tools, then watch them fail because the underlying workflows can't support them.</p>
+                    <p>The problem isn't the AI. It's workflow integrity and risk controls. Without a single source of truth, without quality gates, without clear definitions of done, AI just accelerates your existing chaos.</p>
+                    <p>This assessment exists because I got tired of watching firms waste money on tools they weren't ready to use. The scorecard gives you clarity before you invest, so you can either fix what needs fixing first, or proceed with confidence that your foundation is solid.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Offer Section -->
+    <section class="offer">
+        <div class="container">
+            <div class="offer-content">
+                <h2>AI Readiness Scorecard + Workflow Risk Map</h2>
+                <div class="offer-price">$2,500</div>
+                <div class="offer-details">5-7 day delivery with a 60-90 minute diagnostic call + prioritized 30/60/90 plan</div>
+                <a href="#booking" class="offer-cta">Book Your AI Readiness Call</a>
+                <div class="offer-scarcity">
+                    <strong>Only 5 spots available this month</strong>
+                    <div class="offer-scarcity-reason">To maintain 5-7 day turnaround and implementation-quality recommendations</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Section -->
+    <section class="booking" id="booking">
+        <div class="container">
+            <h2>Book Your AI Readiness Call</h2>
+            <p class="booking-lead">Select a time that works for you. After booking, you'll receive a prep packet with what to gather before our call.</p>
+
+            <div class="booking-container">
+                <div class="booking-form">
+                    <form id="intake-form" action="#" method="POST">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Work Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="firm">Firm Name</label>
+                            <input type="text" id="firm" name="firm" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="role">Your Role</label>
+                            <select id="role" name="role" required>
+                                <option value="">Select your role</option>
+                                <option value="managing-partner">Managing Partner</option>
+                                <option value="operations-director">Operations Director</option>
+                                <option value="it-director">IT Director</option>
+                                <option value="practice-manager">Practice Manager</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="volume">Monthly Matter Volume</label>
+                            <select id="volume" name="volume" required>
+                                <option value="">Select volume</option>
+                                <option value="50-100">50-100 matters</option>
+                                <option value="100-500">100-500 matters</option>
+                                <option value="500-1000">500-1000 matters</option>
+                                <option value="1000+">1000+ matters</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bottleneck">Primary Bottleneck</label>
+                            <select id="bottleneck" name="bottleneck" required>
+                                <option value="">Select primary bottleneck</option>
+                                <option value="intake">Intake processing</option>
+                                <option value="document-assembly">Document assembly</option>
+                                <option value="review-approval">Review &amp; approval</option>
+                                <option value="filing">Filing &amp; compliance</option>
+                                <option value="client-communication">Client communication</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="form-submit">Book Your Call Now</button>
+                    </form>
+                </div>
+
+                <div class="trust-block">
+                    <h3>Confidentiality &amp; Trust</h3>
+                    <div class="trust-item">
+                        <div class="trust-icon">&#10003;</div>
+                        <div class="trust-text"><strong>Redacted samples accepted</strong> - We can work with anonymized data and redacted documents</div>
+                    </div>
+                    <div class="trust-item">
+                        <div class="trust-icon">&#10003;</div>
+                        <div class="trust-text"><strong>Confidential handling</strong> - All assessment materials are handled with strict confidentiality practices</div>
+                    </div>
+                    <div class="trust-item">
+                        <div class="trust-icon">&#10003;</div>
+                        <div class="trust-text"><strong>NDA available</strong> - Mutual NDA provided upon request before engagement</div>
+                    </div>
+                    <div class="trust-item">
+                        <div class="trust-icon">&#10003;</div>
+                        <div class="trust-text"><strong>No data retention</strong> - Your operational data is not stored after assessment delivery</div>
+                    </div>
+                    <div class="trust-item">
+                        <div class="trust-icon">&#10003;</div>
+                        <div class="trust-text"><strong>Prep packet included</strong> - You'll know exactly what to gather before our call</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">BizDeedz Legal Ops</div>
+                <div class="footer-links">
+                    <a href="#main">Home</a>
+                    <a href="#deliverables">Deliverables</a>
+                    <a href="#about">About</a>
+                    <a href="#booking">Book a Call</a>
+                </div>
+            </div>
+            <div class="footer-legal">
+                &copy; 2026 BizDeedz Legal Operations. All rights reserved.
+            </div>
+            <div class="footer-disclaimer">
+                <strong>Disclaimer:</strong> This assessment provides operational recommendations only and does not constitute legal advice. BizDeedz Legal Ops is not a law firm and does not provide legal services. Consult with qualified legal counsel for legal matters.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Form submission handling
+        document.getElementById('intake-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Collect form data
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            // Here you would integrate with your booking system
+            // Example: redirect to Calendly or other booking tool
+            console.log('Form submitted:', data);
+
+            // Placeholder: redirect to booking calendar
+            // window.location.href = 'YOUR_CALENDLY_LINK?name=' + encodeURIComponent(data.name) + '&email=' + encodeURIComponent(data.email);
+
+            alert('Thank you! Redirecting to calendar booking...');
+        });
+    </script>
+</body>
+</html>
