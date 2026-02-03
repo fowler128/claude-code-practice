@@ -1,6 +1,6 @@
 import React, { useState, useId } from 'react';
 import { HelpCircle, ChevronDown, ChevronUp, MessageSquare } from 'lucide-react';
-import type { Question } from '../../types';
+import type { Question } from '../../types/assessment.types';
 import { LikertScale } from './LikertScale';
 
 export interface QuestionResponse {

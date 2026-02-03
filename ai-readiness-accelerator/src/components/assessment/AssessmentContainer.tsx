@@ -80,7 +80,6 @@ export const AssessmentContainer: React.FC<AssessmentContainerProps> = ({
 
   // For pillar steps: allow navigation even if not all questions answered
   // (they can always go back and answer more)
-  const isPillarStep = currentStep > 0 && currentStep <= PILLAR_DEFINITIONS.length;
   const canGoNext = currentStep === 0 ? isProfileValid : true;
 
   const isLastStep = currentStep === totalSteps - 1;

@@ -8,7 +8,8 @@ import {
   TrendingUp,
   type LucideIcon,
 } from 'lucide-react';
-import type { PillarDefinition, Question } from '../../types';
+import type { Question } from '../../types/assessment.types';
+import type { ExtendedPillarDefinition } from '../../constants/pillars';
 import { QuestionCard, type QuestionResponse } from './QuestionCard';
 import { ProgressBar } from '../ui';
 

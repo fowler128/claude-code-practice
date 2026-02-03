@@ -2,7 +2,6 @@ import React, { useId } from 'react';
 import { Building2 } from 'lucide-react';
 import { Input, Select } from '../ui';
 import {
-  type FirmProfile,
   type PracticeArea,
   type PracticeManagementTool,
   type OperationsMaturity,
