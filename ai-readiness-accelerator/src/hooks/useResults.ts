@@ -120,7 +120,9 @@ function hasAnyResponses(responses: AssessmentResponses): boolean {
  * }
  * ```
  */
-export function useResults({ responses, firmProfile }: UseResultsProps): UseResultsReturn {
+export function useResults({ responses, firmProfile: _firmProfile }: UseResultsProps): UseResultsReturn {
+  // Note: firmProfile is available for future use in customizing results
+  // Currently unused but kept for API consistency
   /**
    * Check if we have any responses to compute results from
    */

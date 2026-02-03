@@ -16,12 +16,11 @@ import type {
   AssessmentResponses,
   LikertValue,
   PillarId,
-} from '../types';
+} from '../types/assessment.types';
 import {
   createInitialAssessmentState,
-  createEmptyAssessmentResponses,
   PILLAR_ORDER,
-} from '../types';
+} from '../types/assessment.types';
 import type { FirmProfile } from '../types/firm.types';
 import { useLocalStorage } from './useLocalStorage';
 import { PILLAR_DEFINITIONS } from '../constants/pillars';
@@ -95,22 +94,6 @@ export interface UseAssessmentReturn {
   computed: AssessmentComputed;
 }
 
-/**
- * Creates a default empty firm profile
- */
-function createEmptyFirmProfile(): FirmProfile {
-  return {
-    firmName: '',
-    practiceAreas: [],
-    attorneyCount: 0,
-    paralegalCount: 0,
-    intakeStaffCount: 0,
-    adminCount: 0,
-    practiceManagement: 'none',
-    documentManagement: '',
-    currentOperationsMaturity: 'informal',
-  };
-}
 
 /**
  * Validates that a firm profile has the minimum required fields
@@ -256,7 +239,7 @@ export function useAssessment(): UseAssessmentReturn {
    */
   const setResponse = useCallback(
     (pillarId: PillarId, questionId: string, value: LikertValue) => {
-      setAssessmentState((prev) => {
+      setAssessmentState((prev: AssessmentState) => {
         const pillarResponses = [...(prev.responses[pillarId] || [])];
         const existingIndex = pillarResponses.findIndex(
           (r) => r.questionId === questionId
@@ -289,7 +272,7 @@ export function useAssessment(): UseAssessmentReturn {
    * Navigate to the next step
    */
   const nextStep = useCallback(() => {
-    setAssessmentState((prev) => {
+    setAssessmentState((prev: AssessmentState) => {
       if (prev.currentStep >= TOTAL_STEPS - 1) {
         return prev;
       }
@@ -308,7 +291,7 @@ export function useAssessment(): UseAssessmentReturn {
    * Navigate to the previous step
    */
   const prevStep = useCallback(() => {
-    setAssessmentState((prev) => {
+    setAssessmentState((prev: AssessmentState) => {
       if (prev.currentStep <= 0) {
         return prev;
       }
@@ -332,7 +315,7 @@ export function useAssessment(): UseAssessmentReturn {
         return;
       }
 
-      setAssessmentState((prev) => {
+      setAssessmentState((prev: AssessmentState) => {
         const newState: AssessmentState = {
           ...prev,
           currentStep: step,
@@ -349,7 +332,7 @@ export function useAssessment(): UseAssessmentReturn {
    * Mark the assessment as complete
    */
   const complete = useCallback(() => {
-    setAssessmentState((prev) => {
+    setAssessmentState((prev: AssessmentState) => {
       const newState: AssessmentState = {
         ...prev,
         isComplete: true,

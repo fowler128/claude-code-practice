@@ -77,19 +77,10 @@ export const PillarSection: React.FC<PillarSectionProps> = ({
 
         {/* Progress indicator */}
         <div className="mt-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">
-              Progress: {answeredCount} of {totalCount} questions answered
-            </span>
-            <span className="text-sm text-gray-500">
-              {Math.round(progressPercent)}%
-            </span>
-          </div>
-          <ProgressBar
+            <ProgressBar
             value={progressPercent}
-            max={100}
-            size="sm"
-            aria-label={`${answeredCount} of ${totalCount} questions answered`}
+            showPercentage
+            label={`${answeredCount} of ${totalCount} questions answered`}
           />
         </div>
       </div>
