@@ -43,8 +43,8 @@ function App() {
    * Handle assessment completion - save data and navigate to results
    */
   const handleAssessmentComplete = useCallback(
-    (responses: AssessmentResponses, firmProfile: FirmProfile) => {
-      setAssessmentData({ responses, firmProfile });
+    (data: { responses: AssessmentResponses; firmProfile: FirmProfile }) => {
+      setAssessmentData(data);
       setCurrentView('results');
     },
     []
@@ -89,8 +89,7 @@ function App() {
         }
         return (
           <ResultsView
-            responses={assessmentData.responses}
-            firmProfile={assessmentData.firmProfile}
+            assessmentData={assessmentData}
             onReset={handleReset}
           />
         );

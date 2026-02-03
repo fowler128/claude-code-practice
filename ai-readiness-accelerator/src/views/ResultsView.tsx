@@ -32,34 +32,34 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ assessmentData, onRese
 
   // Calculate scores and results from assessment responses
   const {
-    pillarScores,
+    scores,
     overallScore,
     readinessLevel,
-    strengthsGaps,
-    roadmap,
-    isLoading: resultsLoading,
-  } = useResults(responses, firmProfile);
+    strengths,
+    gaps,
+    blockers,
+    pillarScores,
+  } = useResults({ responses, firmProfile });
 
   // Calculate ROI projections
   const {
-    roiBreakdown,
-    updateInputs,
-    resetInputs,
-    isLoading: roiLoading,
-  } = useROICalculator(firmProfile);
+    inputs: roiInputs,
+    projections,
+    setInput,
+    resetToDefaults,
+    breakdown,
+  } = useROICalculator();
 
   // Generate AI-powered executive summary
   const {
     summary,
-    isLoading: summaryLoading,
+    loading: summaryLoading,
     error: summaryError,
-    retry: retrySummary,
+    regenerate: retrySummary,
   } = useGeminiSummary({
-    pillarScores,
-    overallScore,
-    readinessLevel,
+    scores: pillarScores,
     firmProfile,
-    strengthsGaps,
+    enabled: true,
   });
 
   /**
@@ -69,30 +69,39 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ assessmentData, onRese
     window.open(CALENDLY_URL, '_blank', 'noopener,noreferrer');
   }, []);
 
-  // Combined loading state
-  const isLoading = resultsLoading || roiLoading;
+  /**
+   * Handle ROI input changes
+   */
+  const handleRoiInputChange = useCallback(
+    (key: string, value: number) => {
+      setInput(key as keyof typeof roiInputs, value);
+    },
+    [setInput]
+  );
 
   return (
     <ResultsDashboard
       // Firm info
       firmProfile={firmProfile}
       // Scores and analysis
-      pillarScores={pillarScores}
+      scores={scores}
       overallScore={overallScore}
       readinessLevel={readinessLevel}
-      strengthsGaps={strengthsGaps}
-      roadmap={roadmap}
+      strengths={strengths}
+      gaps={gaps}
+      blockers={blockers}
       // ROI data
-      roiBreakdown={roiBreakdown}
-      onROIInputsChange={updateInputs}
-      onROIReset={resetInputs}
+      roiInputs={roiInputs}
+      roiProjections={projections}
+      roiBreakdown={breakdown}
+      onRoiInputChange={handleRoiInputChange}
+      onRoiReset={resetToDefaults}
       // AI summary
       summary={summary}
       summaryLoading={summaryLoading}
       summaryError={summaryError}
       onRetrySummary={retrySummary}
-      // Loading and actions
-      isLoading={isLoading}
+      // Actions
       onBookCall={handleBookCall}
       onReset={onReset}
     />
