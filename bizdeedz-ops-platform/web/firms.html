@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firms - BizDeedz Ops Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Firm-specific styles */
+        .firm-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: var(--space-6);
+        }
+
+        @media (max-width: 1024px) {
+            .firm-detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--space-3) 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: var(--gray-500);
+            font-size: 0.875rem;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .contact-card {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-2);
+        }
+
+        .contact-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-name {
+            font-weight: 500;
+        }
+
+        .contact-role {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+        }
+
+        .capacity-indicator {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .capacity-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .capacity-dot.active {
+            background: var(--success);
+        }
+
+        .capacity-dot.inactive {
+            background: var(--danger);
+        }
+
+        .firm-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-6);
+        }
+
+        .firm-title-section h2 {
+            margin-bottom: var(--space-2);
+        }
+
+        .firm-badges {
+            display: flex;
+            gap: var(--space-2);
+        }
+
+        /* Toggle switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: var(--gray-300);
+            border-radius: 24px;
+            transition: var(--transition-fast);
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: var(--transition-fast);
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--success);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="24" height="24" rx="6" fill="#2563eb"/>
+                        <path d="M7 8h10M7 12h10M7 16h6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    BizDeedz Ops
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a href="dashboard.html" class="nav-link">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7" rx="1"/>
+                            <rect x="14" y="3" width="7" height="7" rx="1"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1"/>
+                            <rect x="14" y="14" width="7" height="7" rx="1"/>
+                        </svg>
+                        Dashboard
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Work</div>
+                    <a href="matters.html" class="nav-link">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                        Matters
+                    </a>
+                    <a href="firms.html" class="nav-link active">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                            <polyline points="9,22 9,12 15,12 15,22"/>
+                        </svg>
+                        Firms
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Billing</div>
+                    <a href="billing.html" class="nav-link">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="1" y="4" width="22" height="16" rx="2"/>
+                            <line x1="1" y1="10" x2="23" y2="10"/>
+                        </svg>
+                        Invoices & AR
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports</div>
+                    <a href="#" class="nav-link">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="20" x2="18" y2="10"/>
+                            <line x1="12" y1="20" x2="12" y2="4"/>
+                            <line x1="6" y1="20" x2="6" y2="14"/>
+                        </svg>
+                        Metrics
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <h1 class="page-title">Firms</h1>
+                <div class="page-actions">
+                    <button class="btn btn-primary" onclick="showNewFirmModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        New Firm
+                    </button>
+                </div>
+            </header>
+
+            <div class="page-body">
+                <!-- Firms List View -->
+                <div id="firms-list-view">
+                    <div class="data-table-container">
+                        <div class="data-table-header">
+                            <h3 class="data-table-title">All Firms</h3>
+                            <div class="data-table-actions">
+                                <select class="form-select" style="width: auto;" id="filter-status">
+                                    <option value="all">All Status</option>
+                                    <option value="active">Active</option>
+                                    <option value="on_hold">On Hold</option>
+                                    <option value="terminated">Terminated</option>
+                                </select>
+                            </div>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Firm Name</th>
+                                    <th>Status</th>
+                                    <th>Capacity</th>
+                                    <th>Retainer</th>
+                                    <th>Active Matters</th>
+                                    <th>AR Outstanding</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="firms-table-body">
+                                <tr onclick="showFirmDetail('11111111-1111-1111-1111-111111111111')" style="cursor: pointer;">
+                                    <td>
+                                        <strong>Johnson & Associates</strong>
+                                        <div class="text-sm text-muted">billing@johnsonlaw.com</div>
+                                    </td>
+                                    <td><span class="status-badge delivered">Active</span></td>
+                                    <td>
+                                        <span class="capacity-indicator">
+                                            <span class="capacity-dot active"></span>
+                                            Active
+                                        </span>
+                                    </td>
+                                    <td class="font-mono">$2,500.00</td>
+                                    <td>4</td>
+                                    <td class="font-mono">$0.00</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); showFirmDetail('11111111-1111-1111-1111-111111111111')">View</button>
+                                    </td>
+                                </tr>
+                                <tr onclick="showFirmDetail('22222222-2222-2222-2222-222222222222')" style="cursor: pointer;">
+                                    <td>
+                                        <strong>Smith Legal Group</strong>
+                                        <div class="text-sm text-muted">accounts@smithlegal.com</div>
+                                    </td>
+                                    <td><span class="status-badge delivered">Active</span></td>
+                                    <td>
+                                        <span class="capacity-indicator">
+                                            <span class="capacity-dot active"></span>
+                                            Active
+                                        </span>
+                                    </td>
+                                    <td class="font-mono">$1,500.00</td>
+                                    <td>3</td>
+                                    <td class="font-mono">$550.00</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); showFirmDetail('22222222-2222-2222-2222-222222222222')">View</button>
+                                    </td>
+                                </tr>
+                                <tr onclick="showFirmDetail('33333333-3333-3333-3333-333333333333')" style="cursor: pointer;">
+                                    <td>
+                                        <strong>Davis Bankruptcy Law</strong>
+                                        <div class="text-sm text-muted">davis@dbllaw.com</div>
+                                    </td>
+                                    <td><span class="status-badge warning">On Hold</span></td>
+                                    <td>
+                                        <span class="capacity-indicator">
+                                            <span class="capacity-dot inactive"></span>
+                                            Inactive
+                                        </span>
+                                    </td>
+                                    <td class="font-mono">$2,000.00</td>
+                                    <td>1 (paused)</td>
+                                    <td class="font-mono text-danger">$650.00</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); showFirmDetail('33333333-3333-3333-3333-333333333333')">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Firm Detail View (Hidden by default) -->
+                <div id="firm-detail-view" style="display: none;">
+                    <div class="mb-4">
+                        <button class="btn btn-secondary" onclick="hideFirmDetail()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="19" y1="12" x2="5" y2="12"/>
+                                <polyline points="12,19 5,12 12,5"/>
+                            </svg>
+                            Back to Firms
+                        </button>
+                    </div>
+
+                    <div class="firm-header">
+                        <div class="firm-title-section">
+                            <h2 id="firm-detail-name">Johnson & Associates</h2>
+                            <div class="firm-badges">
+                                <span class="status-badge delivered" id="firm-detail-status">Active</span>
+                                <span class="capacity-indicator" id="firm-detail-capacity">
+                                    <span class="capacity-dot active"></span>
+                                    Active Capacity
+                                </span>
+                            </div>
+                        </div>
+                        <div class="page-actions">
+                            <button class="btn btn-secondary" onclick="editFirm()">Edit Firm</button>
+                            <button class="btn btn-primary" onclick="showNewMatterModal()">+ New Matter</button>
+                        </div>
+                    </div>
+
+                    <div class="firm-detail-grid">
+                        <!-- Main Content Column -->
+                        <div>
+                            <!-- Tabs -->
+                            <div class="card mb-6">
+                                <div class="tabs">
+                                    <div class="tab active" data-tab="contacts" onclick="switchTab('contacts')">Contacts</div>
+                                    <div class="tab" data-tab="billing" onclick="switchTab('billing')">Billing</div>
+                                    <div class="tab" data-tab="matters" onclick="switchTab('matters')">Matters</div>
+                                    <div class="tab" data-tab="metrics" onclick="switchTab('metrics')">Metrics</div>
+                                </div>
+
+                                <!-- Contacts Tab -->
+                                <div class="tab-content active" id="tab-contacts">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h4>Contacts</h4>
+                                        <button class="btn btn-sm btn-secondary" onclick="showAddContactModal()">+ Add Contact</button>
+                                    </div>
+                                    <div id="contacts-list">
+                                        <div class="contact-card">
+                                            <div class="contact-avatar">MJ</div>
+                                            <div class="contact-info">
+                                                <div class="contact-name">Mark Johnson</div>
+                                                <div class="contact-role">Attorney (Primary)</div>
+                                                <div class="text-sm text-muted">mjohnson@johnsonlaw.com • 555-0100</div>
+                                            </div>
+                                            <button class="btn btn-sm btn-icon btn-secondary">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                                                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <div class="contact-card">
+                                            <div class="contact-avatar">SW</div>
+                                            <div class="contact-info">
+                                                <div class="contact-name">Sarah Williams</div>
+                                                <div class="contact-role">Staff</div>
+                                                <div class="text-sm text-muted">swilliams@johnsonlaw.com • 555-0101</div>
+                                            </div>
+                                            <button class="btn btn-sm btn-icon btn-secondary">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                                                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Billing Tab -->
+                                <div class="tab-content" id="tab-billing">
+                                    <h4 class="mb-4">Billing Configuration</h4>
+                                    <div class="stat-row">
+                                        <span class="stat-label">Retainer Amount</span>
+                                        <span class="stat-value font-mono">$2,500.00</span>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span class="stat-label">Retainer Due Day</span>
+                                        <span class="stat-value">1st of month</span>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span class="stat-label">Invoice Cadence</span>
+                                        <span class="stat-value">Friday</span>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span class="stat-label">Billing Email</span>
+                                        <span class="stat-value">billing@johnsonlaw.com</span>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span class="stat-label">Active Capacity</span>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked onchange="toggleCapacity(this)">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+
+                                    <h4 class="mt-6 mb-4">Recent Invoices</h4>
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Invoice #</th>
+                                                <th>Date</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>INV-2026-005</td>
+                                                <td>Jan 31, 2026</td>
+                                                <td class="font-mono">$3,200.00</td>
+                                                <td><span class="status-badge paid">Paid</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>INV-2026-002</td>
+                                                <td>Jan 24, 2026</td>
+                                                <td class="font-mono">$1,850.00</td>
+                                                <td><span class="status-badge paid">Paid</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Matters Tab -->
+                                <div class="tab-content" id="tab-matters">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h4>Matters</h4>
+                                        <select class="form-select" style="width: auto;">
+                                            <option>All Stages</option>
+                                            <option>Active Only</option>
+                                            <option>Completed</option>
+                                        </select>
+                                    </div>
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Matter</th>
+                                                <th>Type</th>
+                                                <th>Stage</th>
+                                                <th>Deadline</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr onclick="openMatter('aaaa1111')" style="cursor: pointer;">
+                                                <td>Adams, Michael – Ch 7</td>
+                                                <td><span class="kanban-tag ch7">Ch 7</span></td>
+                                                <td><span class="status-badge in-progress">In Progress</span></td>
+                                                <td>Feb 15, 2026</td>
+                                            </tr>
+                                            <tr onclick="openMatter('aaaa2222')" style="cursor: pointer;">
+                                                <td>Baker, Jennifer – Ch 13</td>
+                                                <td><span class="kanban-tag ch13">Ch 13</span></td>
+                                                <td><span class="status-badge qc">QC</span></td>
+                                                <td>Feb 20, 2026</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Metrics Tab -->
+                                <div class="tab-content" id="tab-metrics">
+                                    <h4 class="mb-4">Performance Metrics</h4>
+                                    <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr);">
+                                        <div class="kpi-card">
+                                            <div class="kpi-label">Total Matters</div>
+                                            <div class="kpi-value">24</div>
+                                        </div>
+                                        <div class="kpi-card">
+                                            <div class="kpi-label">Avg Revisions</div>
+                                            <div class="kpi-value">1.1</div>
+                                        </div>
+                                        <div class="kpi-card">
+                                            <div class="kpi-label">Avg Cycle Time</div>
+                                            <div class="kpi-value">4.2d</div>
+                                        </div>
+                                    </div>
+
+                                    <h4 class="mt-6 mb-4">Financial Summary</h4>
+                                    <div class="stat-row">
+                                        <span class="stat-label">Total Billed (YTD)</span>
+                                        <span class="stat-value font-mono">$18,500.00</span>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span class="stat-label">Total Collected (YTD)</span>
+                                        <span class="stat-value font-mono">$18,500.00</span>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span class="stat-label">AR Outstanding</span>
+                                        <span class="stat-value font-mono">$0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sidebar Column -->
+                        <div>
+                            <!-- Quick Stats Card -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h4 class="card-title">Quick Stats</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="stat-row">
+                                        <span class="stat-label">Active Matters</span>
+                                        <span class="stat-value">4</span>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span class="stat-label">In QC</span>
+                                        <span class="stat-value">1</span>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span class="stat-label">Waiting Inputs</span>
+                                        <span class="stat-value">1</span>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span class="stat-label">Rush Matters</span>
+                                        <span class="stat-value text-danger">1</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Recent Activity Card -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title">Recent Activity</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="timeline">
+                                        <div class="timeline-item success">
+                                            <div class="timeline-dot"></div>
+                                            <div class="timeline-content">
+                                                <strong>Matter Delivered</strong><br>
+                                                Martinez, Carlos – Ch 7
+                                            </div>
+                                            <div class="timeline-time">Feb 2, 2026</div>
+                                        </div>
+                                        <div class="timeline-item info">
+                                            <div class="timeline-dot"></div>
+                                            <div class="timeline-content">
+                                                <strong>Invoice Paid</strong><br>
+                                                INV-2026-005 - $3,200.00
+                                            </div>
+                                            <div class="timeline-time">Jan 31, 2026</div>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <div class="timeline-dot"></div>
+                                            <div class="timeline-content">
+                                                <strong>New Matter Assigned</strong><br>
+                                                Baker, Jennifer – Ch 13
+                                            </div>
+                                            <div class="timeline-time">Jan 28, 2026</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- New Firm Modal -->
+    <div class="modal-overlay" id="new-firm-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Firm</h3>
+                <button class="modal-close" onclick="closeModal('new-firm-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="new-firm-form">
+                    <div class="form-group">
+                        <label class="form-label">Firm Name *</label>
+                        <input type="text" class="form-input" id="firm-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Billing Email *</label>
+                        <input type="email" class="form-input" id="firm-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Retainer Amount</label>
+                        <input type="number" class="form-input" id="firm-retainer" step="0.01" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Retainer Due Day</label>
+                        <select class="form-select" id="firm-due-day">
+                            <option value="1" selected>1st</option>
+                            <option value="15">15th</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Primary Contact Name</label>
+                        <input type="text" class="form-input" id="firm-contact-name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Primary Contact Email</label>
+                        <input type="email" class="form-input" id="firm-contact-email">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Primary Contact Phone</label>
+                        <input type="tel" class="form-input" id="firm-contact-phone">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('new-firm-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="createFirm()">Create Firm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =============================================================================
+        // FIRM MANAGEMENT FUNCTIONS
+        // =============================================================================
+
+        function showNewFirmModal() {
+            document.getElementById('new-firm-modal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function createFirm() {
+            const form = document.getElementById('new-firm-form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const firmData = {
+                firm_name: document.getElementById('firm-name').value,
+                billing_email: document.getElementById('firm-email').value,
+                retainer_amount: parseFloat(document.getElementById('firm-retainer').value),
+                retainer_due_day: parseInt(document.getElementById('firm-due-day').value),
+                contact: {
+                    name: document.getElementById('firm-contact-name').value,
+                    email: document.getElementById('firm-contact-email').value,
+                    phone: document.getElementById('firm-contact-phone').value
+                }
+            };
+
+            console.log('Creating firm:', firmData);
+            // In production: Retool mutation to Supabase
+
+            alert('Firm created successfully!');
+            closeModal('new-firm-modal');
+            form.reset();
+        }
+
+        function showFirmDetail(firmId) {
+            console.log('Showing firm detail:', firmId);
+            document.getElementById('firms-list-view').style.display = 'none';
+            document.getElementById('firm-detail-view').style.display = 'block';
+            // In production: Load firm data from Supabase
+        }
+
+        function hideFirmDetail() {
+            document.getElementById('firm-detail-view').style.display = 'none';
+            document.getElementById('firms-list-view').style.display = 'block';
+        }
+
+        function editFirm() {
+            alert('Edit firm modal would open here');
+        }
+
+        function toggleCapacity(checkbox) {
+            const status = checkbox.checked ? 'Active' : 'Inactive';
+            console.log('Toggling capacity to:', status);
+            // In production: Update Supabase
+        }
+
+        // =============================================================================
+        // TAB FUNCTIONS
+        // =============================================================================
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.tab === tabName) {
+                    tab.classList.add('active');
+                }
+            });
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        // =============================================================================
+        // UTILITY FUNCTIONS
+        // =============================================================================
+
+        function openMatter(matterId) {
+            window.location.href = `matter-detail.html?id=${matterId}`;
+        }
+
+        function showNewMatterModal() {
+            alert('New matter modal would open here');
+        }
+
+        function showAddContactModal() {
+            alert('Add contact modal would open here');
+        }
+
+        // Close modal on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

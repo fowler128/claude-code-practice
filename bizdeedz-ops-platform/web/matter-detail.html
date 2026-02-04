@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matter Detail - BizDeedz Ops Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Matter header */
+        .matter-header {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            margin-bottom: var(--space-6);
+        }
+
+        .matter-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-4);
+        }
+
+        .matter-title-section h2 {
+            margin-bottom: var(--space-2);
+        }
+
+        .matter-meta {
+            display: flex;
+            gap: var(--space-4);
+            flex-wrap: wrap;
+            color: var(--gray-600);
+            font-size: 0.875rem;
+        }
+
+        .matter-meta-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+
+        .matter-status-row {
+            display: flex;
+            gap: var(--space-6);
+            padding-top: var(--space-4);
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .status-item {
+            text-align: center;
+        }
+
+        .status-item-label {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            margin-bottom: var(--space-1);
+        }
+
+        /* Two column layout */
+        .matter-layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: var(--space-6);
+        }
+
+        @media (max-width: 1024px) {
+            .matter-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Checklist progress */
+        .checklist-progress {
+            margin-bottom: var(--space-4);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            margin-top: var(--space-1);
+        }
+
+        /* Conflicts match card */
+        .match-card {
+            background: var(--warning-light);
+            border: 1px solid #fde68a;
+            border-radius: var(--radius-md);
+            padding: var(--space-3);
+            margin-bottom: var(--space-3);
+        }
+
+        .match-card.conflict {
+            background: var(--danger-light);
+            border-color: #fecaca;
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-2);
+        }
+
+        .match-name {
+            font-weight: 600;
+        }
+
+        .match-score {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            background: white;
+        }
+
+        .match-details {
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+
+        /* Decision form */
+        .decision-form {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+            margin-top: var(--space-4);
+        }
+
+        .decision-form h4 {
+            margin-bottom: var(--space-3);
+        }
+
+        /* Action bar */
+        .action-bar {
+            display: flex;
+            gap: var(--space-2);
+            margin-bottom: var(--space-4);
+            flex-wrap: wrap;
+        }
+
+        /* Billable row */
+        .billable-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-3);
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .billable-row:last-child {
+            border-bottom: none;
+        }
+
+        .billable-info {
+            flex: 1;
+        }
+
+        .billable-amount {
+            font-weight: 600;
+            font-family: var(--font-mono);
+        }
+
+        .billable-total {
+            background: var(--gray-50);
+            padding: var(--space-3) var(--space-4);
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="24" height="24" rx="6" fill="#2563eb"/>
+                        <path d="M7 8h10M7 12h10M7 16h6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    BizDeedz Ops
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a href="dashboard.html" class="nav-link">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7" rx="1"/>
+                            <rect x="14" y="3" width="7" height="7" rx="1"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1"/>
+                            <rect x="14" y="14" width="7" height="7" rx="1"/>
+                        </svg>
+                        Dashboard
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Work</div>
+                    <a href="matters.html" class="nav-link active">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                        Matters
+                    </a>
+                    <a href="firms.html" class="nav-link">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                            <polyline points="9,22 9,12 15,12 15,22"/>
+                        </svg>
+                        Firms
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Billing</div>
+                    <a href="billing.html" class="nav-link">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="1" y="4" width="22" height="16" rx="2"/>
+                            <line x1="1" y1="10" x2="23" y2="10"/>
+                        </svg>
+                        Invoices & AR
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <div class="flex items-center gap-4">
+                    <a href="matters.html" class="btn btn-icon btn-secondary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"/>
+                            <polyline points="12,19 5,12 12,5"/>
+                        </svg>
+                    </a>
+                    <h1 class="page-title">Matter Detail</h1>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-secondary" onclick="generateDeficiencyList()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                            <line x1="12" y1="18" x2="12" y2="12"/>
+                            <line x1="9" y1="15" x2="15" y2="15"/>
+                        </svg>
+                        Deficiency List
+                    </button>
+                    <button class="btn btn-success" onclick="markDelivered()" id="btn-deliver">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        Mark Delivered
+                    </button>
+                </div>
+            </header>
+
+            <div class="page-body">
+                <!-- Matter Header Card -->
+                <div class="matter-header">
+                    <div class="matter-header-top">
+                        <div class="matter-title-section">
+                            <h2 id="matter-name">Baker, Jennifer – Ch 13</h2>
+                            <div class="matter-meta">
+                                <div class="matter-meta-item">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                                    </svg>
+                                    <span id="matter-firm">Johnson & Associates</span>
+                                </div>
+                                <div class="matter-meta-item">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="2" y1="12" x2="22" y2="12"/>
+                                        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                                    </svg>
+                                    <span id="matter-district">N.D. Texas</span>
+                                </div>
+                                <div class="matter-meta-item">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                        <line x1="16" y1="2" x2="16" y2="6"/>
+                                        <line x1="8" y1="2" x2="8" y2="6"/>
+                                        <line x1="3" y1="10" x2="21" y2="10"/>
+                                    </svg>
+                                    <span id="matter-deadline">Due: Feb 20, 2026</span>
+                                </div>
+                                <div class="matter-meta-item">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                                        <circle cx="12" cy="7" r="4"/>
+                                    </svg>
+                                    <span id="matter-assigned">Assigned: Turea</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <span class="kanban-tag ch13">Ch 13</span>
+                            <span class="kanban-tag rush">Rush</span>
+                        </div>
+                    </div>
+                    <div class="matter-status-row">
+                        <div class="status-item">
+                            <div class="status-item-label">Stage</div>
+                            <span class="status-badge qc" id="matter-stage">QC</span>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-item-label">Inputs</div>
+                            <span class="status-badge clear" id="matter-inputs">Complete</span>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-item-label">Conflicts</div>
+                            <span class="status-badge clear" id="matter-conflicts">Clear</span>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-item-label">Revisions</div>
+                            <span class="font-bold" id="matter-revisions">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="matter-layout">
+                    <!-- Main Content Column -->
+                    <div>
+                        <div class="card">
+                            <div class="tabs">
+                                <div class="tab active" data-tab="inputs" onclick="switchTab('inputs')">Inputs</div>
+                                <div class="tab" data-tab="conflicts" onclick="switchTab('conflicts')">Conflicts</div>
+                                <div class="tab" data-tab="qc" onclick="switchTab('qc')">Tasks/QC</div>
+                                <div class="tab" data-tab="deliveries" onclick="switchTab('deliveries')">Deliveries</div>
+                                <div class="tab" data-tab="billables" onclick="switchTab('billables')">Billables</div>
+                                <div class="tab" data-tab="audit" onclick="switchTab('audit')">Audit</div>
+                            </div>
+
+                            <!-- Inputs Tab -->
+                            <div class="tab-content active" id="tab-inputs">
+                                <div class="action-bar">
+                                    <button class="btn btn-sm btn-secondary" onclick="markInputsComplete()">Mark All Complete</button>
+                                    <button class="btn btn-sm btn-secondary" onclick="generateDeficiencyList()">Generate Deficiency List</button>
+                                </div>
+
+                                <div class="checklist-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 75%;"></div>
+                                    </div>
+                                    <div class="progress-text">15 of 20 items received</div>
+                                </div>
+
+                                <h4 class="mb-4">Identity</h4>
+                                <ul class="checklist">
+                                    <li class="checklist-item">
+                                        <input type="checkbox" class="checklist-checkbox" checked>
+                                        <span class="checklist-label completed">Government ID (front/back)</span>
+                                        <span class="checklist-required">Required</span>
+                                    </li>
+                                    <li class="checklist-item">
+                                        <input type="checkbox" class="checklist-checkbox" checked>
+                                        <span class="checklist-label completed">Social Security card or proof of SSN</span>
+                                        <span class="checklist-required">Required</span>
+                                    </li>
+                                </ul>
+
+                                <h4 class="mb-4 mt-6">Income</h4>
+                                <ul class="checklist">
+                                    <li class="checklist-item">
+                                        <input type="checkbox" class="checklist-checkbox" checked>
+                                        <span class="checklist-label completed">Paystubs - last 6 months</span>
+                                        <span class="checklist-required">Required</span>
+                                    </li>
+                                    <li class="checklist-item">
+                                        <input type="checkbox" class="checklist-checkbox">
+                                        <span class="checklist-label">Proof of other income (SSI/SSDI, child support, unemployment, pension)</span>
+                                    </li>
+                                </ul>
+
+                                <h4 class="mb-4 mt-6">Taxes</h4>
+                                <ul class="checklist">
+                                    <li class="checklist-item">
+                                        <input type="checkbox" class="checklist-checkbox" checked>
+                                        <span class="checklist-label completed">Federal tax returns - last 2 years</span>
+                                        <span class="checklist-required">Required</span>
+                                    </li>
+                                </ul>
+
+                                <h4 class="mb-4 mt-6">Banking</h4>
+                                <ul class="checklist">
+                                    <li class="checklist-item">
+                                        <input type="checkbox" class="checklist-checkbox" checked>
+                                        <span class="checklist-label completed">Bank statements - last 3 months (all accounts)</span>
+                                        <span class="checklist-required">Required</span>
+                                    </li>
+                                </ul>
+
+                                <h4 class="mb-4 mt-6">Plan Inputs (Ch 13)</h4>
+                                <ul class="checklist">
+                                    <li class="checklist-item">
+                                        <input type="checkbox" class="checklist-checkbox" checked>
+                                        <span class="checklist-label completed">Mortgage arrearage breakdown</span>
+                                        <span class="checklist-required">Required</span>
+                                    </li>
+                                    <li class="checklist-item">
+                                        <input type="checkbox" class="checklist-checkbox">
+                                        <span class="checklist-label">Vehicle payoff + interest rate info</span>
+                                    </li>
+                                    <li class="checklist-item">
+                                        <input type="checkbox" class="checklist-checkbox" checked>
+                                        <span class="checklist-label completed">Monthly budget inputs</span>
+                                        <span class="checklist-required">Required</span>
+                                    </li>
+                                    <li class="checklist-item">
+                                        <input type="checkbox" class="checklist-checkbox" checked>
+                                        <span class="checklist-label completed">Attorney plan direction notes</span>
+                                        <span class="checklist-required">Required</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Conflicts Tab -->
+                            <div class="tab-content" id="tab-conflicts">
+                                <div class="action-bar">
+                                    <button class="btn btn-sm btn-secondary" onclick="runConflictsCheck()">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M23 4v6h-6M1 20v-6h6"/>
+                                            <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                                        </svg>
+                                        Re-run Check
+                                    </button>
+                                </div>
+
+                                <div class="alert alert-success mb-4">
+                                    <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                                        <polyline points="22 4 12 14.01 9 11.01"/>
+                                    </svg>
+                                    <div class="alert-content">
+                                        <div class="alert-title">Conflicts Status: Clear</div>
+                                        No matches found against existing matters or restricted entities.
+                                    </div>
+                                </div>
+
+                                <h4 class="mb-4">Entities Checked</h4>
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Role</th>
+                                            <th>Result</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Jennifer Baker</td>
+                                            <td>Debtor</td>
+                                            <td><span class="status-badge clear">Clear</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Thomas Baker</td>
+                                            <td>Spouse</td>
+                                            <td><span class="status-badge clear">Clear</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <h4 class="mb-4 mt-6">Check History</h4>
+                                <div class="timeline">
+                                    <div class="timeline-item success">
+                                        <div class="timeline-dot"></div>
+                                        <div class="timeline-content">
+                                            <strong>Conflicts Check Passed</strong><br>
+                                            Run by: System (auto)
+                                        </div>
+                                        <div class="timeline-time">Jan 28, 2026 10:30 AM</div>
+                                    </div>
+                                </div>
+
+                                <!-- Example of potential match (would show when status is 'potential') -->
+                                <div id="potential-matches" style="display: none;">
+                                    <h4 class="mb-4">Potential Matches Found</h4>
+                                    <div class="match-card">
+                                        <div class="match-header">
+                                            <span class="match-name">Jennifer Baker</span>
+                                            <span class="match-score">92% match</span>
+                                        </div>
+                                        <div class="match-details">
+                                            <p><strong>Matched with:</strong> Baker, Jennifer A. – Ch 7</p>
+                                            <p><strong>Firm:</strong> Smith Legal Group</p>
+                                            <p><strong>Match type:</strong> Fuzzy name match</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="decision-form">
+                                        <h4>Decision Required</h4>
+                                        <div class="form-group">
+                                            <label class="form-label">Decision</label>
+                                            <select class="form-select" id="conflict-decision">
+                                                <option value="">Select decision...</option>
+                                                <option value="approved">Approve (Not same person)</option>
+                                                <option value="declined">Decline (Conflict confirmed)</option>
+                                                <option value="overridden">Override (Proceed with note)</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Decision Notes *</label>
+                                            <textarea class="form-textarea" rows="3" placeholder="Explain your decision..." required></textarea>
+                                        </div>
+                                        <button class="btn btn-primary" onclick="submitConflictDecision()">Submit Decision</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tasks/QC Tab -->
+                            <div class="tab-content" id="tab-qc">
+                                <div class="action-bar">
+                                    <button class="btn btn-sm btn-success" onclick="completeQC()" id="btn-complete-qc">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="20 6 9 17 4 12"/>
+                                        </svg>
+                                        Complete QC
+                                    </button>
+                                </div>
+
+                                <h4 class="mb-4">QC Checklist</h4>
+                                <ul class="checklist">
+                                    <li class="checklist-item">
+                                        <input type="checkbox" class="checklist-checkbox qc-item" checked>
+                                        <span class="checklist-label completed">All schedules completed</span>
+                                    </li>
+                                    <li class="checklist-item">
+                                        <input type="checkbox" class="checklist-checkbox qc-item" checked>
+                                        <span class="checklist-label completed">Means test calculations verified</span>
+                                    </li>
+                                    <li class="checklist-item">
+                                        <input type="checkbox" class="checklist-checkbox qc-item" checked>
+                                        <span class="checklist-label completed">Creditor matrix complete</span>
+                                    </li>
+                                    <li class="checklist-item">
+                                        <input type="checkbox" class="checklist-checkbox qc-item" checked>
+                                        <span class="checklist-label completed">Plan payment calculations verified</span>
+                                    </li>
+                                    <li class="checklist-item">
+                                        <input type="checkbox" class="checklist-checkbox qc-item">
+                                        <span class="checklist-label">Client name/SSN verified against source docs</span>
+                                    </li>
+                                    <li class="checklist-item">
+                                        <input type="checkbox" class="checklist-checkbox qc-item">
+                                        <span class="checklist-label">District-specific requirements checked</span>
+                                    </li>
+                                </ul>
+
+                                <div class="alert alert-info mt-4">
+                                    <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="12" y1="16" x2="12" y2="12"/>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                                    </svg>
+                                    <div class="alert-content">
+                                        Complete all QC items before marking as delivered.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Deliveries Tab -->
+                            <div class="tab-content" id="tab-deliveries">
+                                <div class="alert alert-info mb-4">
+                                    <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="12" y1="16" x2="12" y2="12"/>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                                    </svg>
+                                    <div class="alert-content">
+                                        No deliveries yet. Complete QC and mark as delivered to create a delivery record.
+                                    </div>
+                                </div>
+
+                                <h4 class="mb-4">Delivery History</h4>
+                                <p class="text-muted">Deliveries will appear here after the matter is marked as delivered.</p>
+
+                                <!-- Example delivery row (shown after delivery)
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Version</th>
+                                            <th>Type</th>
+                                            <th>Delivered</th>
+                                            <th>By</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>v1 (Initial)</td>
+                                            <td>Ch 13</td>
+                                            <td>Feb 4, 2026 3:45 PM</td>
+                                            <td>Turea</td>
+                                            <td>Initial petition package</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                -->
+                            </div>
+
+                            <!-- Billables Tab -->
+                            <div class="tab-content" id="tab-billables">
+                                <div class="action-bar">
+                                    <button class="btn btn-sm btn-secondary" onclick="addBillableAdjustment()">+ Add Adjustment</button>
+                                </div>
+
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4 class="card-title">Billable Items</h4>
+                                    </div>
+                                    <div class="billable-row">
+                                        <div class="billable-info">
+                                            <strong>Ch 13 Petition Prep</strong>
+                                            <div class="text-sm text-muted">Standard rate</div>
+                                        </div>
+                                        <div class="billable-amount">$350.00</div>
+                                    </div>
+                                    <div class="billable-row">
+                                        <div class="billable-info">
+                                            <strong>Rush Fee (24-48 hrs)</strong>
+                                            <div class="text-sm text-muted">Authorized</div>
+                                        </div>
+                                        <div class="billable-amount">$150.00</div>
+                                    </div>
+                                    <div class="billable-total">
+                                        <span>Total (pending delivery)</span>
+                                        <span class="font-mono">$500.00</span>
+                                    </div>
+                                </div>
+
+                                <p class="text-sm text-muted mt-4">
+                                    Billables are created automatically when the matter is delivered.
+                                    They will be included in the next Friday invoice run.
+                                </p>
+                            </div>
+
+                            <!-- Audit Tab -->
+                            <div class="tab-content" id="tab-audit">
+                                <div class="action-bar">
+                                    <button class="btn btn-sm btn-secondary" onclick="addNote()">+ Add Note</button>
+                                </div>
+
+                                <h4 class="mb-4">Activity Timeline</h4>
+                                <div class="timeline">
+                                    <div class="timeline-item info">
+                                        <div class="timeline-dot"></div>
+                                        <div class="timeline-content">
+                                            <strong>Stage Changed to QC</strong><br>
+                                            By: Turea
+                                        </div>
+                                        <div class="timeline-time">Feb 3, 2026 4:15 PM</div>
+                                    </div>
+                                    <div class="timeline-item success">
+                                        <div class="timeline-dot"></div>
+                                        <div class="timeline-content">
+                                            <strong>Inputs Marked Complete</strong><br>
+                                            All required documents received
+                                        </div>
+                                        <div class="timeline-time">Feb 2, 2026 11:30 AM</div>
+                                    </div>
+                                    <div class="timeline-item success">
+                                        <div class="timeline-dot"></div>
+                                        <div class="timeline-content">
+                                            <strong>Conflicts Check Passed</strong><br>
+                                            No matches found
+                                        </div>
+                                        <div class="timeline-time">Jan 28, 2026 10:30 AM</div>
+                                    </div>
+                                    <div class="timeline-item info">
+                                        <div class="timeline-dot"></div>
+                                        <div class="timeline-content">
+                                            <strong>Stage Changed to In Progress</strong><br>
+                                            By: Turea
+                                        </div>
+                                        <div class="timeline-time">Jan 28, 2026 10:32 AM</div>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="timeline-dot"></div>
+                                        <div class="timeline-content">
+                                            <strong>Matter Created</strong><br>
+                                            Case Type: Ch 13 | Rush: Yes
+                                        </div>
+                                        <div class="timeline-time">Jan 28, 2026 9:15 AM</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar Column -->
+                    <div>
+                        <!-- Quick Actions Card -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4 class="card-title">Quick Actions</h4>
+                            </div>
+                            <div class="card-body">
+                                <button class="btn btn-secondary w-full mb-2" onclick="moveToStage('in_progress')">
+                                    Move to In Progress
+                                </button>
+                                <button class="btn btn-secondary w-full mb-2" onclick="runConflictsCheck()">
+                                    Run Conflicts Check
+                                </button>
+                                <button class="btn btn-secondary w-full mb-2" onclick="generateDeficiencyList()">
+                                    Send Deficiency List
+                                </button>
+                                <button class="btn btn-success w-full" onclick="markDelivered()">
+                                    Mark Delivered
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Entities Card -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4 class="card-title">Entities</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="stat-row">
+                                    <span class="stat-label">Debtor</span>
+                                    <span class="stat-value">Jennifer Baker</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Spouse</span>
+                                    <span class="stat-value">Thomas Baker</span>
+                                </div>
+                                <button class="btn btn-sm btn-secondary w-full mt-2" onclick="addEntity()">
+                                    + Add Entity
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Key Dates Card -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4 class="card-title">Key Dates</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="stat-row">
+                                    <span class="stat-label">Assigned</span>
+                                    <span class="stat-value">Jan 28, 2026</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Inputs Complete</span>
+                                    <span class="stat-value">Feb 2, 2026</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">In Progress</span>
+                                    <span class="stat-value">Jan 28, 2026</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Deadline</span>
+                                    <span class="stat-value text-warning">Feb 20, 2026</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notes Card -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">Notes</h4>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-sm text-muted mb-2">Rush requested by client. Attorney confirmed plan direction.</p>
+                                <button class="btn btn-sm btn-secondary" onclick="addNote()">Add Note</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // =============================================================================
+        // TAB FUNCTIONS
+        // =============================================================================
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.tab === tabName) {
+                    tab.classList.add('active');
+                }
+            });
+
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        // =============================================================================
+        // STAGE ACTIONS
+        // =============================================================================
+
+        function moveToStage(stage) {
+            // Validation rules
+            if (stage === 'in_progress') {
+                // Check inputs complete
+                // Check conflicts cleared or approved
+                console.log('Moving to In Progress...');
+                alert('Moving matter to In Progress. SLA clock starts now.');
+            }
+        }
+
+        function markDelivered() {
+            // Check QC is complete
+            const qcItems = document.querySelectorAll('.qc-item');
+            const allChecked = Array.from(qcItems).every(item => item.checked);
+
+            if (!allChecked) {
+                alert('Cannot deliver: Please complete all QC checklist items first.');
+                switchTab('qc');
+                return;
+            }
+
+            if (confirm('Mark this matter as delivered? This will create billables and update the delivery log.')) {
+                console.log('Marking as delivered...');
+                // In production:
+                // 1. Update matter stage to 'delivered'
+                // 2. Create delivery record
+                // 3. Create billables based on case type and rush status
+                // 4. Update delivered_at timestamp
+                alert('Matter marked as delivered! Billables have been created.');
+            }
+        }
+
+        function completeQC() {
+            const qcItems = document.querySelectorAll('.qc-item');
+            qcItems.forEach(item => item.checked = true);
+            alert('All QC items marked complete. You can now deliver the matter.');
+        }
+
+        // =============================================================================
+        // INPUT FUNCTIONS
+        // =============================================================================
+
+        function markInputsComplete() {
+            const checkboxes = document.querySelectorAll('#tab-inputs .checklist-checkbox');
+            checkboxes.forEach(cb => cb.checked = true);
+            alert('All inputs marked as received. Inputs status updated to Complete.');
+        }
+
+        function generateDeficiencyList() {
+            const unchecked = document.querySelectorAll('#tab-inputs .checklist-checkbox:not(:checked)');
+            if (unchecked.length === 0) {
+                alert('No deficiencies found. All inputs have been received.');
+                return;
+            }
+
+            const items = Array.from(unchecked).map(cb => {
+                return cb.nextElementSibling.textContent;
+            });
+
+            const list = 'Missing Items:\n\n' + items.map((item, i) => `${i + 1}. ${item}`).join('\n');
+            console.log('Deficiency list:', list);
+            alert('Deficiency list generated:\n\n' + list);
+            // In production: Create deficiency records and optionally email to client
+        }
+
+        // =============================================================================
+        // CONFLICTS FUNCTIONS
+        // =============================================================================
+
+        function runConflictsCheck() {
+            console.log('Running conflicts check...');
+            // In production: Call Supabase function run_conflicts_check()
+            alert('Conflicts check complete. Status: Clear');
+        }
+
+        function submitConflictDecision() {
+            const decision = document.getElementById('conflict-decision').value;
+            if (!decision) {
+                alert('Please select a decision');
+                return;
+            }
+            console.log('Submitting conflict decision:', decision);
+            // In production: Update conflict_checks record with decision
+            alert('Decision recorded. Matter can now proceed.');
+        }
+
+        // =============================================================================
+        // BILLABLES FUNCTIONS
+        // =============================================================================
+
+        function addBillableAdjustment() {
+            const type = prompt('Adjustment type (overage/rush/other):');
+            if (!type) return;
+
+            const amount = prompt('Amount ($):');
+            if (!amount) return;
+
+            const notes = prompt('Notes/description:');
+            console.log('Adding billable:', { type, amount, notes });
+            // In production: Insert into billables table
+            alert(`Billable adjustment added: ${type} - $${amount}`);
+        }
+
+        // =============================================================================
+        // UTILITY FUNCTIONS
+        // =============================================================================
+
+        function addEntity() {
+            const name = prompt('Entity full name:');
+            if (!name) return;
+
+            const role = prompt('Role (debtor/spouse/related_business):');
+            if (!role) return;
+
+            console.log('Adding entity:', { name, role });
+            // In production: Create entity and link to matter
+            alert(`Entity "${name}" added as ${role}`);
+        }
+
+        function addNote() {
+            const note = prompt('Enter note:');
+            if (!note) return;
+
+            console.log('Adding note:', note);
+            // In production: Create audit log entry
+            alert('Note added to matter.');
+        }
+
+        // =============================================================================
+        // INITIALIZATION
+        // =============================================================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // In production: Load matter data from URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const matterId = urlParams.get('id');
+            console.log('Loading matter:', matterId);
+
+            // Update QC button state based on checklist
+            document.querySelectorAll('.qc-item').forEach(item => {
+                item.addEventListener('change', updateQCButtonState);
+            });
+        });
+
+        function updateQCButtonState() {
+            const qcItems = document.querySelectorAll('.qc-item');
+            const allChecked = Array.from(qcItems).every(item => item.checked);
+            const completeBtn = document.getElementById('btn-complete-qc');
+            if (allChecked) {
+                completeBtn.textContent = 'QC Complete';
+                completeBtn.disabled = true;
+            }
+        }
+    </script>
+</body>
+</html>
