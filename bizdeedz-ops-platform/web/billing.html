@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing - BizDeedz Ops Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* AR bucket cards */
+        .ar-buckets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+
+        .ar-bucket {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            border: 1px solid var(--gray-200);
+            text-align: center;
+        }
+
+        .ar-bucket.ok {
+            border-top: 4px solid var(--success);
+        }
+
+        .ar-bucket.warning {
+            border-top: 4px solid var(--warning);
+        }
+
+        .ar-bucket.danger {
+            border-top: 4px solid var(--danger);
+        }
+
+        .ar-bucket-label {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            margin-bottom: var(--space-2);
+        }
+
+        .ar-bucket-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+        }
+
+        .ar-bucket-count {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            margin-top: var(--space-1);
+        }
+
+        /* Invoice preview card */
+        .invoice-preview {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            margin-bottom: var(--space-4);
+        }
+
+        .invoice-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-4);
+            padding-bottom: var(--space-4);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .invoice-firm {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .invoice-total {
+            text-align: right;
+        }
+
+        .invoice-total-label {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+        }
+
+        .invoice-total-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+        }
+
+        .invoice-lines {
+            margin-bottom: var(--space-4);
+        }
+
+        .invoice-line {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--space-2) 0;
+            font-size: 0.875rem;
+        }
+
+        .invoice-line-desc {
+            color: var(--gray-700);
+        }
+
+        .invoice-line-amount {
+            font-family: var(--font-mono);
+        }
+
+        /* Section header */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+        }
+
+        .section-header h3 {
+            margin: 0;
+        }
+
+        /* Retainer card */
+        .retainer-card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+            margin-bottom: var(--space-3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .retainer-info h4 {
+            margin-bottom: var(--space-1);
+        }
+
+        .retainer-meta {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+        }
+
+        .retainer-status {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: var(--space-2);
+        }
+
+        @media (max-width: 768px) {
+            .ar-buckets {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="24" height="24" rx="6" fill="#2563eb"/>
+                        <path d="M7 8h10M7 12h10M7 16h6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    BizDeedz Ops
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a href="dashboard.html" class="nav-link">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7" rx="1"/>
+                            <rect x="14" y="3" width="7" height="7" rx="1"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1"/>
+                            <rect x="14" y="14" width="7" height="7" rx="1"/>
+                        </svg>
+                        Dashboard
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Work</div>
+                    <a href="matters.html" class="nav-link">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                        Matters
+                    </a>
+                    <a href="firms.html" class="nav-link">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                            <polyline points="9,22 9,12 15,12 15,22"/>
+                        </svg>
+                        Firms
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Billing</div>
+                    <a href="billing.html" class="nav-link active">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="1" y="4" width="22" height="16" rx="2"/>
+                            <line x1="1" y1="10" x2="23" y2="10"/>
+                        </svg>
+                        Invoices & AR
+                        <span class="nav-badge">2</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports</div>
+                    <a href="#" class="nav-link">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="20" x2="18" y2="10"/>
+                            <line x1="12" y1="20" x2="12" y2="4"/>
+                            <line x1="6" y1="20" x2="6" y2="14"/>
+                        </svg>
+                        Metrics
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <h1 class="page-title">Billing</h1>
+                <div class="page-actions">
+                    <button class="btn btn-primary" onclick="runFridayInvoices()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                            <line x1="12" y1="18" x2="12" y2="12"/>
+                            <line x1="9" y1="15" x2="15" y2="15"/>
+                        </svg>
+                        Run Friday Invoices
+                    </button>
+                </div>
+            </header>
+
+            <div class="page-body">
+                <!-- Tabs -->
+                <div class="card mb-6">
+                    <div class="tabs">
+                        <div class="tab active" data-tab="ar" onclick="switchTab('ar')">AR Aging</div>
+                        <div class="tab" data-tab="invoices" onclick="switchTab('invoices')">Invoices</div>
+                        <div class="tab" data-tab="retainers" onclick="switchTab('retainers')">Retainers</div>
+                        <div class="tab" data-tab="friday" onclick="switchTab('friday')">Friday Invoice Run</div>
+                    </div>
+
+                    <!-- AR Aging Tab -->
+                    <div class="tab-content active" id="tab-ar">
+                        <!-- AR Bucket Summary -->
+                        <div class="ar-buckets">
+                            <div class="ar-bucket ok">
+                                <div class="ar-bucket-label">0-3 Days</div>
+                                <div class="ar-bucket-amount">$1,200.00</div>
+                                <div class="ar-bucket-count">2 invoices</div>
+                            </div>
+                            <div class="ar-bucket warning">
+                                <div class="ar-bucket-label">4-7 Days</div>
+                                <div class="ar-bucket-amount">$550.00</div>
+                                <div class="ar-bucket-count">1 invoice</div>
+                            </div>
+                            <div class="ar-bucket danger">
+                                <div class="ar-bucket-label">8+ Days (PAUSE)</div>
+                                <div class="ar-bucket-amount">$650.00</div>
+                                <div class="ar-bucket-count">1 invoice</div>
+                            </div>
+                        </div>
+
+                        <!-- Alert for overdue -->
+                        <div class="alert alert-danger mb-4">
+                            <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                                <line x1="12" y1="9" x2="12" y2="13"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                            </svg>
+                            <div class="alert-content">
+                                <div class="alert-title">Action Required: Pause Firm</div>
+                                Davis Bankruptcy Law has an invoice 8+ days overdue. Consider pausing their work.
+                            </div>
+                        </div>
+
+                        <!-- AR Detail Table -->
+                        <div class="data-table-container">
+                            <div class="data-table-header">
+                                <h3 class="data-table-title">Outstanding Invoices</h3>
+                                <div class="data-table-actions">
+                                    <select class="form-select" style="width: auto;">
+                                        <option>All Buckets</option>
+                                        <option>0-3 Days</option>
+                                        <option>4-7 Days</option>
+                                        <option>8+ Days</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Firm</th>
+                                        <th>Invoice #</th>
+                                        <th>Amount</th>
+                                        <th>Sent</th>
+                                        <th>Days Out</th>
+                                        <th>Bucket</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="text-danger">
+                                            <strong>Davis Bankruptcy Law</strong>
+                                            <div class="text-sm">davis@dbllaw.com</div>
+                                        </td>
+                                        <td>INV-2026-001</td>
+                                        <td class="font-mono">$650.00</td>
+                                        <td>Jan 25, 2026</td>
+                                        <td class="text-danger font-bold">10</td>
+                                        <td><span class="status-badge overdue">8+ Days</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-danger" onclick="pauseFirm('33333333')">Pause Firm</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Smith Legal Group</strong>
+                                            <div class="text-sm">accounts@smithlegal.com</div>
+                                        </td>
+                                        <td>INV-2026-003</td>
+                                        <td class="font-mono">$550.00</td>
+                                        <td>Jan 30, 2026</td>
+                                        <td class="text-warning font-bold">5</td>
+                                        <td><span class="status-badge partial">4-7 Days</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-secondary" onclick="sendReminder('22222222')">Send Reminder</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Johnson & Associates</strong>
+                                            <div class="text-sm">billing@johnsonlaw.com</div>
+                                        </td>
+                                        <td>INV-2026-006</td>
+                                        <td class="font-mono">$750.00</td>
+                                        <td>Feb 2, 2026</td>
+                                        <td>2</td>
+                                        <td><span class="status-badge sent">0-3 Days</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-secondary">View</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Smith Legal Group</strong>
+                                            <div class="text-sm">accounts@smithlegal.com</div>
+                                        </td>
+                                        <td>INV-2026-007</td>
+                                        <td class="font-mono">$450.00</td>
+                                        <td>Feb 3, 2026</td>
+                                        <td>1</td>
+                                        <td><span class="status-badge sent">0-3 Days</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-secondary">View</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Invoices Tab -->
+                    <div class="tab-content" id="tab-invoices">
+                        <div class="section-header">
+                            <h3>All Invoices</h3>
+                            <div class="flex gap-2">
+                                <select class="form-select" style="width: auto;">
+                                    <option>All Status</option>
+                                    <option>Draft</option>
+                                    <option>Sent</option>
+                                    <option>Paid</option>
+                                    <option>Overdue</option>
+                                </select>
+                                <select class="form-select" style="width: auto;">
+                                    <option>All Firms</option>
+                                    <option>Johnson & Associates</option>
+                                    <option>Smith Legal Group</option>
+                                    <option>Davis Bankruptcy Law</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Invoice #</th>
+                                        <th>Firm</th>
+                                        <th>Date</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Paid Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><a href="#">INV-2026-007</a></td>
+                                        <td>Smith Legal Group</td>
+                                        <td>Feb 3, 2026</td>
+                                        <td class="font-mono">$450.00</td>
+                                        <td><span class="status-badge sent">Sent</span></td>
+                                        <td>-</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success" onclick="markPaid('inv7')">Mark Paid</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="#">INV-2026-006</a></td>
+                                        <td>Johnson & Associates</td>
+                                        <td>Feb 2, 2026</td>
+                                        <td class="font-mono">$750.00</td>
+                                        <td><span class="status-badge sent">Sent</span></td>
+                                        <td>-</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success" onclick="markPaid('inv6')">Mark Paid</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="#">INV-2026-005</a></td>
+                                        <td>Johnson & Associates</td>
+                                        <td>Jan 31, 2026</td>
+                                        <td class="font-mono">$3,200.00</td>
+                                        <td><span class="status-badge paid">Paid</span></td>
+                                        <td>Feb 1, 2026</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-secondary">View</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="#">INV-2026-003</a></td>
+                                        <td>Smith Legal Group</td>
+                                        <td>Jan 30, 2026</td>
+                                        <td class="font-mono">$550.00</td>
+                                        <td><span class="status-badge partial">4-7 Days</span></td>
+                                        <td>-</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success" onclick="markPaid('inv3')">Mark Paid</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="#">INV-2026-002</a></td>
+                                        <td>Johnson & Associates</td>
+                                        <td>Jan 24, 2026</td>
+                                        <td class="font-mono">$1,850.00</td>
+                                        <td><span class="status-badge paid">Paid</span></td>
+                                        <td>Jan 25, 2026</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-secondary">View</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="#">INV-2026-001</a></td>
+                                        <td>Davis Bankruptcy Law</td>
+                                        <td>Jan 25, 2026</td>
+                                        <td class="font-mono">$650.00</td>
+                                        <td><span class="status-badge overdue">Overdue</span></td>
+                                        <td>-</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success" onclick="markPaid('inv1')">Mark Paid</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Retainers Tab -->
+                    <div class="tab-content" id="tab-retainers">
+                        <div class="section-header">
+                            <h3>Retainer Status</h3>
+                            <button class="btn btn-sm btn-secondary" onclick="sendRetainerReminders()">Send Reminders</button>
+                        </div>
+
+                        <div class="retainer-card">
+                            <div class="retainer-info">
+                                <h4>Johnson & Associates</h4>
+                                <div class="retainer-meta">$2,500.00/month • Due: 1st</div>
+                            </div>
+                            <div class="retainer-status">
+                                <span class="status-badge paid">Paid</span>
+                                <span class="text-sm text-muted">Paid Feb 1, 2026</span>
+                            </div>
+                        </div>
+
+                        <div class="retainer-card">
+                            <div class="retainer-info">
+                                <h4>Smith Legal Group</h4>
+                                <div class="retainer-meta">$1,500.00/month • Due: 1st</div>
+                            </div>
+                            <div class="retainer-status">
+                                <span class="status-badge paid">Paid</span>
+                                <span class="text-sm text-muted">Paid Feb 1, 2026</span>
+                            </div>
+                        </div>
+
+                        <div class="retainer-card" style="border-left: 4px solid var(--danger);">
+                            <div class="retainer-info">
+                                <h4>Davis Bankruptcy Law</h4>
+                                <div class="retainer-meta">$2,000.00/month • Due: 1st</div>
+                            </div>
+                            <div class="retainer-status">
+                                <span class="status-badge overdue">Overdue</span>
+                                <button class="btn btn-sm btn-secondary" onclick="sendRetainerInvoice('33333333')">Send Invoice</button>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info mt-4">
+                            <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="16" x2="12" y2="12"/>
+                                <line x1="12" y1="8" x2="12.01" y2="8"/>
+                            </svg>
+                            <div class="alert-content">
+                                Retainers are due on the 1st of each month. Firms with unpaid retainers have their "Active Capacity" disabled until paid.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Friday Invoice Run Tab -->
+                    <div class="tab-content" id="tab-friday">
+                        <div class="section-header">
+                            <h3>Friday Invoice Preview</h3>
+                            <div class="text-muted">Week of Jan 27 - Feb 2, 2026</div>
+                        </div>
+
+                        <div class="alert alert-info mb-4">
+                            <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="16" x2="12" y2="12"/>
+                                <line x1="12" y1="8" x2="12.01" y2="8"/>
+                            </svg>
+                            <div class="alert-content">
+                                Preview of invoices that will be generated. Review before clicking "Generate Invoices".
+                            </div>
+                        </div>
+
+                        <!-- Invoice Preview: Johnson & Associates -->
+                        <div class="invoice-preview">
+                            <div class="invoice-preview-header">
+                                <div>
+                                    <div class="invoice-firm">Johnson & Associates</div>
+                                    <div class="text-sm text-muted">billing@johnsonlaw.com</div>
+                                </div>
+                                <div class="invoice-total">
+                                    <div class="invoice-total-label">Invoice Total</div>
+                                    <div class="invoice-total-amount">$750.00</div>
+                                </div>
+                            </div>
+                            <div class="invoice-lines">
+                                <div class="invoice-line">
+                                    <span class="invoice-line-desc">Ch 7 Petition Prep – [Matter: Adams, Michael] – Delivered 2026-02-01</span>
+                                    <span class="invoice-line-amount">$200.00</span>
+                                </div>
+                                <div class="invoice-line">
+                                    <span class="invoice-line-desc">Ch 13 Petition Prep – [Matter: Baker, Jennifer] – Delivered 2026-02-02</span>
+                                    <span class="invoice-line-amount">$350.00</span>
+                                </div>
+                                <div class="invoice-line">
+                                    <span class="invoice-line-desc">Rush Fee (24-48 hrs) – [Matter: Baker, Jennifer] – Authorized</span>
+                                    <span class="invoice-line-amount">$150.00</span>
+                                </div>
+                                <div class="invoice-line" style="border-top: 1px solid var(--gray-200); padding-top: var(--space-2); margin-top: var(--space-2);">
+                                    <span class="invoice-line-desc font-bold">Total (3 line items)</span>
+                                    <span class="invoice-line-amount font-bold">$700.00</span>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="btn btn-sm btn-secondary">Edit</button>
+                                <button class="btn btn-sm btn-secondary">Exclude</button>
+                            </div>
+                        </div>
+
+                        <!-- Invoice Preview: Smith Legal -->
+                        <div class="invoice-preview">
+                            <div class="invoice-preview-header">
+                                <div>
+                                    <div class="invoice-firm">Smith Legal Group</div>
+                                    <div class="text-sm text-muted">accounts@smithlegal.com</div>
+                                </div>
+                                <div class="invoice-total">
+                                    <div class="invoice-total-label">Invoice Total</div>
+                                    <div class="invoice-total-amount">$450.00</div>
+                                </div>
+                            </div>
+                            <div class="invoice-lines">
+                                <div class="invoice-line">
+                                    <span class="invoice-line-desc">Amendment/Modification – [Matter: Evans, Susan] – Delivered 2026-02-03</span>
+                                    <span class="invoice-line-amount">$250.00</span>
+                                </div>
+                                <div class="invoice-line">
+                                    <span class="invoice-line-desc">Ch 7 Petition Prep – [Matter: Thompson, Lisa] – Delivered 2026-02-03</span>
+                                    <span class="invoice-line-amount">$200.00</span>
+                                </div>
+                                <div class="invoice-line" style="border-top: 1px solid var(--gray-200); padding-top: var(--space-2); margin-top: var(--space-2);">
+                                    <span class="invoice-line-desc font-bold">Total (2 line items)</span>
+                                    <span class="invoice-line-amount font-bold">$450.00</span>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="btn btn-sm btn-secondary">Edit</button>
+                                <button class="btn btn-sm btn-secondary">Exclude</button>
+                            </div>
+                        </div>
+
+                        <!-- Summary and Action -->
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <div class="text-lg font-bold">Total to Invoice: $1,150.00</div>
+                                        <div class="text-sm text-muted">2 firms • 5 line items</div>
+                                    </div>
+                                    <button class="btn btn-lg btn-primary" onclick="generateInvoices()">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                            <polyline points="14,2 14,8 20,8"/>
+                                            <line x1="16" y1="13" x2="8" y2="13"/>
+                                            <line x1="16" y1="17" x2="8" y2="17"/>
+                                        </svg>
+                                        Generate & Send Invoices
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // =============================================================================
+        // TAB FUNCTIONS
+        // =============================================================================
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.tab === tabName) {
+                    tab.classList.add('active');
+                }
+            });
+
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        // =============================================================================
+        // INVOICE FUNCTIONS
+        // =============================================================================
+
+        function runFridayInvoices() {
+            switchTab('friday');
+        }
+
+        function generateInvoices() {
+            if (confirm('Generate and send invoices to all firms? This will:\n\n1. Create invoices in Stripe\n2. Email invoices to billing contacts\n3. Mark billables as invoiced\n\nContinue?')) {
+                console.log('Generating invoices...');
+                // In production: Trigger Make.com scenario
+                alert('Invoices generated and sent!\n\n- Johnson & Associates: $700.00\n- Smith Legal Group: $450.00\n\nTotal: $1,150.00');
+            }
+        }
+
+        function markPaid(invoiceId) {
+            if (confirm('Mark this invoice as paid?')) {
+                console.log('Marking paid:', invoiceId);
+                // In production: Update invoice status, unpause firm if needed
+                alert('Invoice marked as paid. Firm status updated.');
+            }
+        }
+
+        // =============================================================================
+        // AR FUNCTIONS
+        // =============================================================================
+
+        function pauseFirm(firmId) {
+            if (confirm('Pause all work for this firm? Matters will move to "Paused – AR" status.')) {
+                console.log('Pausing firm:', firmId);
+                // In production:
+                // 1. Update firm status to on_hold
+                // 2. Move all active matters to paused_ar
+                alert('Firm paused. All active matters moved to "Paused – AR" status.');
+            }
+        }
+
+        function sendReminder(firmId) {
+            console.log('Sending reminder to firm:', firmId);
+            // In production: Send email via Make.com or SendGrid
+            alert('Payment reminder sent to firm.');
+        }
+
+        // =============================================================================
+        // RETAINER FUNCTIONS
+        // =============================================================================
+
+        function sendRetainerInvoice(firmId) {
+            console.log('Sending retainer invoice:', firmId);
+            // In production: Create Stripe invoice for retainer amount
+            alert('Retainer invoice sent to firm.');
+        }
+
+        function sendRetainerReminders() {
+            console.log('Sending retainer reminders to all firms with unpaid retainers...');
+            alert('Retainer reminders sent to 1 firm.');
+        }
+    </script>
+</body>
+</html>
