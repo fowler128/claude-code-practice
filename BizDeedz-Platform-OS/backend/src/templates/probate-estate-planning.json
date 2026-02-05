@@ -1,0 +1,91 @@
+{
+  "playbook_id": "estate_planning_v1",
+  "version": "1.0",
+  "practice_area_id": "probate_estate",
+  "matter_type_id": "pe_planning",
+  "name": "Estate Planning Package",
+  "description": "Wills, trusts, powers of attorney workflow",
+  "lanes": [
+    {"lane_id": "intake_triage", "name": "Intake & Triage", "order": 1, "roles": ["intake_specialist", "paralegal"]},
+    {"lane_id": "engagement_conflicts", "name": "Engagement & Conflicts", "order": 2, "roles": ["paralegal", "attorney"]},
+    {"lane_id": "drafting_prep", "name": "Drafting / Case Prep", "order": 3, "roles": ["paralegal", "attorney"]},
+    {"lane_id": "attorney_review", "name": "Attorney Review / Approval", "order": 4, "roles": ["attorney"]},
+    {"lane_id": "execution_closeout", "name": "Execution & Closeout", "order": 5, "roles": ["paralegal", "attorney", "billing_specialist"]}
+  ],
+  "statuses": [
+    {"status_code": "EP-01", "name": "New Lead", "lane_id": "intake_triage", "order": 1},
+    {"status_code": "EP-02", "name": "Intake In Progress", "lane_id": "intake_triage", "order": 2},
+    {"status_code": "EP-03", "name": "Intake Complete (Pending Gate 0)", "lane_id": "intake_triage", "order": 3},
+    {"status_code": "EP-04", "name": "Conflicts Check Pending (Gate 1)", "lane_id": "engagement_conflicts", "order": 4},
+    {"status_code": "EP-05", "name": "Conflicts Cleared", "lane_id": "engagement_conflicts", "order": 5},
+    {"status_code": "EP-06", "name": "Engagement Sent", "lane_id": "engagement_conflicts", "order": 6},
+    {"status_code": "EP-07", "name": "Engagement Signed", "lane_id": "engagement_conflicts", "order": 7},
+    {"status_code": "EP-08", "name": "Fee Pending", "lane_id": "engagement_conflicts", "order": 8},
+    {"status_code": "EP-09", "name": "Fee Received (Activate Matter)", "lane_id": "engagement_conflicts", "order": 9},
+    {"status_code": "EP-10", "name": "Asset & Beneficiary Review", "lane_id": "drafting_prep", "order": 10},
+    {"status_code": "EP-11", "name": "Draft Documents Prepared", "lane_id": "drafting_prep", "order": 11},
+    {"status_code": "EP-12", "name": "Client Review Scheduled", "lane_id": "drafting_prep", "order": 12},
+    {"status_code": "EP-13", "name": "Revisions In Progress", "lane_id": "drafting_prep", "order": 13},
+    {"status_code": "EP-14", "name": "Ready for Attorney Review", "lane_id": "drafting_prep", "order": 14},
+    {"status_code": "EP-15", "name": "Attorney Review In Progress", "lane_id": "attorney_review", "order": 15},
+    {"status_code": "EP-16", "name": "Returned for Corrections (Defect Log)", "lane_id": "attorney_review", "order": 16},
+    {"status_code": "EP-17", "name": "Approved for Execution", "lane_id": "attorney_review", "order": 17},
+    {"status_code": "EP-18", "name": "Signing Scheduled", "lane_id": "execution_closeout", "order": 18},
+    {"status_code": "EP-19", "name": "Executed", "lane_id": "execution_closeout", "order": 19},
+    {"status_code": "EP-20", "name": "Deliverables Delivered", "lane_id": "execution_closeout", "order": 20},
+    {"status_code": "EP-21", "name": "Closed Out", "lane_id": "execution_closeout", "order": 21}
+  ],
+  "required_artifacts": [
+    {"artifact_type_id": "intake_form", "required_at_status": "EP-03", "gate_id": "gate_0"},
+    {"artifact_type_id": "engagement_signed", "required_at_status": "EP-07", "gate_id": "gate_1"},
+    {"artifact_type_id": "payment_confirm", "required_at_status": "EP-09", "gate_id": "gate_1"},
+    {"artifact_type_id": "draft_filing", "required_at_status": "EP-11", "gate_id": null},
+    {"artifact_type_id": "final_orders", "required_at_status": "EP-19", "gate_id": null}
+  ],
+  "qc_gates": [
+    {
+      "gate_id": "gate_0",
+      "name": "Intake Completeness Gate",
+      "status_code": "EP-03",
+      "criteria": ["Asset list complete", "Beneficiaries identified", "Fiduciaries selected"]
+    },
+    {
+      "gate_id": "gate_1",
+      "name": "Conflicts Gate",
+      "status_code": "EP-04",
+      "criteria": ["Conflicts check completed"]
+    },
+    {
+      "gate_id": "gate_execution",
+      "name": "Pre-Execution Gate",
+      "status_code": "EP-17",
+      "criteria": ["Names, dates, roles validated", "Asset references correct"]
+    }
+  ],
+  "sla_rules": [
+    {"status_code": "EP-01", "sla_hours": 24, "escalation_enabled": true, "escalation_roles": ["ops_lead"]},
+    {"status_code": "EP-09", "sla_hours": 24, "escalation_enabled": false, "escalation_roles": []},
+    {"status_code": "EP-14", "sla_hours": 48, "escalation_enabled": true, "escalation_roles": ["attorney"]}
+  ],
+  "automation_rules": [
+    {
+      "rule_name": "Generate Starter Tasks",
+      "trigger_type": "matter_created",
+      "trigger_conditions": {},
+      "action_type": "create_tasks",
+      "action_config": {
+        "tasks": [
+          {"task_type": "conflicts_check", "title": "Run conflicts check", "assigned_role": "paralegal", "sla_hours": 24},
+          {"task_type": "engagement_prep", "title": "Prepare engagement letter", "assigned_role": "paralegal", "sla_hours": 48},
+          {"task_type": "asset_intake", "title": "Complete asset and beneficiary intake", "assigned_role": "paralegal", "sla_hours": 72}
+        ]
+      }
+    }
+  ],
+  "ai_actions_allowed": [
+    {"action_type": "convert_asset_list_to_inventory", "risk_level": "low", "requires_approval": false, "allowed_roles": ["paralegal"]},
+    {"action_type": "draft_intake_summary", "risk_level": "low", "requires_approval": false, "allowed_roles": ["paralegal", "attorney"]},
+    {"action_type": "generate_execution_checklist", "risk_level": "medium", "requires_approval": true, "allowed_roles": ["paralegal"]},
+    {"action_type": "extract_deadlines_to_tasks", "risk_level": "low", "requires_approval": false, "allowed_roles": ["paralegal"]}
+  ]
+}
