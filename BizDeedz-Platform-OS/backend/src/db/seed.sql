@@ -52,10 +52,10 @@ INSERT INTO artifact_types (artifact_type_id, name, description, category) VALUE
 -- Create default admin user (password: admin123 - CHANGE IN PRODUCTION)
 -- Password hash for 'admin123' using bcrypt with 10 rounds
 INSERT INTO users (email, password_hash, first_name, last_name, role, is_active) VALUES
-('admin@bizdeedz.com', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhwy', 'System', 'Admin', 'admin', true);
+('admin@bizdeedz.com', '$2b$10$K2g6EufcLIvho5VlFJFX5.iI3JZHWrlJKukxPU2wCTnINDMUHEMPO', 'System', 'Admin', 'admin', true);
 
--- Additional seed users for testing
+-- Additional seed users for testing (all using password: admin123)
 INSERT INTO users (email, password_hash, first_name, last_name, role, is_active) VALUES
-('attorney@bizdeedz.com', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhwy', 'Jane', 'Attorney', 'attorney', true),
-('paralegal@bizdeedz.com', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhwy', 'John', 'Paralegal', 'paralegal', true),
-('intake@bizdeedz.com', '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhwy', 'Sarah', 'Intake', 'intake_specialist', true);
+('attorney@bizdeedz.com', '$2b$10$K2g6EufcLIvho5VlFJFX5.iI3JZHWrlJKukxPU2wCTnINDMUHEMPO', 'Jane', 'Attorney', 'attorney', true),
+('paralegal@bizdeedz.com', '$2b$10$K2g6EufcLIvho5VlFJFX5.iI3JZHWrlJKukxPU2wCTnINDMUHEMPO', 'John', 'Paralegal', 'paralegal', true),
+('intake@bizdeedz.com', '$2b$10$K2g6EufcLIvho5VlFJFX5.iI3JZHWrlJKukxPU2wCTnINDMUHEMPO', 'Sarah', 'Intake', 'intake_specialist', true);
