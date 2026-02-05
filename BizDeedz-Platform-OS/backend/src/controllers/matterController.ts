@@ -35,30 +35,46 @@ export async function createMatter(req: AuthRequest, res: Response) {
     // Generate matter number
     const matter_number = await generateMatterNumber();
 
-    // Fetch playbook if provided
+    // Auto-lookup playbook based on matter type if not provided
+    let playbook_id = data.playbook_id;
     let initialStatus = 'new_lead';
     let initialLane = 'intake';
     let playbook_version = null;
+    let template_json = null;
 
-    if (data.playbook_id) {
+    if (!playbook_id) {
+      const autoPlaybookResult = await client.query(
+        `SELECT playbook_id, version, template_json FROM playbook_templates
+         WHERE matter_type_id = $1 AND is_active = true
+         ORDER BY created_at DESC LIMIT 1`,
+        [data.matter_type_id]
+      );
+
+      if (autoPlaybookResult.rows.length > 0) {
+        playbook_id = autoPlaybookResult.rows[0].playbook_id;
+        playbook_version = autoPlaybookResult.rows[0].version;
+        template_json = autoPlaybookResult.rows[0].template_json;
+      }
+    } else {
+      // Fetch provided playbook
       const playbookResult = await client.query(
         `SELECT version, template_json FROM playbook_templates
          WHERE playbook_id = $1 AND is_active = true
          ORDER BY created_at DESC LIMIT 1`,
-        [data.playbook_id]
+        [playbook_id]
       );
 
       if (playbookResult.rows.length > 0) {
         playbook_version = playbookResult.rows[0].version;
-        const template = playbookResult.rows[0].template_json;
-
-        // Get first status from playbook
-        if (template.statuses && template.statuses.length > 0) {
-          const firstStatus = template.statuses.sort((a: any, b: any) => a.order - b.order)[0];
-          initialStatus = firstStatus.status_code;
-          initialLane = firstStatus.lane_id;
-        }
+        template_json = playbookResult.rows[0].template_json;
       }
+    }
+
+    // Get initial status and lane from playbook
+    if (template_json && template_json.statuses && template_json.statuses.length > 0) {
+      const firstStatus = template_json.statuses.sort((a: any, b: any) => a.order - b.order)[0];
+      initialStatus = firstStatus.status_code;
+      initialLane = firstStatus.lane_id;
     }
 
     // Insert matter
@@ -81,7 +97,7 @@ export async function createMatter(req: AuthRequest, res: Response) {
         data.owner_user_id || req.user?.user_id || null,
         data.billing_type || null,
         data.metadata_json ? JSON.stringify(data.metadata_json) : null,
-        data.playbook_id || null,
+        playbook_id || null,
         playbook_version,
       ]
     );
@@ -101,7 +117,66 @@ export async function createMatter(req: AuthRequest, res: Response) {
       reference_type: 'matter',
     });
 
-    // TODO: Sprint 2 - Generate starter tasks based on playbook
+    // Generate starter tasks based on playbook automation rules
+    if (playbook_id) {
+      const automationResult = await client.query(
+        `SELECT * FROM automation_rules
+         WHERE playbook_id = $1
+           AND trigger_type = 'matter_created'
+           AND is_active = true`,
+        [playbook_id]
+      );
+
+      for (const rule of automationResult.rows) {
+        if (rule.action_type === 'create_tasks' && rule.action_config?.tasks) {
+          for (const taskConfig of rule.action_config.tasks) {
+            // Find user with the assigned role
+            const assigneeResult = await client.query(
+              `SELECT user_id FROM users WHERE role = $1 AND is_active = true LIMIT 1`,
+              [taskConfig.assigned_role]
+            );
+
+            const assigned_to = assigneeResult.rows.length > 0 ? assigneeResult.rows[0].user_id : null;
+
+            // Calculate due date from SLA hours
+            const due_date = taskConfig.sla_hours
+              ? new Date(Date.now() + taskConfig.sla_hours * 60 * 60 * 1000)
+              : null;
+
+            // Create task
+            await client.query(
+              `INSERT INTO tasks (
+                matter_id, task_type, title, status, assigned_to,
+                created_by_id, created_by_type, due_date
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+              [
+                newMatter.matter_id,
+                taskConfig.task_type,
+                taskConfig.title,
+                'todo',
+                assigned_to,
+                req.user?.user_id,
+                'automation',
+                due_date,
+              ]
+            );
+
+            // Log task creation event
+            await EventService.logEvent({
+              matter_id: newMatter.matter_id,
+              event_type: 'task_created',
+              event_category: 'task',
+              actor_type: 'system',
+              actor_user_id: null,
+              description: `Auto-generated task: ${taskConfig.title}`,
+              metadata_json: { task_type: taskConfig.task_type, automation_rule: rule.rule_name },
+              reference_id: newMatter.matter_id,
+              reference_type: 'task',
+            });
+          }
+        }
+      }
+    }
 
     await client.query('COMMIT');
 

@@ -3,6 +3,7 @@ import { authMiddleware, requireRole } from '../middleware/auth';
 import * as authController from '../controllers/authController';
 import * as matterController from '../controllers/matterController';
 import * as taskController from '../controllers/taskController';
+import * as playbookController from '../controllers/playbookController';
 
 const router = Router();
 
@@ -114,5 +115,12 @@ router.get('/events', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+// Playbook routes (protected)
+router.get('/playbooks', authMiddleware, playbookController.getPlaybooks);
+router.get('/playbooks/:playbook_id', authMiddleware, playbookController.getPlaybookById);
+router.get('/playbooks/:playbook_id/lanes', authMiddleware, playbookController.getPlaybookLanes);
+router.get('/playbooks/:playbook_id/statuses', authMiddleware, playbookController.getPlaybookStatuses);
+router.get('/matter-types/:matter_type_id/playbook', authMiddleware, playbookController.getPlaybookForMatterType);
 
 export default router;
