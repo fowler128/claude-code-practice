@@ -1,0 +1,507 @@
+{
+  "template_id": "fl-divorce-v1",
+  "template_version": 1,
+  "practice_area": "FL",
+  "matter_type": "FL-DIVORCE",
+  "name": "Family Law: Divorce",
+  "description": "Divorce workflow including intake, discovery, negotiation, and final decree.",
+
+  "lanes": [
+    {
+      "id": "intake",
+      "name": "Intake",
+      "order": 1,
+      "roles": ["intake_specialist", "paralegal"],
+      "description": "Initial client consultation and information gathering"
+    },
+    {
+      "id": "engagement",
+      "name": "Engagement",
+      "order": 2,
+      "roles": ["paralegal", "attorney"],
+      "description": "Conflicts, engagement, and retainer"
+    },
+    {
+      "id": "pleadings",
+      "name": "Pleadings",
+      "order": 3,
+      "roles": ["paralegal", "attorney"],
+      "description": "Prepare and file initial divorce petition"
+    },
+    {
+      "id": "discovery",
+      "name": "Discovery",
+      "order": 4,
+      "roles": ["paralegal", "attorney"],
+      "description": "Discovery requests and responses"
+    },
+    {
+      "id": "negotiation",
+      "name": "Negotiation",
+      "order": 5,
+      "roles": ["attorney", "mediator"],
+      "description": "Settlement negotiations and mediation"
+    },
+    {
+      "id": "trial_prep",
+      "name": "Trial Prep",
+      "order": 6,
+      "roles": ["attorney", "paralegal"],
+      "description": "Trial preparation if settlement fails"
+    },
+    {
+      "id": "finalization",
+      "name": "Finalization",
+      "order": 7,
+      "roles": ["paralegal", "attorney"],
+      "description": "Final decree preparation and filing"
+    },
+    {
+      "id": "closed",
+      "name": "Closed",
+      "order": 8,
+      "roles": ["admin"],
+      "description": "Divorce finalized or case dismissed"
+    }
+  ],
+
+  "statuses": [
+    {
+      "id": "new",
+      "name": "New - Consultation Scheduled",
+      "lane": "intake",
+      "order": 1,
+      "is_initial": true,
+      "sla_hours": 48,
+      "allowed_transitions": ["intake_complete", "declined"]
+    },
+    {
+      "id": "intake_complete",
+      "name": "Intake Complete",
+      "lane": "engagement",
+      "order": 2,
+      "sla_hours": 24,
+      "allowed_transitions": ["conflicts_pending"]
+    },
+    {
+      "id": "conflicts_pending",
+      "name": "Conflicts Check Pending",
+      "lane": "engagement",
+      "order": 3,
+      "sla_hours": 24,
+      "allowed_transitions": ["conflicts_clear", "conflicts_found"]
+    },
+    {
+      "id": "conflicts_clear",
+      "name": "Conflicts Clear",
+      "lane": "engagement",
+      "order": 4,
+      "sla_hours": 48,
+      "allowed_transitions": ["engagement_sent"]
+    },
+    {
+      "id": "engagement_sent",
+      "name": "Engagement Sent",
+      "lane": "engagement",
+      "order": 5,
+      "sla_hours": 120,
+      "allowed_transitions": ["engagement_signed"]
+    },
+    {
+      "id": "engagement_signed",
+      "name": "Engagement Signed",
+      "lane": "pleadings",
+      "order": 6,
+      "sla_hours": 72,
+      "allowed_transitions": ["retainer_received", "petition_prep"]
+    },
+    {
+      "id": "petition_prep",
+      "name": "Petition in Preparation",
+      "lane": "pleadings",
+      "order": 7,
+      "sla_hours": 120,
+      "allowed_transitions": ["petition_qc", "returned_for_corrections"]
+    },
+    {
+      "id": "petition_qc",
+      "name": "Petition in QC",
+      "lane": "pleadings",
+      "order": 8,
+      "sla_hours": 48,
+      "allowed_transitions": ["petition_approved", "returned_for_corrections"]
+    },
+    {
+      "id": "petition_approved",
+      "name": "Petition Approved",
+      "lane": "pleadings",
+      "order": 9,
+      "sla_hours": 48,
+      "allowed_transitions": ["petition_filed"]
+    },
+    {
+      "id": "petition_filed",
+      "name": "Petition Filed",
+      "lane": "discovery",
+      "order": 10,
+      "sla_hours": 168,
+      "allowed_transitions": ["service_pending", "discovery_started"]
+    },
+    {
+      "id": "service_pending",
+      "name": "Service Pending",
+      "lane": "discovery",
+      "order": 11,
+      "sla_hours": 240,
+      "allowed_transitions": ["service_complete", "service_issues"]
+    },
+    {
+      "id": "service_complete",
+      "name": "Service Complete",
+      "lane": "discovery",
+      "order": 12,
+      "sla_hours": 120,
+      "allowed_transitions": ["discovery_started", "awaiting_response"]
+    },
+    {
+      "id": "discovery_started",
+      "name": "Discovery Started",
+      "lane": "discovery",
+      "order": 13,
+      "sla_hours": 720,
+      "allowed_transitions": ["discovery_complete", "negotiation_started"]
+    },
+    {
+      "id": "discovery_complete",
+      "name": "Discovery Complete",
+      "lane": "negotiation",
+      "order": 14,
+      "sla_hours": 120,
+      "allowed_transitions": ["negotiation_started"]
+    },
+    {
+      "id": "negotiation_started",
+      "name": "Negotiation Started",
+      "lane": "negotiation",
+      "order": 15,
+      "sla_hours": 480,
+      "allowed_transitions": ["mediation_scheduled", "trial_scheduled", "settlement_reached"]
+    },
+    {
+      "id": "mediation_scheduled",
+      "name": "Mediation Scheduled",
+      "lane": "negotiation",
+      "order": 16,
+      "sla_hours": 240,
+      "allowed_transitions": ["mediation_complete"]
+    },
+    {
+      "id": "mediation_complete",
+      "name": "Mediation Complete",
+      "lane": "negotiation",
+      "order": 17,
+      "sla_hours": 72,
+      "allowed_transitions": ["settlement_reached", "trial_scheduled"]
+    },
+    {
+      "id": "settlement_reached",
+      "name": "Settlement Reached",
+      "lane": "finalization",
+      "order": 18,
+      "sla_hours": 120,
+      "allowed_transitions": ["decree_prep"]
+    },
+    {
+      "id": "trial_scheduled",
+      "name": "Trial Scheduled",
+      "lane": "trial_prep",
+      "order": 19,
+      "sla_hours": 480,
+      "allowed_transitions": ["trial_complete", "settlement_reached"]
+    },
+    {
+      "id": "trial_complete",
+      "name": "Trial Complete",
+      "lane": "finalization",
+      "order": 20,
+      "sla_hours": 240,
+      "allowed_transitions": ["decree_prep", "appeal_pending"]
+    },
+    {
+      "id": "decree_prep",
+      "name": "Decree in Preparation",
+      "lane": "finalization",
+      "order": 21,
+      "sla_hours": 120,
+      "allowed_transitions": ["decree_qc", "returned_for_corrections"]
+    },
+    {
+      "id": "decree_qc",
+      "name": "Decree in QC",
+      "lane": "finalization",
+      "order": 22,
+      "sla_hours": 48,
+      "allowed_transitions": ["decree_approved", "returned_for_corrections"]
+    },
+    {
+      "id": "decree_approved",
+      "name": "Decree Approved",
+      "lane": "finalization",
+      "order": 23,
+      "sla_hours": 48,
+      "allowed_transitions": ["decree_filed"]
+    },
+    {
+      "id": "decree_filed",
+      "name": "Decree Filed",
+      "lane": "finalization",
+      "order": 24,
+      "sla_hours": 720,
+      "allowed_transitions": ["decree_final"]
+    },
+    {
+      "id": "returned_for_corrections",
+      "name": "Returned for Corrections",
+      "lane": "pleadings",
+      "order": 99,
+      "sla_hours": 48,
+      "requires_defect_reason": true,
+      "allowed_transitions": ["petition_prep", "decree_prep"]
+    },
+    {
+      "id": "decree_final",
+      "name": "Decree Final",
+      "lane": "closed",
+      "order": 1000,
+      "is_terminal": true,
+      "allowed_transitions": []
+    },
+    {
+      "id": "dismissed",
+      "name": "Case Dismissed",
+      "lane": "closed",
+      "order": 1001,
+      "is_terminal": true,
+      "allowed_transitions": []
+    },
+    {
+      "id": "declined",
+      "name": "Declined",
+      "lane": "closed",
+      "order": 1002,
+      "is_terminal": true,
+      "allowed_transitions": []
+    }
+  ],
+
+  "required_artifacts": [
+    {
+      "artifact_type": "INTAKE_QUESTIONNAIRE",
+      "required_at_status": ["new", "intake_complete"],
+      "description": "Client intake form"
+    },
+    {
+      "artifact_type": "ENGAGEMENT_SIGNED",
+      "required_at_status": ["engagement_signed"],
+      "description": "Signed engagement letter"
+    },
+    {
+      "artifact_type": "PAYMENT_CONFIRMATION",
+      "required_at_status": ["engagement_signed"],
+      "description": "Retainer payment"
+    },
+    {
+      "artifact_type": "FINANCIAL_DOCS",
+      "required_at_status": ["discovery_started", "discovery_complete"],
+      "description": "Financial affidavits and disclosures"
+    },
+    {
+      "artifact_type": "DRAFT_FILING",
+      "required_at_status": ["petition_qc", "decree_qc"],
+      "description": "Draft petition or decree"
+    },
+    {
+      "artifact_type": "FINAL_FILING",
+      "required_at_status": ["petition_filed", "decree_filed"],
+      "description": "Filed petition or decree"
+    }
+  ],
+
+  "qc_gates": [
+    {
+      "gate_id": "petition_qc_gate",
+      "name": "Petition QC",
+      "at_status": "petition_qc",
+      "checks": [
+        "Correct jurisdiction and venue",
+        "All party information accurate",
+        "Grounds for divorce stated correctly",
+        "Children information (if applicable)",
+        "Property division outlined",
+        "Attorney signature present"
+      ]
+    },
+    {
+      "gate_id": "decree_qc_gate",
+      "name": "Decree QC",
+      "at_status": "decree_qc",
+      "checks": [
+        "Settlement terms accurately reflected",
+        "Property division complete",
+        "Child custody/support provisions (if applicable)",
+        "Spousal support provisions (if applicable)",
+        "Both parties' signatures (if agreed)",
+        "Attorney certification complete"
+      ]
+    }
+  ],
+
+  "automation_rules": [
+    {
+      "rule_id": "auto_create_starter_tasks",
+      "trigger": "matter_created",
+      "actions": [
+        {
+          "type": "create_task",
+          "config": {
+            "title": "Run conflicts check",
+            "priority": "high",
+            "due_offset_hours": 24
+          }
+        },
+        {
+          "type": "create_task",
+          "config": {
+            "title": "Schedule initial consultation",
+            "priority": "high",
+            "due_offset_hours": 48
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "auto_discovery_reminders",
+      "trigger": "status_changed_to",
+      "trigger_status": "discovery_started",
+      "actions": [
+        {
+          "type": "create_task",
+          "config": {
+            "title": "Send discovery requests",
+            "priority": "high",
+            "due_offset_hours": 72
+          }
+        },
+        {
+          "type": "schedule_reminders",
+          "config": {
+            "reminder_days": [15, 30],
+            "reminder_type": "discovery_deadline"
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "auto_escalate_sla_breach",
+      "trigger": "sla_breach",
+      "conditions": {
+        "missing_artifacts": true
+      },
+      "actions": [
+        {
+          "type": "escalate",
+          "config": {
+            "escalate_to_role": "ops_lead",
+            "reason": "SLA breach with missing artifacts"
+          }
+        },
+        {
+          "type": "add_health_driver",
+          "config": {
+            "driver": "Discovery docs aging"
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "auto_corrections_workflow",
+      "trigger": "status_changed_to",
+      "trigger_status": "returned_for_corrections",
+      "actions": [
+        {
+          "type": "require_defect_reason",
+          "config": {
+            "require_note": true
+          }
+        },
+        {
+          "type": "increment_defect_count"
+        },
+        {
+          "type": "create_task",
+          "config": {
+            "title": "Correct defects",
+            "priority": "urgent",
+            "due_offset_hours": 24,
+            "assign_to_previous_lane_owner": true
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "auto_ai_approval_gate",
+      "trigger": "ai_run_created",
+      "conditions": {
+        "risk_level": ["medium", "high"]
+      },
+      "actions": [
+        {
+          "type": "require_approval",
+          "config": {
+            "approval_role": "attorney"
+          }
+        },
+        {
+          "type": "block_external_send",
+          "config": {
+            "until_approved": true
+          }
+        }
+      ]
+    }
+  ],
+
+  "allowed_ai_actions": [
+    {
+      "action_type": "document_generation",
+      "description": "Generate divorce petition or decree",
+      "default_risk_level": "high",
+      "requires_approval": true
+    },
+    {
+      "action_type": "property_division_analysis",
+      "description": "Analyze property division options",
+      "default_risk_level": "medium",
+      "requires_approval": true
+    },
+    {
+      "action_type": "child_support_calculation",
+      "description": "Calculate child support guidelines",
+      "default_risk_level": "medium",
+      "requires_approval": true
+    },
+    {
+      "action_type": "document_qa",
+      "description": "Quality check pleadings",
+      "default_risk_level": "low",
+      "requires_approval": false
+    }
+  ],
+
+  "metadata": {
+    "created_by": "system",
+    "created_at": "2026-01-15T00:00:00Z",
+    "last_updated": "2026-01-15T00:00:00Z",
+    "schema_version": "1.0"
+  }
+}
