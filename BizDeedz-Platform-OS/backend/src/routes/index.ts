@@ -4,6 +4,9 @@ import * as authController from '../controllers/authController';
 import * as matterController from '../controllers/matterController';
 import * as taskController from '../controllers/taskController';
 import * as playbookController from '../controllers/playbookController';
+import * as agentController from '../controllers/agentController';
+import * as workOrderController from '../controllers/workOrderController';
+import * as agentRunLogController from '../controllers/agentRunLogController';
 
 const router = Router();
 
@@ -122,5 +125,33 @@ router.get('/playbooks/:playbook_id', authMiddleware, playbookController.getPlay
 router.get('/playbooks/:playbook_id/lanes', authMiddleware, playbookController.getPlaybookLanes);
 router.get('/playbooks/:playbook_id/statuses', authMiddleware, playbookController.getPlaybookStatuses);
 router.get('/matter-types/:matter_type_id/playbook', authMiddleware, playbookController.getPlaybookForMatterType);
+
+// Agent Layer routes (protected)
+// Agent Directory
+router.get('/agents', authMiddleware, agentController.getAgents);
+router.get('/agents/:agent_id', authMiddleware, agentController.getAgentById);
+router.get('/sub-agents', authMiddleware, agentController.getSubAgents);
+
+// Prompt Packs
+router.get('/prompt-packs', authMiddleware, agentController.getPromptPacks);
+router.get('/prompt-packs/:prompt_pack_id', authMiddleware, agentController.getPromptPackById);
+
+// Governance Rules
+router.get('/governance-rules', authMiddleware, agentController.getGovernanceRules);
+
+// Work Orders
+router.post('/work-orders', authMiddleware, workOrderController.createWorkOrder);
+router.get('/work-orders', authMiddleware, workOrderController.getWorkOrders);
+router.get('/work-orders/stats', authMiddleware, workOrderController.getWorkOrderStats);
+router.get('/work-orders/:work_order_id', authMiddleware, workOrderController.getWorkOrderById);
+router.put('/work-orders/:work_order_id/status', authMiddleware, workOrderController.updateWorkOrderStatus);
+
+// Agent Run Logs
+router.post('/agent-run-logs', authMiddleware, agentRunLogController.createRunLog);
+router.get('/agent-run-logs', authMiddleware, agentRunLogController.getRunLogs);
+router.get('/agent-run-logs/stats', authMiddleware, agentRunLogController.getRunStats);
+router.get('/agent-run-logs/cost-analytics', authMiddleware, agentRunLogController.getCostAnalytics);
+router.put('/agent-run-logs/:run_log_id/complete', authMiddleware, agentRunLogController.completeRunLog);
+router.put('/agent-run-logs/:run_log_id/review', authMiddleware, requireRole('attorney', 'admin', 'ops_lead'), agentRunLogController.reviewRunLog);
 
 export default router;
