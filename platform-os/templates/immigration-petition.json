@@ -1,0 +1,574 @@
+{
+  "template_id": "im-petition-v1",
+  "template_version": 1,
+  "practice_area": "IM",
+  "matter_type": "IM-PETITION",
+  "name": "Immigration: Petition/Application (General)",
+  "description": "General immigration petition workflow including family-based, employment-based, and humanitarian applications.",
+
+  "lanes": [
+    {
+      "id": "intake",
+      "name": "Intake",
+      "order": 1,
+      "roles": ["intake_specialist", "paralegal"],
+      "description": "Initial consultation and eligibility assessment"
+    },
+    {
+      "id": "engagement",
+      "name": "Engagement",
+      "order": 2,
+      "roles": ["paralegal", "immigration_attorney"],
+      "description": "Conflicts, engagement, and case strategy"
+    },
+    {
+      "id": "evidence_gathering",
+      "name": "Evidence Gathering",
+      "order": 3,
+      "roles": ["paralegal"],
+      "description": "Collect supporting documentation and evidence"
+    },
+    {
+      "id": "preparation",
+      "name": "Preparation",
+      "order": 4,
+      "roles": ["paralegal", "immigration_attorney"],
+      "description": "Prepare forms and supporting brief"
+    },
+    {
+      "id": "qc_review",
+      "name": "QC Review",
+      "order": 5,
+      "roles": ["senior_paralegal", "immigration_attorney"],
+      "description": "Quality control and attorney review"
+    },
+    {
+      "id": "filing",
+      "name": "Filing",
+      "order": 6,
+      "roles": ["paralegal", "ops_lead"],
+      "description": "File with USCIS/NVC/Consulate"
+    },
+    {
+      "id": "pending",
+      "name": "Pending Adjudication",
+      "order": 7,
+      "roles": ["paralegal", "immigration_attorney"],
+      "description": "Monitor status and respond to agency requests"
+    },
+    {
+      "id": "closed",
+      "name": "Closed",
+      "order": 8,
+      "roles": ["admin"],
+      "description": "Approved, denied, or withdrawn"
+    }
+  ],
+
+  "statuses": [
+    {
+      "id": "new",
+      "name": "New - Consultation Scheduled",
+      "lane": "intake",
+      "order": 1,
+      "is_initial": true,
+      "sla_hours": 48,
+      "allowed_transitions": ["intake_complete", "ineligible"]
+    },
+    {
+      "id": "intake_complete",
+      "name": "Intake Complete",
+      "lane": "engagement",
+      "order": 2,
+      "sla_hours": 24,
+      "allowed_transitions": ["eligibility_review"]
+    },
+    {
+      "id": "eligibility_review",
+      "name": "Eligibility Review",
+      "lane": "engagement",
+      "order": 3,
+      "sla_hours": 72,
+      "allowed_transitions": ["eligible", "ineligible", "additional_info_needed"]
+    },
+    {
+      "id": "eligible",
+      "name": "Eligible - Conflicts Check",
+      "lane": "engagement",
+      "order": 4,
+      "sla_hours": 24,
+      "allowed_transitions": ["conflicts_clear", "conflicts_found"]
+    },
+    {
+      "id": "conflicts_clear",
+      "name": "Conflicts Clear",
+      "lane": "engagement",
+      "order": 5,
+      "sla_hours": 48,
+      "allowed_transitions": ["engagement_sent"]
+    },
+    {
+      "id": "engagement_sent",
+      "name": "Engagement Sent",
+      "lane": "engagement",
+      "order": 6,
+      "sla_hours": 120,
+      "allowed_transitions": ["engagement_signed"]
+    },
+    {
+      "id": "engagement_signed",
+      "name": "Engagement Signed",
+      "lane": "evidence_gathering",
+      "order": 7,
+      "sla_hours": 48,
+      "allowed_transitions": ["docs_requested"]
+    },
+    {
+      "id": "docs_requested",
+      "name": "Docs Requested",
+      "lane": "evidence_gathering",
+      "order": 8,
+      "sla_hours": 240,
+      "allowed_transitions": ["docs_partial", "docs_complete"]
+    },
+    {
+      "id": "docs_partial",
+      "name": "Docs Partially Received",
+      "lane": "evidence_gathering",
+      "order": 9,
+      "sla_hours": 168,
+      "allowed_transitions": ["docs_complete", "docs_requested"]
+    },
+    {
+      "id": "docs_complete",
+      "name": "Docs Complete",
+      "lane": "preparation",
+      "order": 10,
+      "sla_hours": 72,
+      "allowed_transitions": ["in_preparation"]
+    },
+    {
+      "id": "in_preparation",
+      "name": "In Preparation",
+      "lane": "preparation",
+      "order": 11,
+      "sla_hours": 168,
+      "allowed_transitions": ["ready_for_qc", "returned_for_corrections"]
+    },
+    {
+      "id": "ready_for_qc",
+      "name": "Ready for QC",
+      "lane": "qc_review",
+      "order": 12,
+      "sla_hours": 48,
+      "allowed_transitions": ["in_qc_review"]
+    },
+    {
+      "id": "in_qc_review",
+      "name": "In QC Review",
+      "lane": "qc_review",
+      "order": 13,
+      "sla_hours": 72,
+      "allowed_transitions": ["qc_approved", "returned_for_corrections"]
+    },
+    {
+      "id": "qc_approved",
+      "name": "QC Approved",
+      "lane": "filing",
+      "order": 14,
+      "sla_hours": 48,
+      "allowed_transitions": ["ready_to_file"]
+    },
+    {
+      "id": "ready_to_file",
+      "name": "Ready to File",
+      "lane": "filing",
+      "order": 15,
+      "sla_hours": 24,
+      "allowed_transitions": ["filed_with_agency"]
+    },
+    {
+      "id": "filed_with_agency",
+      "name": "Filed with USCIS/Agency",
+      "lane": "pending",
+      "order": 16,
+      "sla_hours": 168,
+      "allowed_transitions": ["receipt_received", "rejected_by_agency"]
+    },
+    {
+      "id": "receipt_received",
+      "name": "Receipt Notice Received",
+      "lane": "pending",
+      "order": 17,
+      "sla_hours": 2160,
+      "allowed_transitions": ["pending_adjudication", "rfe_received", "interview_scheduled"]
+    },
+    {
+      "id": "pending_adjudication",
+      "name": "Pending Adjudication",
+      "lane": "pending",
+      "order": 18,
+      "sla_hours": 4320,
+      "allowed_transitions": ["rfe_received", "interview_scheduled", "approved", "denied"]
+    },
+    {
+      "id": "rfe_received",
+      "name": "RFE Received",
+      "lane": "preparation",
+      "order": 19,
+      "sla_hours": 120,
+      "allowed_transitions": ["rfe_in_prep"]
+    },
+    {
+      "id": "rfe_in_prep",
+      "name": "RFE Response in Preparation",
+      "lane": "preparation",
+      "order": 20,
+      "sla_hours": 480,
+      "allowed_transitions": ["rfe_qc", "returned_for_corrections"]
+    },
+    {
+      "id": "rfe_qc",
+      "name": "RFE Response in QC",
+      "lane": "qc_review",
+      "order": 21,
+      "sla_hours": 48,
+      "allowed_transitions": ["rfe_approved", "returned_for_corrections"]
+    },
+    {
+      "id": "rfe_approved",
+      "name": "RFE Response Approved",
+      "lane": "filing",
+      "order": 22,
+      "sla_hours": 48,
+      "allowed_transitions": ["rfe_filed"]
+    },
+    {
+      "id": "rfe_filed",
+      "name": "RFE Response Filed",
+      "lane": "pending",
+      "order": 23,
+      "sla_hours": 2160,
+      "allowed_transitions": ["pending_adjudication"]
+    },
+    {
+      "id": "interview_scheduled",
+      "name": "Interview Scheduled",
+      "lane": "pending",
+      "order": 24,
+      "sla_hours": 480,
+      "allowed_transitions": ["interview_complete"]
+    },
+    {
+      "id": "interview_complete",
+      "name": "Interview Complete",
+      "lane": "pending",
+      "order": 25,
+      "sla_hours": 720,
+      "allowed_transitions": ["approved", "denied", "additional_evidence_requested"]
+    },
+    {
+      "id": "returned_for_corrections",
+      "name": "Returned for Corrections",
+      "lane": "preparation",
+      "order": 99,
+      "sla_hours": 48,
+      "requires_defect_reason": true,
+      "allowed_transitions": ["in_preparation", "rfe_in_prep"]
+    },
+    {
+      "id": "rejected_by_agency",
+      "name": "Rejected by Agency",
+      "lane": "preparation",
+      "order": 98,
+      "sla_hours": 120,
+      "requires_defect_reason": true,
+      "allowed_transitions": ["in_preparation"]
+    },
+    {
+      "id": "approved",
+      "name": "Approved",
+      "lane": "closed",
+      "order": 1000,
+      "is_terminal": true,
+      "allowed_transitions": []
+    },
+    {
+      "id": "denied",
+      "name": "Denied",
+      "lane": "closed",
+      "order": 1001,
+      "is_terminal": true,
+      "allowed_transitions": []
+    },
+    {
+      "id": "withdrawn",
+      "name": "Withdrawn",
+      "lane": "closed",
+      "order": 1002,
+      "is_terminal": true,
+      "allowed_transitions": []
+    },
+    {
+      "id": "ineligible",
+      "name": "Ineligible",
+      "lane": "closed",
+      "order": 1003,
+      "is_terminal": true,
+      "allowed_transitions": []
+    }
+  ],
+
+  "required_artifacts": [
+    {
+      "artifact_type": "INTAKE_QUESTIONNAIRE",
+      "required_at_status": ["new", "intake_complete"],
+      "description": "Immigration intake questionnaire"
+    },
+    {
+      "artifact_type": "ENGAGEMENT_SIGNED",
+      "required_at_status": ["engagement_signed"],
+      "description": "Signed engagement letter"
+    },
+    {
+      "artifact_type": "PAYMENT_CONFIRMATION",
+      "required_at_status": ["engagement_signed"],
+      "description": "Attorney fee payment"
+    },
+    {
+      "artifact_type": "IDENTITY_DOCS",
+      "required_at_status": ["docs_complete", "in_preparation"],
+      "description": "Passport, birth certificate, etc."
+    },
+    {
+      "artifact_type": "EVIDENCE_PACKET",
+      "required_at_status": ["docs_complete", "in_preparation"],
+      "description": "Supporting evidence for petition"
+    },
+    {
+      "artifact_type": "DRAFT_FILING",
+      "required_at_status": ["ready_for_qc", "in_qc_review"],
+      "description": "Draft forms and supporting brief"
+    },
+    {
+      "artifact_type": "FINAL_FILING",
+      "required_at_status": ["ready_to_file", "filed_with_agency"],
+      "description": "Final signed petition package"
+    }
+  ],
+
+  "qc_gates": [
+    {
+      "gate_id": "eligibility_gate",
+      "name": "Eligibility Assessment",
+      "at_status": "eligibility_review",
+      "checks": [
+        "Immigration benefit eligibility confirmed",
+        "No inadmissibility issues identified",
+        "Required relationships verified",
+        "Timeline feasibility assessed"
+      ]
+    },
+    {
+      "gate_id": "petition_qc",
+      "name": "Petition QC",
+      "at_status": "in_qc_review",
+      "checks": [
+        "All forms completed accurately",
+        "Supporting evidence organized",
+        "Translations certified (if applicable)",
+        "Attorney signature present",
+        "Client signature present",
+        "Filing fee check prepared"
+      ]
+    },
+    {
+      "gate_id": "rfe_response_qc",
+      "name": "RFE Response QC",
+      "at_status": "rfe_qc",
+      "checks": [
+        "All RFE questions addressed",
+        "New evidence properly documented",
+        "Legal arguments clear and supported",
+        "Response within deadline"
+      ]
+    }
+  ],
+
+  "automation_rules": [
+    {
+      "rule_id": "auto_create_starter_tasks",
+      "trigger": "matter_created",
+      "actions": [
+        {
+          "type": "create_task",
+          "config": {
+            "title": "Conduct eligibility screening",
+            "priority": "high",
+            "due_offset_hours": 48
+          }
+        },
+        {
+          "type": "create_task",
+          "config": {
+            "title": "Run conflicts check",
+            "priority": "high",
+            "due_offset_hours": 24
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "auto_docs_request",
+      "trigger": "status_changed_to",
+      "trigger_status": "docs_requested",
+      "actions": [
+        {
+          "type": "create_task",
+          "config": {
+            "title": "Send document checklist to client",
+            "priority": "high",
+            "due_offset_hours": 4
+          }
+        },
+        {
+          "type": "schedule_reminders",
+          "config": {
+            "reminder_days": [7, 14, 21],
+            "reminder_type": "docs_followup"
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "auto_rfe_urgent",
+      "trigger": "status_changed_to",
+      "trigger_status": "rfe_received",
+      "actions": [
+        {
+          "type": "create_task",
+          "config": {
+            "title": "Review RFE and develop response strategy",
+            "priority": "urgent",
+            "due_offset_hours": 24
+          }
+        },
+        {
+          "type": "notify",
+          "config": {
+            "notify_roles": ["immigration_attorney", "ops_lead"],
+            "message": "RFE received - immediate attention required"
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "auto_escalate_sla_breach",
+      "trigger": "sla_breach",
+      "conditions": {
+        "missing_artifacts": true
+      },
+      "actions": [
+        {
+          "type": "escalate",
+          "config": {
+            "escalate_to_role": "ops_lead",
+            "reason": "SLA breach with missing evidence"
+          }
+        },
+        {
+          "type": "add_health_driver",
+          "config": {
+            "driver": "Evidence docs aging"
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "auto_corrections_workflow",
+      "trigger": "status_changed_to",
+      "trigger_status": "returned_for_corrections",
+      "actions": [
+        {
+          "type": "require_defect_reason",
+          "config": {
+            "require_note": true
+          }
+        },
+        {
+          "type": "increment_defect_count"
+        },
+        {
+          "type": "create_task",
+          "config": {
+            "title": "Correct defects and resubmit",
+            "priority": "urgent",
+            "due_offset_hours": 24,
+            "assign_to_previous_lane_owner": true
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "auto_ai_approval_gate",
+      "trigger": "ai_run_created",
+      "conditions": {
+        "risk_level": ["medium", "high"]
+      },
+      "actions": [
+        {
+          "type": "require_approval",
+          "config": {
+            "approval_role": "immigration_attorney"
+          }
+        },
+        {
+          "type": "block_external_send",
+          "config": {
+            "until_approved": true
+          }
+        }
+      ]
+    }
+  ],
+
+  "allowed_ai_actions": [
+    {
+      "action_type": "document_generation",
+      "description": "Generate immigration forms and supporting brief",
+      "default_risk_level": "high",
+      "requires_approval": true
+    },
+    {
+      "action_type": "eligibility_analysis",
+      "description": "Analyze eligibility for immigration benefit",
+      "default_risk_level": "medium",
+      "requires_approval": true
+    },
+    {
+      "action_type": "evidence_review",
+      "description": "Review and categorize supporting evidence",
+      "default_risk_level": "low",
+      "requires_approval": false
+    },
+    {
+      "action_type": "rfe_analysis",
+      "description": "Analyze RFE and suggest response strategy",
+      "default_risk_level": "medium",
+      "requires_approval": true
+    },
+    {
+      "action_type": "document_qa",
+      "description": "Quality check petition package",
+      "default_risk_level": "low",
+      "requires_approval": false
+    }
+  ],
+
+  "metadata": {
+    "created_by": "system",
+    "created_at": "2026-01-15T00:00:00Z",
+    "last_updated": "2026-01-15T00:00:00Z",
+    "schema_version": "1.0"
+  }
+}
