@@ -10,6 +10,7 @@ export default function Layout() {
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+    { name: 'Smart Queue', href: '/smart-queue', icon: LayoutDashboard },
     { name: 'Matters', href: '/matters', icon: Briefcase },
     { name: 'My Tasks', href: '/my-tasks', icon: CheckSquare },
   ];

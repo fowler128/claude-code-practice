@@ -6,6 +6,7 @@ import DashboardPage from './pages/DashboardPage';
 import MattersPage from './pages/MattersPage';
 import MatterDetailPage from './pages/MatterDetailPage';
 import MyTasksPage from './pages/MyTasksPage';
+import SmartQueuePage from './pages/SmartQueuePage';
 import Layout from './components/Layout';
 
 const queryClient = new QueryClient({
@@ -43,6 +44,7 @@ function App() {
             }
           >
             <Route index element={<DashboardPage />} />
+            <Route path="smart-queue" element={<SmartQueuePage />} />
             <Route path="matters" element={<MattersPage />} />
             <Route path="matters/:matterId" element={<MatterDetailPage />} />
             <Route path="my-tasks" element={<MyTasksPage />} />
