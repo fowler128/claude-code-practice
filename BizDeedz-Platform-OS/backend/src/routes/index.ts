@@ -7,6 +7,7 @@ import * as playbookController from '../controllers/playbookController';
 import * as agentController from '../controllers/agentController';
 import * as workOrderController from '../controllers/workOrderController';
 import * as agentRunLogController from '../controllers/agentRunLogController';
+import * as costEstimatorController from '../controllers/costEstimatorController';
 
 const router = Router();
 
@@ -145,6 +146,13 @@ router.get('/work-orders', authMiddleware, workOrderController.getWorkOrders);
 router.get('/work-orders/stats', authMiddleware, workOrderController.getWorkOrderStats);
 router.get('/work-orders/:work_order_id', authMiddleware, workOrderController.getWorkOrderById);
 router.put('/work-orders/:work_order_id/status', authMiddleware, workOrderController.updateWorkOrderStatus);
+
+// Cost Estimator & Budget Gates
+router.post('/work-orders/:work_order_id/estimate', authMiddleware, costEstimatorController.createEstimate);
+router.post('/work-orders/:work_order_id/execute', authMiddleware, costEstimatorController.executeWorkOrder);
+router.get('/work-orders/:work_order_id/estimates', authMiddleware, costEstimatorController.getEstimates);
+router.get('/work-orders/:work_order_id/executions', authMiddleware, costEstimatorController.getExecutions);
+router.get('/daily-budget', authMiddleware, costEstimatorController.getDailyBudgetStatus);
 
 // Agent Run Logs
 router.post('/agent-run-logs', authMiddleware, agentRunLogController.createRunLog);
