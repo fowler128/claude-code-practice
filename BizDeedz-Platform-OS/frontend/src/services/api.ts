@@ -156,4 +156,60 @@ export const eventsApi = {
   },
 };
 
+// Work Orders API
+export const workOrdersApi = {
+  getAll: async (params?: any) => {
+    const response = await api.get('/work-orders', { params });
+    return response.data;
+  },
+
+  getById: async (workOrderId: string) => {
+    const response = await api.get(`/work-orders/${workOrderId}`);
+    return response.data;
+  },
+
+  getStats: async () => {
+    const response = await api.get('/work-orders/stats');
+    return response.data;
+  },
+
+  updateStatus: async (workOrderId: string, status: string) => {
+    const response = await api.put(`/work-orders/${workOrderId}/status`, { status });
+    return response.data;
+  },
+};
+
+// Mission Control API
+export const missionControlApi = {
+  getDashboard: async () => {
+    const response = await api.get('/mission-control/dashboard');
+    return response.data;
+  },
+
+  getAnalytics: async (days?: number) => {
+    const response = await api.get('/mission-control/analytics', { params: { days } });
+    return response.data;
+  },
+
+  getCronJobs: async () => {
+    const response = await api.get('/mission-control/cron-jobs');
+    return response.data;
+  },
+
+  runPreflight: async (workOrderId: string) => {
+    const response = await api.post(`/work-orders/${workOrderId}/preflight`);
+    return response.data;
+  },
+
+  executeWorkOrder: async (workOrderId: string) => {
+    const response = await api.post(`/work-orders/${workOrderId}/execute`);
+    return response.data;
+  },
+
+  approveWorkOrder: async (workOrderId: string) => {
+    const response = await api.post(`/work-orders/${workOrderId}/approve`);
+    return response.data;
+  },
+};
+
 export default api;

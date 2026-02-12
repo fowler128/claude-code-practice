@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
-import { LayoutDashboard, Briefcase, CheckSquare, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Briefcase, CheckSquare, LogOut, Menu, X, Activity } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Layout() {
@@ -13,6 +13,7 @@ export default function Layout() {
     { name: 'Smart Queue', href: '/smart-queue', icon: LayoutDashboard },
     { name: 'Matters', href: '/matters', icon: Briefcase },
     { name: 'My Tasks', href: '/my-tasks', icon: CheckSquare },
+    { name: 'Mission Control', href: '/mission-control', icon: Activity },
   ];
 
   const isActive = (path: string) => {

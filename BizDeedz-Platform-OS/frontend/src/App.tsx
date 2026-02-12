@@ -7,6 +7,7 @@ import MattersPage from './pages/MattersPage';
 import MatterDetailPage from './pages/MatterDetailPage';
 import MyTasksPage from './pages/MyTasksPage';
 import SmartQueuePage from './pages/SmartQueuePage';
+import MissionControlPage from './pages/MissionControlPage';
 import Layout from './components/Layout';
 
 const queryClient = new QueryClient({
@@ -48,6 +49,7 @@ function App() {
             <Route path="matters" element={<MattersPage />} />
             <Route path="matters/:matterId" element={<MatterDetailPage />} />
             <Route path="my-tasks" element={<MyTasksPage />} />
+            <Route path="mission-control" element={<MissionControlPage />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />
