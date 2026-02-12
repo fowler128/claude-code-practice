@@ -8,6 +8,7 @@ import * as agentController from '../controllers/agentController';
 import * as workOrderController from '../controllers/workOrderController';
 import * as agentRunLogController from '../controllers/agentRunLogController';
 import * as costEstimatorController from '../controllers/costEstimatorController';
+import * as missionControlController from '../controllers/missionControlController';
 
 const router = Router();
 
@@ -161,5 +162,13 @@ router.get('/agent-run-logs/stats', authMiddleware, agentRunLogController.getRun
 router.get('/agent-run-logs/cost-analytics', authMiddleware, agentRunLogController.getCostAnalytics);
 router.put('/agent-run-logs/:run_log_id/complete', authMiddleware, agentRunLogController.completeRunLog);
 router.put('/agent-run-logs/:run_log_id/review', authMiddleware, requireRole('attorney', 'admin', 'ops_lead'), agentRunLogController.reviewRunLog);
+
+// Mission Control endpoints
+router.post('/work-orders/:work_order_id/preflight', authMiddleware, missionControlController.runPreflight);
+router.post('/work-orders/:work_order_id/execute', authMiddleware, missionControlController.executeWorkOrder);
+router.post('/work-orders/:work_order_id/approve', authMiddleware, requireRole('attorney', 'admin'), missionControlController.approveWorkOrder);
+router.get('/mission-control/dashboard', authMiddleware, missionControlController.getDashboard);
+router.get('/mission-control/analytics', authMiddleware, missionControlController.getAnalytics);
+router.get('/mission-control/cron-jobs', authMiddleware, missionControlController.getCronJobs);
 
 export default router;
