@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import pool from '../db/pool';
 import { ServiceAccount, ServiceAccountScope } from '../../../shared/types';
 
@@ -123,9 +124,8 @@ export function requireScope(...requiredScopes: ServiceAccountScope[]) {
  * Utility function to generate a secure API key
  */
 export function generateServiceKey(): string {
-  // Generate a 32-byte random key and encode as base64
-  const bytes = crypto.getRandomValues(new Uint8Array(32));
-  return Buffer.from(bytes).toString('base64url');
+  // Generate a 32-byte random key and encode as base64url
+  return crypto.randomBytes(32).toString('base64url');
 }
 
 /**

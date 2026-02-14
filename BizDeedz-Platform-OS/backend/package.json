@@ -9,7 +9,8 @@
     "start": "node dist/server.js",
     "db:migrate": "ts-node src/db/migrate.ts",
     "db:seed": "ts-node src/db/seed.ts",
-    "db:seed-playbooks": "ts-node src/db/seed-playbooks.ts"
+    "db:seed-playbooks": "ts-node src/db/seed-playbooks.ts",
+    "create-service-account": "ts-node src/scripts/create-service-account.ts"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
