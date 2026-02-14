@@ -120,7 +120,7 @@ export const MISSION_CONTROL_CONFIG = {
  * Get work type configuration
  */
 export function getWorkTypeConfig(workType: string) {
-  return MISSION_CONTROL_CONFIG.workTypeLimits[workType] ||
+  return (MISSION_CONTROL_CONFIG.workTypeLimits as any)[workType] ||
          MISSION_CONTROL_CONFIG.workTypeLimits.default;
 }
 
@@ -142,7 +142,7 @@ export function getModelForWorkType(workType: string): string {
  * Get pricing for a model
  */
 export function getModelPricing(model: string) {
-  return MISSION_CONTROL_CONFIG.pricing[model] || {
+  return (MISSION_CONTROL_CONFIG.pricing as any)[model] || {
     input_per_1m: 1.00,  // Default fallback
     output_per_1m: 2.00,
   };

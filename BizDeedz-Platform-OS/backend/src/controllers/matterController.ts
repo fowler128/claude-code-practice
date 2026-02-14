@@ -167,7 +167,7 @@ export async function createMatter(req: AuthRequest, res: Response) {
               event_type: 'task_created',
               event_category: 'task',
               actor_type: 'system',
-              actor_user_id: null,
+              actor_user_id: undefined,
               description: `Auto-generated task: ${taskConfig.title}`,
               metadata_json: { task_type: taskConfig.task_type, automation_rule: rule.rule_name },
               reference_id: newMatter.matter_id,

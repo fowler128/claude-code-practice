@@ -94,7 +94,7 @@ export async function createWorkOrder(req: AuthRequest, res: Response) {
       await EventService.logEvent({
         matter_id,
         event_type: 'work_order_created',
-        event_category: 'agent',
+        event_category: 'ai_run',
         actor_type: 'user',
         actor_user_id: req.user?.user_id,
         description: `Work order ${work_order_number} created for ${order_type}`,
@@ -367,7 +367,7 @@ export async function updateWorkOrderStatus(req: AuthRequest, res: Response) {
       await EventService.logEvent({
         matter_id: workOrder.matter_id,
         event_type: 'work_order_status_changed',
-        event_category: 'agent',
+        event_category: 'ai_run',
         actor_type: 'user',
         actor_user_id: req.user?.user_id,
         description: `Work order ${workOrder.work_order_number} status changed to ${status}`,

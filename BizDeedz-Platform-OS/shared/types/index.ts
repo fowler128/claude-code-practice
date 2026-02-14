@@ -730,6 +730,14 @@ export interface CreateContentSkillFileRequest {
   version?: number;
 }
 
+export interface UpdateContentSkillFileRequest {
+  name?: string;
+  brand_lane?: BrandLane;
+  markdown_text?: string;
+  version?: number;
+  is_active?: boolean;
+}
+
 export interface CreateContentVoiceMemoRequest {
   source: string;
   file_url?: string;
@@ -745,11 +753,14 @@ export interface CreateContentIdeaRequest {
   hook_2?: string;
   mechanism?: string;
   principle?: string;
+  status?: ContentIdeaStatus;
   tags?: string[];
   source_memo_id?: string;
+  metadata_json?: any;
 }
 
 export interface UpdateContentIdeaRequest {
+  lane?: BrandLane;
   sku?: string;
   hook_1?: string;
   hook_2?: string;
@@ -757,6 +768,7 @@ export interface UpdateContentIdeaRequest {
   principle?: string;
   status?: ContentIdeaStatus;
   tags?: string[];
+  metadata_json?: any;
 }
 
 export interface ApproveContentIdeaRequest {
@@ -767,6 +779,14 @@ export interface CreateContentDraftRequest {
   idea_id: string;
   platform: ContentPlatform;
   draft_text: string;
+  version?: number;
+}
+
+export interface UpdateContentDraftRequest {
+  draft_text?: string;
+  platform?: ContentPlatform;
+  version?: number;
+  is_active?: boolean;
 }
 
 export interface UpdateContentDraftQARequest {
@@ -780,6 +800,20 @@ export interface UpdateContentDraftQARequest {
 export interface ScheduleContentRequest {
   draft_id: string;
   scheduled_for: Date;
+}
+
+export interface CreateContentCalendarRequest {
+  draft_id: string;
+  scheduled_for: Date | string;
+  publish_status?: PublishStatus;
+}
+
+export interface UpdateContentCalendarRequest {
+  scheduled_for?: Date | string;
+  publish_status?: PublishStatus;
+  published_at?: Date | string;
+  publish_url?: string;
+  publish_error?: string;
 }
 
 export interface RecordPerformanceRequest {
@@ -796,15 +830,35 @@ export interface RecordPerformanceRequest {
   top_comment?: string;
 }
 
+export interface CreateContentPerformanceRequest {
+  draft_id: string;
+  impressions?: number;
+  saves?: number;
+  comments?: number;
+  likes?: number;
+  shares?: number;
+  dms?: number;
+  calls?: number;
+  conversions?: number;
+  notes?: string;
+  top_comment?: string;
+}
+
+// Type Aliases
+export type ContentCalendarEntry = ContentCalendar;
+
 // Dashboard/Analytics Types
 export interface ContentOpsDashboard {
-  ideas_by_status: { status: ContentIdeaStatus; count: number }[];
+  ideas_pipeline?: ContentIdeaPipeline[];
+  ideas_by_status?: { status: ContentIdeaStatus; count: number }[];
   drafts_pending_review: number;
-  drafts_qa_passed: number;
+  drafts_qa_passed?: number;
   scheduled_this_week: number;
-  published_this_week: number;
-  avg_performance_score: number;
-  top_performing_content: any[];
+  published_this_week?: number;
+  total_published: number;
+  avg_performance_score?: number;
+  top_performing: any[];
+  top_performing_content?: any[];
 }
 
 export interface ContentIdeaPipeline {
