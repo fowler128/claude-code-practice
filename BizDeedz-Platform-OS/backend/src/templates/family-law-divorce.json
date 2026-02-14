@@ -1,0 +1,167 @@
+{
+  "playbook_id": "family_law_divorce_v1",
+  "version": "1.0",
+  "practice_area_id": "family_law",
+  "matter_type_id": "fl_divorce",
+  "name": "Family Law - Divorce",
+  "description": "Divorce/custody workflow template",
+  "lanes": [
+    {
+      "lane_id": "intake_triage",
+      "name": "Intake & Triage",
+      "order": 1,
+      "roles": ["intake_specialist", "paralegal"]
+    },
+    {
+      "lane_id": "engagement_conflicts",
+      "name": "Engagement & Conflicts",
+      "order": 2,
+      "roles": ["paralegal", "attorney"]
+    },
+    {
+      "lane_id": "document_collection",
+      "name": "Document Collection",
+      "order": 3,
+      "roles": ["paralegal"]
+    },
+    {
+      "lane_id": "drafting_prep",
+      "name": "Drafting / Case Prep",
+      "order": 4,
+      "roles": ["paralegal"]
+    },
+    {
+      "lane_id": "attorney_review",
+      "name": "Attorney Review / Approval",
+      "order": 5,
+      "roles": ["attorney"]
+    },
+    {
+      "lane_id": "filing_submission",
+      "name": "Filing / Submission",
+      "order": 6,
+      "roles": ["paralegal", "attorney"]
+    },
+    {
+      "lane_id": "post_filing",
+      "name": "Post-Filing / Case Management",
+      "order": 7,
+      "roles": ["paralegal", "attorney"]
+    },
+    {
+      "lane_id": "billing_closeout",
+      "name": "Billing & Closeout",
+      "order": 8,
+      "roles": ["billing_specialist", "paralegal"]
+    }
+  ],
+  "statuses": [
+    {"status_code": "FL-01", "name": "New Lead", "lane_id": "intake_triage", "order": 1},
+    {"status_code": "FL-02", "name": "Intake In Progress", "lane_id": "intake_triage", "order": 2},
+    {"status_code": "FL-03", "name": "Intake Complete (Pending Gate 0)", "lane_id": "intake_triage", "order": 3},
+    {"status_code": "FL-04", "name": "Conflicts Check Pending (Gate 1)", "lane_id": "engagement_conflicts", "order": 4},
+    {"status_code": "FL-05", "name": "Conflicts Cleared", "lane_id": "engagement_conflicts", "order": 5},
+    {"status_code": "FL-06", "name": "Engagement Sent", "lane_id": "engagement_conflicts", "order": 6},
+    {"status_code": "FL-07", "name": "Engagement Signed", "lane_id": "engagement_conflicts", "order": 7},
+    {"status_code": "FL-08", "name": "Retainer Pending", "lane_id": "engagement_conflicts", "order": 8},
+    {"status_code": "FL-09", "name": "Retainer Received (Activate Matter)", "lane_id": "engagement_conflicts", "order": 9},
+    {"status_code": "FL-10", "name": "Docs Requested", "lane_id": "document_collection", "order": 10},
+    {"status_code": "FL-11", "name": "Partial Docs Received", "lane_id": "document_collection", "order": 11},
+    {"status_code": "FL-12", "name": "Docs Complete (Pending Gate 2)", "lane_id": "document_collection", "order": 12},
+    {"status_code": "FL-13", "name": "Petition / Initial Pleadings Drafting", "lane_id": "drafting_prep", "order": 13},
+    {"status_code": "FL-14", "name": "Service / Citation Prep", "lane_id": "drafting_prep", "order": 14},
+    {"status_code": "FL-15", "name": "Temporary Orders Prep", "lane_id": "drafting_prep", "order": 15},
+    {"status_code": "FL-16", "name": "Discovery Prep", "lane_id": "drafting_prep", "order": 16},
+    {"status_code": "FL-17", "name": "Ready for Attorney Review", "lane_id": "drafting_prep", "order": 17},
+    {"status_code": "FL-18", "name": "Attorney Review In Progress", "lane_id": "attorney_review", "order": 18},
+    {"status_code": "FL-19", "name": "Returned for Corrections (Defect Log)", "lane_id": "attorney_review", "order": 19},
+    {"status_code": "FL-20", "name": "Approved for Filing / Service", "lane_id": "attorney_review", "order": 20},
+    {"status_code": "FL-21", "name": "Filed", "lane_id": "filing_submission", "order": 21},
+    {"status_code": "FL-22", "name": "Service Initiated", "lane_id": "filing_submission", "order": 22},
+    {"status_code": "FL-23", "name": "Service Complete", "lane_id": "filing_submission", "order": 23},
+    {"status_code": "FL-24", "name": "Filing/Service Issue (Defect Log)", "lane_id": "filing_submission", "order": 24},
+    {"status_code": "FL-25", "name": "Hearings / Deadlines Tracking", "lane_id": "post_filing", "order": 25},
+    {"status_code": "FL-26", "name": "Settlement Drafting / Mediation Prep", "lane_id": "post_filing", "order": 26},
+    {"status_code": "FL-27", "name": "Final Orders Drafting", "lane_id": "post_filing", "order": 27},
+    {"status_code": "FL-28", "name": "Case Finalized", "lane_id": "post_filing", "order": 28},
+    {"status_code": "FL-29", "name": "Invoice Pending / Balance Due", "lane_id": "billing_closeout", "order": 29},
+    {"status_code": "FL-30", "name": "Closed Out", "lane_id": "billing_closeout", "order": 30}
+  ],
+  "required_artifacts": [
+    {"artifact_type_id": "intake_form", "required_at_status": "FL-03", "gate_id": "gate_0"},
+    {"artifact_type_id": "engagement_signed", "required_at_status": "FL-07", "gate_id": "gate_1"},
+    {"artifact_type_id": "payment_confirm", "required_at_status": "FL-09", "gate_id": "gate_1"},
+    {"artifact_type_id": "identity_doc", "required_at_status": "FL-12", "gate_id": "gate_2"},
+    {"artifact_type_id": "financial_doc", "required_at_status": "FL-12", "gate_id": "gate_2"},
+    {"artifact_type_id": "draft_filing", "required_at_status": "FL-17", "gate_id": "gate_2"},
+    {"artifact_type_id": "final_filing", "required_at_status": "FL-21", "gate_id": null}
+  ],
+  "qc_gates": [
+    {
+      "gate_id": "gate_0",
+      "name": "Intake Completeness Gate",
+      "status_code": "FL-03",
+      "criteria": [
+        "Matter type selected (divorce/custody/modification)",
+        "Urgency flagged (protective order, safety risk)",
+        "Children section complete if applicable"
+      ]
+    },
+    {
+      "gate_id": "gate_1",
+      "name": "Conflicts Gate",
+      "status_code": "FL-04",
+      "criteria": [
+        "Conflicts check completed and logged"
+      ]
+    },
+    {
+      "gate_id": "gate_2",
+      "name": "Pre-Filing/Service Gate",
+      "status_code": "FL-12",
+      "criteria": [
+        "Correct jurisdiction and venue fields complete",
+        "Pleadings match matter type and requested relief",
+        "Service packet prepared with correct names/addresses"
+      ]
+    }
+  ],
+  "sla_rules": [
+    {"status_code": "FL-01", "sla_hours": 24, "escalation_enabled": true, "escalation_roles": ["ops_lead"]},
+    {"status_code": "FL-09", "sla_hours": 24, "escalation_enabled": false, "escalation_roles": []},
+    {"status_code": "FL-17", "sla_hours": 48, "escalation_enabled": true, "escalation_roles": ["attorney"]},
+    {"status_code": "FL-20", "sla_hours": 24, "escalation_enabled": true, "escalation_roles": ["attorney"]}
+  ],
+  "automation_rules": [
+    {
+      "rule_name": "Generate Starter Tasks on Matter Create",
+      "trigger_type": "matter_created",
+      "trigger_conditions": {},
+      "action_type": "create_tasks",
+      "action_config": {
+        "tasks": [
+          {"task_type": "conflicts_check", "title": "Run conflicts check", "assigned_role": "paralegal", "sla_hours": 24},
+          {"task_type": "engagement_prep", "title": "Prepare engagement letter", "assigned_role": "paralegal", "sla_hours": 48},
+          {"task_type": "safety_assessment", "title": "Complete safety risk assessment", "assigned_role": "attorney", "sla_hours": 8}
+        ]
+      }
+    },
+    {
+      "rule_name": "Create Document Request Tasks",
+      "trigger_type": "status_changed",
+      "trigger_conditions": {"new_status": "FL-10"},
+      "action_type": "create_tasks",
+      "action_config": {
+        "tasks": [
+          {"task_type": "document_request", "title": "Send document request to client", "assigned_role": "paralegal", "sla_hours": 4}
+        ]
+      }
+    }
+  ],
+  "ai_actions_allowed": [
+    {"action_type": "summarize_client_narrative", "risk_level": "low", "requires_approval": false, "allowed_roles": ["paralegal", "attorney"]},
+    {"action_type": "generate_discovery_checklist", "risk_level": "low", "requires_approval": false, "allowed_roles": ["paralegal"]},
+    {"action_type": "draft_client_update_email", "risk_level": "medium", "requires_approval": true, "allowed_roles": ["paralegal", "attorney"]},
+    {"action_type": "extract_deadlines_from_orders", "risk_level": "low", "requires_approval": false, "allowed_roles": ["paralegal"]}
+  ]
+}
