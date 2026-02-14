@@ -10,6 +10,7 @@ import * as agentRunLogController from '../controllers/agentRunLogController';
 import * as costEstimatorController from '../controllers/costEstimatorController';
 import * as missionControlController from '../controllers/missionControlController';
 import * as integrationController from '../controllers/integrationController';
+import * as contentOpsController from '../controllers/contentOpsController';
 import { serviceAuthMiddleware, requireScope } from '../middleware/serviceAuth';
 
 const router = Router();
@@ -172,6 +173,53 @@ router.post('/work-orders/:work_order_id/approve', authMiddleware, requireRole('
 router.get('/mission-control/dashboard', authMiddleware, missionControlController.getDashboard);
 router.get('/mission-control/analytics', authMiddleware, missionControlController.getAnalytics);
 router.get('/mission-control/cron-jobs', authMiddleware, missionControlController.getCronJobs);
+
+// ============================================================================
+// Content Ops Autopilot endpoints
+// RBAC: ops_lead and admin can manage everything, others read-only
+// ============================================================================
+
+// Content Skill Files
+router.get('/content/skill-files', authMiddleware, contentOpsController.getContentSkillFiles);
+router.get('/content/skill-files/:id', authMiddleware, contentOpsController.getContentSkillFileById);
+router.post('/content/skill-files', authMiddleware, requireRole('admin', 'ops_lead'), contentOpsController.createContentSkillFile);
+router.put('/content/skill-files/:id', authMiddleware, requireRole('admin', 'ops_lead'), contentOpsController.updateContentSkillFile);
+router.delete('/content/skill-files/:id', authMiddleware, requireRole('admin', 'ops_lead'), contentOpsController.deleteContentSkillFile);
+
+// Content Voice Memos
+router.get('/content/voice-memos', authMiddleware, contentOpsController.getContentVoiceMemos);
+router.post('/content/voice-memos', authMiddleware, requireRole('admin', 'ops_lead'), contentOpsController.createContentVoiceMemo);
+
+// Content Ideas
+router.get('/content/ideas', authMiddleware, contentOpsController.getContentIdeas);
+router.get('/content/ideas/:id', authMiddleware, contentOpsController.getContentIdeaById);
+router.post('/content/ideas', authMiddleware, requireRole('admin', 'ops_lead'), contentOpsController.createContentIdea);
+router.put('/content/ideas/:id', authMiddleware, requireRole('admin', 'ops_lead'), contentOpsController.updateContentIdea);
+router.post('/content/ideas/:id/approve', authMiddleware, requireRole('admin', 'ops_lead'), contentOpsController.approveContentIdea);
+router.delete('/content/ideas/:id', authMiddleware, requireRole('admin', 'ops_lead'), contentOpsController.deleteContentIdea);
+
+// Content Drafts
+router.get('/content/drafts', authMiddleware, contentOpsController.getContentDrafts);
+router.get('/content/drafts/:id', authMiddleware, contentOpsController.getContentDraftById);
+router.post('/content/drafts', authMiddleware, requireRole('admin', 'ops_lead'), contentOpsController.createContentDraft);
+router.put('/content/drafts/:id', authMiddleware, requireRole('admin', 'ops_lead'), contentOpsController.updateContentDraft);
+router.put('/content/drafts/:id/qa', authMiddleware, requireRole('admin', 'ops_lead'), contentOpsController.updateContentDraftQA);
+router.delete('/content/drafts/:id', authMiddleware, requireRole('admin', 'ops_lead'), contentOpsController.deleteContentDraft);
+
+// Content Calendar
+router.get('/content/calendar', authMiddleware, contentOpsController.getContentCalendar);
+router.post('/content/calendar', authMiddleware, requireRole('admin', 'ops_lead'), contentOpsController.createContentCalendarEntry);
+router.put('/content/calendar/:id', authMiddleware, requireRole('admin', 'ops_lead'), contentOpsController.updateContentCalendarEntry);
+router.delete('/content/calendar/:id', authMiddleware, requireRole('admin', 'ops_lead'), contentOpsController.deleteContentCalendarEntry);
+
+// Content Performance
+router.get('/content/performance', authMiddleware, contentOpsController.getContentPerformance);
+router.post('/content/performance', authMiddleware, requireRole('admin', 'ops_lead'), contentOpsController.createContentPerformance);
+
+// Content Ops Dashboard & Analytics
+router.get('/content/dashboard', authMiddleware, contentOpsController.getContentOpsDashboard);
+router.get('/content/review-queue', authMiddleware, contentOpsController.getContentReviewQueue);
+router.get('/content/top-performing', authMiddleware, contentOpsController.getTopPerformingContent);
 
 // ============================================================================
 // Integration endpoints (OpenClaw ↔ BizDeedz Platform OS)

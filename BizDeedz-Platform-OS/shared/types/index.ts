@@ -609,3 +609,229 @@ export interface IntegrationApiResponse<T = any> {
   correlation_id?: string;
   timestamp: string;
 }
+
+// ============================================================================
+// Content Ops Autopilot Types
+// ============================================================================
+
+export type BrandLane = 'bizdeedz' | 'turea' | 'both';
+
+export type ContentIdeaStatus = 'captured' | 'approved' | 'drafted' | 'scheduled' | 'published' | 'archived';
+
+export type ContentPlatform = 'linkedin' | 'tiktok' | 'twitter' | 'instagram' | 'youtube';
+
+export type PublishStatus = 'scheduled' | 'publishing' | 'published' | 'failed' | 'cancelled';
+
+// Content Skill File
+export interface ContentSkillFile {
+  skill_file_id: string;
+  name: string;
+  brand_lane: BrandLane;
+  markdown_text: string;
+  version: number;
+  is_active: boolean;
+  created_by?: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+// Content Voice Memo
+export interface ContentVoiceMemo {
+  memo_id: string;
+  source: string;
+  file_url?: string;
+  transcript_text?: string;
+  duration_seconds?: number;
+  created_by?: string;
+  created_at: Date;
+  processed_at?: Date;
+  tags?: string[];
+}
+
+// Content Idea
+export interface ContentIdea {
+  idea_id: string;
+  lane: BrandLane;
+  sku?: string;
+  hook_1: string;
+  hook_2?: string;
+  mechanism?: string;
+  principle?: string;
+  status: ContentIdeaStatus;
+  tags?: string[];
+  source_memo_id?: string;
+  approved_by?: string;
+  approved_at?: Date;
+  created_by?: string;
+  created_at: Date;
+  updated_at: Date;
+  metadata_json?: any;
+}
+
+// Content Draft
+export interface ContentDraft {
+  draft_id: string;
+  idea_id: string;
+  platform: ContentPlatform;
+  draft_text: string;
+  qa_principle: boolean;
+  qa_mechanism: boolean;
+  qa_cta: boolean;
+  qa_audience: boolean;
+  qa_passed?: boolean; // Computed field
+  reviewed_by?: string;
+  reviewed_at?: Date;
+  review_notes?: string;
+  version: number;
+  is_active: boolean;
+  created_by?: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+// Content Calendar
+export interface ContentCalendar {
+  calendar_id: string;
+  draft_id: string;
+  scheduled_for: Date;
+  publish_status: PublishStatus;
+  published_at?: Date;
+  publish_url?: string;
+  publish_error?: string;
+  scheduled_by?: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+// Content Performance
+export interface ContentPerformance {
+  performance_id: string;
+  draft_id: string;
+  impressions: number;
+  saves: number;
+  comments: number;
+  likes: number;
+  shares: number;
+  dms: number;
+  calls: number;
+  conversions: number;
+  notes?: string;
+  top_comment?: string;
+  measured_at: Date;
+  measured_by?: string;
+  created_at: Date;
+}
+
+// API Request Types
+export interface CreateContentSkillFileRequest {
+  name: string;
+  brand_lane: BrandLane;
+  markdown_text: string;
+  version?: number;
+}
+
+export interface CreateContentVoiceMemoRequest {
+  source: string;
+  file_url?: string;
+  transcript_text?: string;
+  duration_seconds?: number;
+  tags?: string[];
+}
+
+export interface CreateContentIdeaRequest {
+  lane: BrandLane;
+  sku?: string;
+  hook_1: string;
+  hook_2?: string;
+  mechanism?: string;
+  principle?: string;
+  tags?: string[];
+  source_memo_id?: string;
+}
+
+export interface UpdateContentIdeaRequest {
+  sku?: string;
+  hook_1?: string;
+  hook_2?: string;
+  mechanism?: string;
+  principle?: string;
+  status?: ContentIdeaStatus;
+  tags?: string[];
+}
+
+export interface ApproveContentIdeaRequest {
+  approved: boolean;
+}
+
+export interface CreateContentDraftRequest {
+  idea_id: string;
+  platform: ContentPlatform;
+  draft_text: string;
+}
+
+export interface UpdateContentDraftQARequest {
+  qa_principle?: boolean;
+  qa_mechanism?: boolean;
+  qa_cta?: boolean;
+  qa_audience?: boolean;
+  review_notes?: string;
+}
+
+export interface ScheduleContentRequest {
+  draft_id: string;
+  scheduled_for: Date;
+}
+
+export interface RecordPerformanceRequest {
+  draft_id: string;
+  impressions?: number;
+  saves?: number;
+  comments?: number;
+  likes?: number;
+  shares?: number;
+  dms?: number;
+  calls?: number;
+  conversions?: number;
+  notes?: string;
+  top_comment?: string;
+}
+
+// Dashboard/Analytics Types
+export interface ContentOpsDashboard {
+  ideas_by_status: { status: ContentIdeaStatus; count: number }[];
+  drafts_pending_review: number;
+  drafts_qa_passed: number;
+  scheduled_this_week: number;
+  published_this_week: number;
+  avg_performance_score: number;
+  top_performing_content: any[];
+}
+
+export interface ContentIdeaPipeline {
+  lane: BrandLane;
+  status: ContentIdeaStatus;
+  idea_count: number;
+  unique_skus: number;
+  oldest_idea: Date;
+  newest_idea: Date;
+}
+
+export interface ContentReviewQueueItem {
+  draft_id: string;
+  idea_id: string;
+  lane: BrandLane;
+  sku?: string;
+  platform: ContentPlatform;
+  draft_text: string;
+  qa_principle: boolean;
+  qa_mechanism: boolean;
+  qa_cta: boolean;
+  qa_audience: boolean;
+  qa_passed: boolean;
+  drafted_at: Date;
+  drafted_by_id?: string;
+  drafted_by_name?: string;
+  reviewed_at?: Date;
+  reviewed_by_id?: string;
+  reviewed_by_name?: string;
+}

@@ -11,6 +11,19 @@ import type {
   ArtifactType,
   DefectReason,
   Event,
+  ContentIdea,
+  ContentDraft,
+  ContentCalendarEntry,
+  ContentPerformance,
+  CreateContentIdeaRequest,
+  UpdateContentIdeaRequest,
+  CreateContentDraftRequest,
+  UpdateContentDraftRequest,
+  UpdateContentDraftQARequest,
+  CreateContentCalendarRequest,
+  CreateContentPerformanceRequest,
+  ContentOpsDashboard,
+  ContentReviewQueueItem,
 } from '@shared/types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -208,6 +221,119 @@ export const missionControlApi = {
 
   approveWorkOrder: async (workOrderId: string) => {
     const response = await api.post(`/work-orders/${workOrderId}/approve`);
+    return response.data;
+  },
+};
+
+// Content Ops API
+export const contentOpsApi = {
+  // Dashboard & Analytics
+  getDashboard: async (): Promise<ContentOpsDashboard> => {
+    const response = await api.get('/content/dashboard');
+    return response.data;
+  },
+
+  getReviewQueue: async (): Promise<ContentReviewQueueItem[]> => {
+    const response = await api.get('/content/review-queue');
+    return response.data;
+  },
+
+  getTopPerforming: async (limit?: number) => {
+    const response = await api.get('/content/top-performing', { params: { limit } });
+    return response.data;
+  },
+
+  // Content Ideas
+  getIdeas: async (params?: any): Promise<ContentIdea[]> => {
+    const response = await api.get('/content/ideas', { params });
+    return response.data;
+  },
+
+  getIdeaById: async (id: string): Promise<ContentIdea> => {
+    const response = await api.get(`/content/ideas/${id}`);
+    return response.data;
+  },
+
+  createIdea: async (data: CreateContentIdeaRequest): Promise<ContentIdea> => {
+    const response = await api.post('/content/ideas', data);
+    return response.data;
+  },
+
+  updateIdea: async (id: string, data: UpdateContentIdeaRequest): Promise<ContentIdea> => {
+    const response = await api.put(`/content/ideas/${id}`, data);
+    return response.data;
+  },
+
+  approveIdea: async (id: string): Promise<ContentIdea> => {
+    const response = await api.post(`/content/ideas/${id}/approve`);
+    return response.data;
+  },
+
+  deleteIdea: async (id: string) => {
+    const response = await api.delete(`/content/ideas/${id}`);
+    return response.data;
+  },
+
+  // Content Drafts
+  getDrafts: async (params?: any): Promise<ContentDraft[]> => {
+    const response = await api.get('/content/drafts', { params });
+    return response.data;
+  },
+
+  getDraftById: async (id: string): Promise<ContentDraft> => {
+    const response = await api.get(`/content/drafts/${id}`);
+    return response.data;
+  },
+
+  createDraft: async (data: CreateContentDraftRequest): Promise<ContentDraft> => {
+    const response = await api.post('/content/drafts', data);
+    return response.data;
+  },
+
+  updateDraft: async (id: string, data: UpdateContentDraftRequest): Promise<ContentDraft> => {
+    const response = await api.put(`/content/drafts/${id}`, data);
+    return response.data;
+  },
+
+  updateDraftQA: async (id: string, data: UpdateContentDraftQARequest): Promise<ContentDraft> => {
+    const response = await api.put(`/content/drafts/${id}/qa`, data);
+    return response.data;
+  },
+
+  deleteDraft: async (id: string) => {
+    const response = await api.delete(`/content/drafts/${id}`);
+    return response.data;
+  },
+
+  // Content Calendar
+  getCalendar: async (params?: any): Promise<ContentCalendarEntry[]> => {
+    const response = await api.get('/content/calendar', { params });
+    return response.data;
+  },
+
+  createCalendarEntry: async (data: CreateContentCalendarRequest): Promise<ContentCalendarEntry> => {
+    const response = await api.post('/content/calendar', data);
+    return response.data;
+  },
+
+  updateCalendarEntry: async (id: string, data: any): Promise<ContentCalendarEntry> => {
+    const response = await api.put(`/content/calendar/${id}`, data);
+    return response.data;
+  },
+
+  deleteCalendarEntry: async (id: string) => {
+    const response = await api.delete(`/content/calendar/${id}`);
+    return response.data;
+  },
+
+  // Content Performance
+  getPerformance: async (params?: any): Promise<ContentPerformance[]> => {
+    const response = await api.get('/content/performance', { params });
+    return response.data;
+  },
+
+  createPerformance: async (data: CreateContentPerformanceRequest): Promise<ContentPerformance> => {
+    const response = await api.post('/content/performance', data);
     return response.data;
   },
 };

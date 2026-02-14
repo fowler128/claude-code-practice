@@ -8,6 +8,11 @@ import MatterDetailPage from './pages/MatterDetailPage';
 import MyTasksPage from './pages/MyTasksPage';
 import SmartQueuePage from './pages/SmartQueuePage';
 import MissionControlPage from './pages/MissionControlPage';
+import ContentCommandCenterPage from './pages/ContentCommandCenterPage';
+import ContentIdeaBankPage from './pages/ContentIdeaBankPage';
+import ContentReviewQueuePage from './pages/ContentReviewQueuePage';
+import ContentCalendarPage from './pages/ContentCalendarPage';
+import ContentPerformancePage from './pages/ContentPerformancePage';
 import Layout from './components/Layout';
 
 const queryClient = new QueryClient({
@@ -50,6 +55,11 @@ function App() {
             <Route path="matters/:matterId" element={<MatterDetailPage />} />
             <Route path="my-tasks" element={<MyTasksPage />} />
             <Route path="mission-control" element={<MissionControlPage />} />
+            <Route path="content" element={<ContentCommandCenterPage />} />
+            <Route path="content/ideas" element={<ContentIdeaBankPage />} />
+            <Route path="content/review-queue" element={<ContentReviewQueuePage />} />
+            <Route path="content/calendar" element={<ContentCalendarPage />} />
+            <Route path="content/performance" element={<ContentPerformancePage />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />
