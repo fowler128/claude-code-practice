@@ -9,6 +9,8 @@ import * as workOrderController from '../controllers/workOrderController';
 import * as agentRunLogController from '../controllers/agentRunLogController';
 import * as costEstimatorController from '../controllers/costEstimatorController';
 import * as missionControlController from '../controllers/missionControlController';
+import * as integrationController from '../controllers/integrationController';
+import { serviceAuthMiddleware, requireScope } from '../middleware/serviceAuth';
 
 const router = Router();
 
@@ -170,5 +172,64 @@ router.post('/work-orders/:work_order_id/approve', authMiddleware, requireRole('
 router.get('/mission-control/dashboard', authMiddleware, missionControlController.getDashboard);
 router.get('/mission-control/analytics', authMiddleware, missionControlController.getAnalytics);
 router.get('/mission-control/cron-jobs', authMiddleware, missionControlController.getCronJobs);
+
+// ============================================================================
+// Integration endpoints (OpenClaw ↔ BizDeedz Platform OS)
+// Protected by service account authentication
+// ============================================================================
+
+// Ingestion Items
+router.post(
+  '/integration/ingestion-items',
+  serviceAuthMiddleware,
+  requireScope('ingestion:write'),
+  integrationController.createIngestionItem
+);
+router.patch(
+  '/integration/ingestion-items/:item_id',
+  serviceAuthMiddleware,
+  requireScope('ingestion:write'),
+  integrationController.updateIngestionItem
+);
+
+// Artifacts
+router.post(
+  '/integration/artifacts',
+  serviceAuthMiddleware,
+  requireScope('artifacts:write'),
+  integrationController.createArtifactExtended
+);
+
+// Events
+router.post(
+  '/integration/events',
+  serviceAuthMiddleware,
+  requireScope('events:write'),
+  integrationController.createEventExtended
+);
+
+// Automation Runs
+router.post(
+  '/integration/automation-runs/start',
+  serviceAuthMiddleware,
+  integrationController.startAutomationRun
+);
+router.post(
+  '/integration/automation-runs/:run_id/finish',
+  serviceAuthMiddleware,
+  integrationController.finishAutomationRun
+);
+
+// Job Locks
+router.post(
+  '/integration/locks/acquire',
+  serviceAuthMiddleware,
+  integrationController.acquireLock
+);
+router.post(
+  '/integration/locks/release',
+  serviceAuthMiddleware,
+  integrationController.releaseLock
+);
 
 export default router;

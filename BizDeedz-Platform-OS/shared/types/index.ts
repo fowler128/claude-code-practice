@@ -363,3 +363,249 @@ export interface ApproveAIRunRequest {
   approval_status: 'approved' | 'rejected';
   review_notes?: string;
 }
+
+// ============================================================================
+// OpenClaw Integration Types
+// ============================================================================
+
+export type ServiceAccountScope =
+  | 'ingestion:write'
+  | 'artifacts:write'
+  | 'tasks:write'
+  | 'events:write'
+  | 'ai_runs:write';
+
+export type AutomationRunStatus = 'running' | 'success' | 'failed' | 'timeout' | 'cancelled';
+
+export type IngestionItemStatus = 'pending' | 'classified' | 'filed' | 'rejected' | 'error';
+
+export type StorageProvider = 'local' | 'sharepoint' | 'gdrive' | 's3';
+
+export type ArtifactStatus = 'draft' | 'qc_pending' | 'approved' | 'filed' | 'rejected';
+
+export type CreatedByTypeExtended = 'user' | 'service' | 'automation' | 'ai';
+
+// Service Account
+export interface ServiceAccount {
+  service_id: string;
+  name: string;
+  description?: string;
+  api_key_hash: string;
+  scopes: ServiceAccountScope[];
+  enabled: boolean;
+  last_used_at?: Date;
+  created_at: Date;
+  updated_at: Date;
+}
+
+// Automation Job
+export interface AutomationJob {
+  job_id: string;
+  name: string;
+  description?: string;
+  schedule?: string; // Cron expression
+  enabled: boolean;
+  risk_default: RiskLevel;
+  service_account_id?: string;
+  config_json?: any; // JSONB
+  last_run_at?: Date;
+  next_run_at?: Date;
+  created_at: Date;
+  updated_at: Date;
+}
+
+// Automation Run
+export interface AutomationRun {
+  run_id: string;
+  job_id?: string;
+  job_name: string;
+  correlation_id: string;
+  status: AutomationRunStatus;
+  started_at: Date;
+  ended_at?: Date;
+  duration_ms?: number;
+  error_message?: string;
+  inputs_ref?: string;
+  outputs_ref?: string;
+  items_processed: number;
+  items_created: number;
+  items_updated: number;
+  items_failed: number;
+  cost_estimate?: number;
+  cost_actual?: number;
+  service_account_id?: string;
+  metadata_json?: any; // JSONB
+}
+
+// Job Lock
+export interface JobLock {
+  lock_key: string;
+  locked_at: Date;
+  locked_by: string;
+  expires_at: Date;
+  run_id?: string;
+  metadata_json?: any; // JSONB
+}
+
+// Ingestion Item
+export interface IngestionItem {
+  item_id: string;
+  source: string;
+  raw_uri: string;
+  original_filename?: string;
+  checksum_sha256?: string;
+  mime_type?: string;
+  file_size_bytes?: number;
+  detected_type?: string;
+  confidence?: number; // 0-100
+  proposed_matter_id?: string;
+  proposed_artifact_type?: string;
+  status: IngestionItemStatus;
+  filed_artifact_id?: string;
+  handled_by?: string;
+  automation_run_id?: string;
+  correlation_id?: string;
+  error_message?: string;
+  metadata_json?: any; // JSONB
+  created_at: Date;
+  updated_at: Date;
+}
+
+// Extended Artifact (includes new file-authoritative fields)
+export interface ArtifactExtended extends Artifact {
+  file_uri?: string;
+  storage_provider: StorageProvider;
+  checksum_sha256?: string;
+  mime_type?: string;
+  version: number;
+  status: ArtifactStatus;
+  qc_gate?: string;
+  created_by_type: CreatedByTypeExtended;
+  ingestion_item_id?: string;
+  correlation_id?: string;
+}
+
+// Extended Event (includes new integration fields)
+export interface EventExtended extends Event {
+  entity_type?: string;
+  entity_id?: string;
+  correlation_id?: string;
+  service_account_id?: string;
+  automation_run_id?: string;
+  payload?: any; // JSONB
+}
+
+// ============================================================================
+// Integration API Request/Response Types
+// ============================================================================
+
+export interface CreateServiceAccountRequest {
+  name: string;
+  description?: string;
+  scopes: ServiceAccountScope[];
+}
+
+export interface CreateServiceAccountResponse {
+  service_account: Omit<ServiceAccount, 'api_key_hash'>;
+  api_key: string; // Only returned once at creation
+}
+
+export interface CreateIngestionItemRequest {
+  source: string;
+  raw_uri: string;
+  original_filename?: string;
+  checksum_sha256?: string;
+  mime_type?: string;
+  file_size_bytes?: number;
+  detected_type?: string;
+  confidence?: number;
+  proposed_matter_id?: string;
+  proposed_artifact_type?: string;
+  automation_run_id?: string;
+  correlation_id?: string;
+  metadata_json?: any;
+}
+
+export interface UpdateIngestionItemRequest {
+  status?: IngestionItemStatus;
+  proposed_matter_id?: string;
+  proposed_artifact_type?: string;
+  filed_artifact_id?: string;
+  handled_by?: string;
+  error_message?: string;
+  metadata_json?: any;
+}
+
+export interface CreateArtifactExtendedRequest extends CreateArtifactRequest {
+  file_uri?: string;
+  storage_provider?: StorageProvider;
+  checksum_sha256?: string;
+  mime_type?: string;
+  status?: ArtifactStatus;
+  created_by_type?: CreatedByTypeExtended;
+  ingestion_item_id?: string;
+  correlation_id?: string;
+}
+
+export interface CreateEventExtendedRequest {
+  matter_id?: string;
+  event_type: string;
+  event_category: EventCategory;
+  actor_type: ActorType;
+  description: string;
+  entity_type?: string;
+  entity_id?: string;
+  correlation_id?: string;
+  service_account_id?: string;
+  automation_run_id?: string;
+  payload?: any;
+}
+
+export interface StartAutomationRunRequest {
+  job_id?: string;
+  job_name: string;
+  correlation_id?: string;
+  inputs_ref?: string;
+  service_account_id?: string;
+  metadata_json?: any;
+}
+
+export interface FinishAutomationRunRequest {
+  status: Exclude<AutomationRunStatus, 'running'>;
+  error_message?: string;
+  outputs_ref?: string;
+  items_processed?: number;
+  items_created?: number;
+  items_updated?: number;
+  items_failed?: number;
+  cost_actual?: number;
+}
+
+export interface AcquireLockRequest {
+  lock_key: string;
+  locked_by: string;
+  expiry_seconds?: number;
+  run_id?: string;
+}
+
+export interface AcquireLockResponse {
+  acquired: boolean;
+  lock?: JobLock;
+}
+
+export interface ReleaseLockRequest {
+  lock_key: string;
+  locked_by: string;
+}
+
+export interface ReleaseLockResponse {
+  released: boolean;
+}
+
+export interface IntegrationApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  correlation_id?: string;
+  timestamp: string;
+}
