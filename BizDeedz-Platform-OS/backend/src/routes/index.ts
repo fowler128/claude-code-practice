@@ -12,6 +12,8 @@ import * as missionControlController from '../controllers/missionControlControll
 import * as integrationController from '../controllers/integrationController';
 import * as contentOpsController from '../controllers/contentOpsController';
 import { serviceAuthMiddleware, requireScope } from '../middleware/serviceAuth';
+import { createAgentsRouter } from '../modules/agents/agents.routes';
+import pool from '../db/connection';
 
 const router = Router();
 
@@ -279,5 +281,10 @@ router.post(
   serviceAuthMiddleware,
   integrationController.releaseLock
 );
+
+// ============================================================================
+// OpenClaw Agents Module (autonomous agent execution)
+// ============================================================================
+router.use('/openclaw-agents', authMiddleware, createAgentsRouter(pool));
 
 export default router;
