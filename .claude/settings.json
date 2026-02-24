@@ -1,0 +1,40 @@
+{
+  "extraKnownMarketplaces": {
+    "anthropics-skills": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/skills"
+      }
+    },
+    "obra-superpowers": {
+      "source": {
+        "source": "github",
+        "repo": "obra/superpowers"
+      }
+    },
+    "composiohq-awesome-claude-skills": {
+      "source": {
+        "source": "github",
+        "repo": "ComposioHQ/awesome-claude-skills"
+      }
+    },
+    "coreyhaines31-marketingskills": {
+      "source": {
+        "source": "github",
+        "repo": "coreyhaines31/marketingskills"
+      }
+    },
+    "dmend3z-tribo-skills": {
+      "source": {
+        "source": "github",
+        "repo": "dmend3z/tribo-skills"
+      }
+    },
+    "f-prompts-chat": {
+      "source": {
+        "source": "github",
+        "repo": "f/prompts.chat"
+      }
+    }
+  }
+}
