@@ -37,3 +37,43 @@ if [ ! -d "$BW_SKILL_DIR" ]; then
 else
   echo "BizDeedz Workflow Architect already installed at $BW_SKILL_DIR"
 fi
+
+# Install BizDeedz AI Readiness Offer skill from repo if not already present
+AR_OFFER_DIR="${HOME}/.claude/skills/bizdeedz-ai-readiness-offer"
+if [ ! -d "$AR_OFFER_DIR" ]; then
+  echo "Installing BizDeedz AI Readiness Offer skill..."
+  cp -r "${CLAUDE_PROJECT_DIR}/.claude/skills/bizdeedz-ai-readiness-offer" "$AR_OFFER_DIR"
+  echo "BizDeedz AI Readiness Offer installed at $AR_OFFER_DIR"
+else
+  echo "BizDeedz AI Readiness Offer already installed at $AR_OFFER_DIR"
+fi
+
+# Install BizDeedz AI Readiness Campaign skill from repo if not already present
+AR_CAMPAIGN_DIR="${HOME}/.claude/skills/bizdeedz-ai-readiness-campaign"
+if [ ! -d "$AR_CAMPAIGN_DIR" ]; then
+  echo "Installing BizDeedz AI Readiness Campaign skill..."
+  cp -r "${CLAUDE_PROJECT_DIR}/.claude/skills/bizdeedz-ai-readiness-campaign" "$AR_CAMPAIGN_DIR"
+  echo "BizDeedz AI Readiness Campaign installed at $AR_CAMPAIGN_DIR"
+else
+  echo "BizDeedz AI Readiness Campaign already installed at $AR_CAMPAIGN_DIR"
+fi
+
+# Install BizDeedz LeadGen Agent Core skill from repo if not already present
+LG_CORE_DIR="${HOME}/.claude/skills/bizdeedz-leadgen-agent-core"
+if [ ! -d "$LG_CORE_DIR" ]; then
+  echo "Installing BizDeedz LeadGen Agent Core skill..."
+  cp -r "${CLAUDE_PROJECT_DIR}/.claude/skills/bizdeedz-leadgen-agent-core" "$LG_CORE_DIR"
+  echo "BizDeedz LeadGen Agent Core installed at $LG_CORE_DIR"
+else
+  echo "BizDeedz LeadGen Agent Core already installed at $LG_CORE_DIR"
+fi
+
+# Install BizDeedz ClientConfig Nicole Ezer skill from repo if not already present
+CC_NICOLE_DIR="${HOME}/.claude/skills/bizdeedz-clientconfig-nicole-ezer"
+if [ ! -d "$CC_NICOLE_DIR" ]; then
+  echo "Installing BizDeedz ClientConfig Nicole Ezer skill..."
+  cp -r "${CLAUDE_PROJECT_DIR}/.claude/skills/bizdeedz-clientconfig-nicole-ezer" "$CC_NICOLE_DIR"
+  echo "BizDeedz ClientConfig Nicole Ezer installed at $CC_NICOLE_DIR"
+else
+  echo "BizDeedz ClientConfig Nicole Ezer already installed at $CC_NICOLE_DIR"
+fi
