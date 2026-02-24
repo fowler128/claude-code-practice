@@ -27,3 +27,13 @@ if [ ! -d "$BD_SKILL_DIR" ]; then
 else
   echo "BizDeedz Contract Agent already installed at $BD_SKILL_DIR"
 fi
+
+# Install BizDeedz Workflow Architect skill from repo if not already present
+BW_SKILL_DIR="${HOME}/.claude/skills/bizdeedz-workflow"
+if [ ! -d "$BW_SKILL_DIR" ]; then
+  echo "Installing BizDeedz Workflow Architect skill..."
+  cp -r "${CLAUDE_PROJECT_DIR}/.claude/skills/bizdeedz-workflow" "$BW_SKILL_DIR"
+  echo "BizDeedz Workflow Architect installed at $BW_SKILL_DIR"
+else
+  echo "BizDeedz Workflow Architect already installed at $BW_SKILL_DIR"
+fi
