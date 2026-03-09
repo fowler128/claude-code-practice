@@ -272,3 +272,89 @@ The app must:
 - open engagement focus view on engagement-card click
 - open detail drawer for task/event/deliverable/finance click
 - load seeded demo data successfully
+
+## 15) Field Defaults, Rules, and UX Constraints
+### Field Defaults (v1)
+- Lead.status default = `New`
+- Deal.stage default = `Qualified`
+- Engagement.stage default = `Discovery`
+- Engagement.healthStatus default = `Green`
+- Engagement.progressPercent default = `0`
+- Task.status default = `Not Started`
+- Task.materialImpact default = `false`
+- Event.clientNotificationRequired default = `false`
+- Event.clientNotificationSent default = `false`
+- Event.createdAt default = auto timestamp
+- Deliverable.status default = `Draft`
+- FinanceRecord.status default = `Draft`
+- FinanceRecord.paymentReceived default = `false`
+
+### Required Fields (v1)
+- **Lead**: companyName, contactName, status, ownerId
+- **Deal**: name, stage, ownerId
+- **Client**: name
+- **Engagement**: name, stage, ownerId
+- **Task**: title, status, ownerId
+- **Event**: type, summary, ownerId
+- **Deliverable**: name, status
+- **FinanceRecord**: type, amount, status
+
+### Nullability and Behavior Rules
+- Event.nextStep is required for manual events and optional for auto-generated system events.
+- Event.nextStepOwnerId may be null when next step is unassigned.
+- Event.nextStepDueDate may be null when no due date is set.
+- Event.clientNotificationSent must remain false until an explicit send action occurs.
+
+### Progress Calculation Logic (v1)
+- `Engagement.progressPercent = round((completedTasks / totalTasks) * 100)`
+- If an engagement has 0 tasks, progress defaults to `0`.
+
+### Alert Severity and Display Priority
+- **Critical**:
+  - unpaid invoice past due
+  - engagement health = Red
+  - next milestone overdue by more than 3 days
+- **Warning**:
+  - overdue task exists
+  - client notification required but not sent
+  - deal has no next step
+  - engagement has no event in 7 days
+
+Dashboard behavior:
+- show max 5 active alerts
+- sort by severity (Critical first), then oldest first
+- collapse duplicate alerts for the same engagement when possible
+
+### Engagement Focus View Required Contents
+- engagement name
+- client name
+- offer type
+- stage
+- health status
+- owner
+- progressPercent
+- next milestone
+- next milestone due date
+- linked tasks
+- linked deliverables
+- linked finance records
+- recent events timeline
+- alert badges for this engagement
+
+### Detail Drawer Required Fields by Object Type
+- **Task**: title, status, owner, dueDate, materialImpact
+- **Event**: type, summary, notes, owner, nextStep, notification flags
+- **Deliverable**: name, status, owner, dueDate, deliveredAt
+- **FinanceRecord**: type, invoiceNumber, amount, dueDate, status, paymentReceived
+
+### Conversion UX Rules
+**Lead -> Deal conversion**
+- open modal prefilled from lead
+- allow editing deal name, stage, value, owner
+- set lead.status = Converted only after successful deal creation
+
+**Deal -> Client + Engagement conversion**
+- open modal prefilled from deal
+- create client first, then engagement
+- if engagement creation fails, do not leave silent partial state
+- show success confirmation only after both records succeed
