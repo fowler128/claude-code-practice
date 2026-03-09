@@ -9,6 +9,7 @@ export interface Lead {
   ownerId: string;
   source?: string;
   nextStep?: string;
+  nextStepDueDate?: string;
 }
 
 export interface Deal {
@@ -26,11 +27,15 @@ export interface Deal {
   ownerId: string;
   value?: number;
   nextStep?: string;
+  nextStepDueDate?: string;
 }
 
 export interface Client {
   id: string;
   name: string;
+  primaryContact?: string;
+  salesOwnerId?: string;
+  createdFromDealId?: string;
 }
 
 export interface Engagement {
