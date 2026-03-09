@@ -1,0 +1,201 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CONVERTED
+  CLOSED_LOST
+}
+
+enum DealStage {
+  QUALIFIED
+  DISCOVERY_SCHEDULED
+  DISCOVERY_COMPLETED
+  PROPOSAL_SENT
+  NEGOTIATION
+  WON
+  LOST
+}
+
+enum EngagementStage {
+  DISCOVERY
+  AUDIT
+  AUTOMATION
+  TESTING
+  IMPLEMENTATION
+  OPTIMIZATION
+  COMPLETED
+  PAUSED
+}
+
+enum HealthStatus {
+  GREEN
+  YELLOW
+  RED
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  WAITING
+  COMPLETED
+  BLOCKED
+}
+
+enum DeliverableStatus {
+  DRAFT
+  IN_REVIEW
+  DELIVERED
+}
+
+enum FinanceType {
+  INVOICE
+  PAYMENT
+  CREDIT
+}
+
+enum FinanceStatus {
+  DRAFT
+  SENT
+  OVERDUE
+  PAID
+}
+
+model Lead {
+  id              String     @id @default(uuid())
+  companyName     String
+  contactName     String
+  source          String?
+  status          LeadStatus @default(NEW)
+  ownerId         String
+  nextStep        String?
+  nextStepDueDate DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  deals Deal[]
+}
+
+model Deal {
+  id              String    @id @default(uuid())
+  leadId          String
+  name            String
+  stage           DealStage @default(QUALIFIED)
+  value           Decimal?
+  ownerId         String
+  nextStep        String?
+  nextStepDueDate DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  clients Client[]
+}
+
+model Client {
+  id                String   @id @default(uuid())
+  name              String
+  primaryContact    String?
+  salesOwnerId      String?
+  createdFromDealId String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  createdFromDeal Deal?        @relation(fields: [createdFromDealId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  engagements     Engagement[]
+}
+
+model Engagement {
+  id                   String          @id @default(uuid())
+  clientId             String
+  name                 String
+  offerType            String?
+  stage                EngagementStage @default(DISCOVERY)
+  healthStatus         HealthStatus    @default(GREEN)
+  ownerId              String
+  startDate            DateTime?
+  targetEndDate        DateTime?
+  nextMilestone        String?
+  nextMilestoneDueDate DateTime?
+  progressPercent      Int             @default(0)
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  client       Client          @relation(fields: [clientId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  tasks        Task[]
+  events       Event[]
+  deliverables Deliverable[]
+  finance      FinanceRecord[]
+}
+
+model Task {
+  id             String     @id @default(uuid())
+  engagementId   String
+  title          String
+  status         TaskStatus @default(NOT_STARTED)
+  ownerId        String
+  materialImpact Boolean    @default(false)
+  dueDate        DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  engagement Engagement @relation(fields: [engagementId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Event {
+  id                         String   @id @default(uuid())
+  engagementId               String
+  type                       String
+  summary                    String
+  notes                      String?
+  ownerId                    String
+  nextStep                   String?
+  nextStepOwnerId            String?
+  nextStepDueDate            DateTime?
+  clientNotificationRequired Boolean  @default(false)
+  clientNotificationSent     Boolean  @default(false)
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  engagement Engagement @relation(fields: [engagementId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([engagementId, createdAt])
+}
+
+model Deliverable {
+  id           String            @id @default(uuid())
+  engagementId String
+  name         String
+  status       DeliverableStatus @default(DRAFT)
+  ownerId      String
+  dueDate      DateTime?
+  deliveredAt  DateTime?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  engagement Engagement @relation(fields: [engagementId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model FinanceRecord {
+  id              String        @id @default(uuid())
+  engagementId    String
+  type            FinanceType
+  invoiceNumber   String?
+  amount          Decimal
+  dueDate         DateTime?
+  status          FinanceStatus @default(DRAFT)
+  paymentReceived Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  engagement Engagement @relation(fields: [engagementId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
