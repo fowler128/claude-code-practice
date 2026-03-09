@@ -1,207 +1,359 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>My Professional Landing Page</title>
-      <style>
-                * {
-                              margin: 0;
-                              padding: 0;
-                              box-sizing: border-box;
-                }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BizDeedz Mission Control</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #070b14;
+        --panel: #101726;
+        --panel-alt: #162237;
+        --line: #223552;
+        --text: #d7e4ff;
+        --muted: #8fa6cf;
+        --brand: #4c8dff;
+        --good: #28c48f;
+        --warn: #f4b544;
+        --bad: #ef5d79;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Inter, Segoe UI, Roboto, sans-serif;
+        background: radial-gradient(circle at top right, #1d3154, #070b14 40%);
+        color: var(--text);
+      }
+      .mission-control {
+        display: grid;
+        grid-template-columns: 240px 1fr 300px;
+        grid-template-rows: 64px 1fr auto;
+        height: 100vh;
+      }
+      .sidebar {
+        grid-row: 1 / 4;
+        border-right: 1px solid var(--line);
+        background: rgba(7, 11, 20, 0.9);
+        padding: 18px;
+      }
+      .brand {
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        margin-bottom: 18px;
+        color: #8cb2ff;
+      }
+      .sidebar nav { display: grid; gap: 8px; }
+      .nav-link {
+        border: 1px solid transparent;
+        padding: 10px 12px;
+        border-radius: 8px;
+        color: var(--muted);
+      }
+      .nav-link.active, .nav-link:hover {
+        background: var(--panel);
+        border-color: var(--line);
+        color: var(--text);
+      }
+      .timeline {
+        grid-column: 2 / 4;
+        border-bottom: 1px solid var(--line);
+        background: rgba(16, 23, 38, 0.8);
+        padding: 10px 16px;
+      }
+      .stages { display: grid; grid-template-columns: repeat(6, minmax(120px, 1fr)); gap: 8px; }
+      .stage {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(11, 18, 32, 0.9);
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .stage.drag-over { border-color: var(--brand); color: #bad3ff; }
+      .content {
+        grid-column: 2;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        overflow: hidden;
+      }
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        padding: 14px;
+        border-bottom: 1px solid var(--line);
+      }
+      .metric-card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 12px;
+      }
+      .metric-card strong { display: block; font-size: 22px; margin-top: 4px; }
+      .metric-card span { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+      .board {
+        padding: 14px;
+        overflow: auto;
+      }
+      .board-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 12px;
+      }
+      .engagement-card {
+        background: linear-gradient(135deg, var(--panel), var(--panel-alt));
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 12px;
+        cursor: pointer;
+      }
+      .engagement-card:active { transform: scale(0.99); }
+      .row { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+      .muted { color: var(--muted); font-size: 12px; }
+      .badge { padding: 2px 8px; border-radius: 999px; font-size: 11px; }
+      .health-good { background: rgba(40, 196, 143, 0.2); color: #79e5c0; }
+      .health-risk { background: rgba(244, 181, 68, 0.2); color: #fbd286; }
+      .progress { height: 7px; background: #0c1423; border-radius: 999px; border: 1px solid #21324e; overflow: hidden; }
+      .progress > div { height: 100%; background: linear-gradient(90deg, #2d67d8, #5db0ff); }
+      .panel {
+        grid-column: 3;
+        grid-row: 2 / 4;
+        border-left: 1px solid var(--line);
+        padding: 14px;
+        overflow: auto;
+      }
+      .section {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        margin-bottom: 12px;
+        padding: 12px;
+      }
+      .alert { border-left: 3px solid var(--warn); padding-left: 8px; margin: 8px 0; color: #f3d9a4; }
+      .feed {
+        border-top: 1px solid var(--line);
+        padding: 12px 14px;
+        background: rgba(7, 11, 20, 0.8);
+      }
+      .feed-item { font-size: 13px; margin: 6px 0; color: var(--muted); }
+      .feed-item strong { color: var(--text); }
 
-                body {
-                              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                              line-height: 1.6;
-                              color: #333;
-                }
-
-                /* Navigation */
-                nav {
-                              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                              padding: 1rem 2rem;
-                              position: sticky;
-                              top: 0;
-                              z-index: 100;
-                }
-
-                nav ul {
-                              list-style: none;
-                              display: flex;
-                              justify-content: center;
-                              gap: 2rem;
-                }
-
-                nav a {
-                              color: white;
-                              text-decoration: none;
-                              font-weight: 500;
-                              transition: opacity 0.3s;
-                }
-
-                nav a:hover {
-                              opacity: 0.8;
-                }
-
-                /* Hero Section */
-                .hero {
-                              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                              color: white;
-                              padding: 6rem 2rem;
-                              text-align: center;
-                              min-height: 60vh;
-                              display: flex;
-                              flex-direction: column;
-                              justify-content: center;
-                              align-items: center;
-                }
-
-                .hero h1 {
-                              font-size: 3rem;
-                              margin-bottom: 1rem;
-                }
-
-                .hero p {
-                              font-size: 1.3rem;
-                              margin-bottom: 2rem;
-                              opacity: 0.95;
-                }
-
-                .cta-button {
-                              background: white;
-                              color: #667eea;
-                              padding: 0.8rem 2rem;
-                              border: none;
-                              border-radius: 5px;
-                              font-size: 1.1rem;
-                              font-weight: bold;
-                              cursor: pointer;
-                              transition: transform 0.3s, box-shadow 0.3s;
-                }
-
-                .cta-button:hover {
-                              transform: translateY(-2px);
-                              box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-                }
-
-                /* Features Section */
-                .features {
-                              padding: 4rem 2rem;
-                              background: #f8f9fa;
-                }
-
-                .features-container {
-                              max-width: 1200px;
-                              margin: 0 auto;
-                }
-
-                .features h2 {
-                              text-align: center;
-                              margin-bottom: 3rem;
-                              font-size: 2rem;
-                }
-
-                .features-grid {
-                              display: grid;
-                              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                              gap: 2rem;
-                }
-
-                .feature-card {
-                              background: white;
-                              padding: 2rem;
-                              border-radius: 8px;
-                              text-align: center;
-                              box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                              transition: transform 0.3s;
-                }
-
-                .feature-card:hover {
-                              transform: translateY(-5px);
-                }
-
-                .feature-card h3 {
-                              color: #667eea;
-                              margin-bottom: 1rem;
-                }
-
-                /* Footer */
-                footer {
-                              background: #333;
-                              color: white;
-                              text-align: center;
-                              padding: 2rem;
-                }
-
-                footer p {
-                              margin: 0.5rem 0;
-                }
-
-                /* Responsive */
-                @media (max-width: 768px) {
-                              nav ul {
-                                                flex-direction: column;
-                                                gap: 1rem;
-                              }
-
-                              .hero h1 {
-                                                font-size: 2rem;
-                              }
-
-                              .hero p {
-                                                font-size: 1.1rem;
-                              }
-                }
-            </style>
+      .focus-view {
+        position: absolute;
+        inset: 64px 300px 72px 240px;
+        background: rgba(7, 11, 20, 0.95);
+        border: 1px solid var(--line);
+        margin: 12px;
+        border-radius: 12px;
+        padding: 14px;
+        transform: scale(0.95);
+        opacity: 0;
+        pointer-events: none;
+        transition: all 280ms ease;
+      }
+      .focus-view.open { transform: scale(1); opacity: 1; pointer-events: all; }
+      .focus-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; }
+      .list-item {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 8px;
+        margin: 6px 0;
+        cursor: pointer;
+        background: #0f1727;
+      }
+      .drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 420px;
+        height: 100%;
+        background: #0b1221;
+        border-left: 1px solid var(--line);
+        transform: translateX(100%);
+        transition: transform 260ms ease;
+        padding: 18px;
+        z-index: 40;
+      }
+      .drawer.open { transform: translateX(0); }
+      .input {
+        width: 100%;
+        background: #08111f;
+        border: 1px solid #243a5f;
+        color: var(--text);
+        border-radius: 8px;
+        padding: 8px;
+        margin-top: 5px;
+      }
+      button {
+        background: var(--brand);
+        color: white;
+        border: none;
+        padding: 8px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+    </style>
   </head>
   <body>
-        <!-- Navigation -->
-        <nav>
-                  <ul>
-                                <li><a href="#home">Home</a>a></li>
-                              <li><a href="#features">Features</a>a></li>
-                              <li><a href="#contact">Contact</a>a></li>
-                  </ul>
-        </nav>
-  
-      <!-- Hero Section -->
-      <section class="hero" id="home">
-              <h1>Welcome to My Landing Page</h1>
-              <p>Create amazing web experiences with modern design and clean code</p>
-              <button class="cta-button">Get Started</button>button>
-      </section>section>
-  
-      <!-- Features Section -->
-      <section class="features" id="features">
-              <div class="features-container">
-                          <h2>Key Features</h2>
-                          <div class="features-grid">
-                                          <div class="feature-card">
-                                                              <h3>🎨 Modern Design</h3>
-                                                              <p>Beautiful and responsive design that works on all devices</p>
-                                          </div>div>
-                                          <div class="feature-card">
-                                                              <h3>⚡ Fast Performance</h3>
-                                                              <p>Optimized code for quick loading and smooth interactions</p>
-                                          </div>div>
-                                          <div class="feature-card">
-                                                              <h3>📱 Mobile Friendly</h3>
-                                                              <p>Looks great on phones, tablets, and desktop computers</p>
-                                          </div>div>
-                          </div>div>
-              </div>div>
-      </section>section>
-  
-      <!-- Footer -->
-      <footer id="contact">
-              <p>&copy; 2026 My Landing Page. All rights reserved.</p>
-              <p>Email: contact@example.com | Phone: (555) 123-4567</p>
-      </footer>footer>
+    <div class="mission-control" id="app"></div>
+
+    <aside class="drawer" id="detailDrawer"></aside>
+
+    <script>
+      const nav = ['Dashboard', 'Leads', 'Deals', 'Clients', 'Engagements', 'Tasks', 'Finance', 'Knowledge', 'Settings'];
+      const stages = ['Discovery', 'Audit', 'Automation', 'Testing', 'Implementation', 'Optimization'];
+      const metrics = [
+        { label: 'Active Leads', value: 28 },
+        { label: 'Deals in Pipeline', value: 14 },
+        { label: 'Active Engagements', value: 11 },
+        { label: 'Overdue Tasks', value: 6 },
+        { label: 'Unpaid Invoices', value: 3 }
+      ];
+      const alerts = [
+        'Proposal awaiting approval · Harper Legal',
+        'Client waiting response · Pine Consulting',
+        'Overdue deliverable · Apex Immigration',
+        'Unpaid invoice · Northstar Clinic',
+        'Stalled engagement · Foundry Manufacturing'
+      ];
+
+      const engagements = [
+        { id: 1, name: 'AI Readiness Audit', client: 'Immigration Firm', progress: 65, stage: 'Audit', owner: 'Turea', health: 'Good', milestone: 'Process map review' },
+        { id: 2, name: 'Workflow Automation', client: 'Harper Legal', progress: 35, stage: 'Automation', owner: 'Mika', health: 'At Risk', milestone: 'Bot deployment plan' },
+        { id: 3, name: 'Client Intake Revamp', client: 'Northstar Clinic', progress: 80, stage: 'Testing', owner: 'Ren', health: 'Good', milestone: 'QA sign-off' }
+      ];
+
+      const activity = [
+        '10:32 AM — Discovery call completed',
+        '10:45 AM — Client questionnaire received',
+        '11:15 AM — Audit analysis started',
+        '2:00 PM — Deliverable draft completed'
+      ];
+
+      const app = document.getElementById('app');
+      const drawer = document.getElementById('detailDrawer');
+      let selected = null;
+
+      function render() {
+        app.innerHTML = `
+          <aside class="sidebar">
+            <div class="brand">BIZDEEDZ // MISSION CONTROL</div>
+            <nav>${nav.map(item => `<div class="nav-link ${item === 'Dashboard' ? 'active' : ''}">${item}</div>`).join('')}</nav>
+          </aside>
+
+          <header class="timeline sectionless">
+            <div class="stages">
+              ${stages.map(stage => `<div class="stage" data-stage="${stage}">${stage}</div>`).join('')}
+            </div>
+          </header>
+
+          <main class="content">
+            <section class="metrics">
+              ${metrics.map(m => `<article class="metric-card"><span>${m.label}</span><strong>${m.value}</strong></article>`).join('')}
+            </section>
+            <section class="board">
+              <div class="row" style="margin-bottom:10px;"><h3 style="margin:0;">Company Operations View</h3><div class="muted">Drag cards to stage timeline • Click card to zoom</div></div>
+              <div class="board-grid">
+                ${engagements.map(card => `
+                  <article class="engagement-card" draggable="true" data-id="${card.id}">
+                    <div class="row"><strong>${card.name}</strong><span class="badge ${card.health === 'Good' ? 'health-good' : 'health-risk'}">${card.health}</span></div>
+                    <div class="muted">Client: ${card.client}</div>
+                    <div class="row" style="margin-top:6px;"><span class="muted">Stage: ${card.stage}</span><span class="muted">Owner: ${card.owner}</span></div>
+                    <div class="progress" style="margin-top:10px;"><div style="width:${card.progress}%"></div></div>
+                    <div class="row" style="margin-top:6px;"><span>${card.progress}%</span><span class="muted">Next: ${card.milestone}</span></div>
+                  </article>`).join('')}
+              </div>
+            </section>
+            <section class="feed section">
+              <strong>Activity Feed</strong>
+              ${activity.map(a => `<div class="feed-item"><strong>${a.split(' — ')[0]}</strong> — ${a.split(' — ')[1]}</div>`).join('')}
+            </section>
+          </main>
+
+          <aside class="panel">
+            <section class="section"><strong>Operational Alerts</strong>${alerts.map(a => `<div class="alert">${a}</div>`).join('')}</section>
+          </aside>
+
+          <section id="focusView" class="focus-view">
+            <div class="row"><h3 id="focusTitle" style="margin:0;">Engagement Focus</h3><button id="closeFocus">Back to Company View</button></div>
+            <div id="focusBody"></div>
+          </section>
+        `;
+
+        attachInteractions();
+      }
+
+      function attachInteractions() {
+        document.querySelectorAll('.engagement-card').forEach(card => {
+          card.addEventListener('click', () => openFocus(Number(card.dataset.id)));
+          card.addEventListener('dragstart', () => {
+            selected = Number(card.dataset.id);
+          });
+        });
+
+        document.querySelectorAll('.stage').forEach(stage => {
+          stage.addEventListener('dragover', e => { e.preventDefault(); stage.classList.add('drag-over'); });
+          stage.addEventListener('dragleave', () => stage.classList.remove('drag-over'));
+          stage.addEventListener('drop', () => {
+            stage.classList.remove('drag-over');
+            const card = engagements.find(e => e.id === selected);
+            if (!card) return;
+            card.stage = stage.dataset.stage;
+            activity.unshift(`${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} — ${card.name} moved to ${card.stage}`);
+            render();
+          });
+        });
+      }
+
+      function openFocus(id) {
+        const item = engagements.find(e => e.id === id);
+        if (!item) return;
+        const focus = document.getElementById('focusView');
+        document.getElementById('focusTitle').textContent = `${item.name} • ${item.client}`;
+        document.getElementById('focusBody').innerHTML = `
+          <div class="progress" style="margin:10px 0 14px;"><div style="width:${item.progress}%"></div></div>
+          <div class="focus-grid">
+            <div class="section">
+              <strong>Milestones</strong>
+              <div class="list-item" onclick="openDetail('Milestone','Process map review','Owner: ${item.owner}')">Process map review</div>
+              <div class="list-item" onclick="openDetail('Task','Draft SOP automation rules','Due: Friday')">Draft SOP automation rules</div>
+              <div class="list-item" onclick="openDetail('Event','Stakeholder alignment session','Scheduled: 3:30 PM')">Stakeholder alignment session</div>
+              <div class="list-item" onclick="openDetail('Deliverable','Audit findings deck','Status: In Progress')">Audit findings deck</div>
+            </div>
+            <div class="section">
+              <strong>Finance Snapshot</strong>
+              <div class="list-item" onclick="openDetail('Finance Record','Invoice #4432','Amount: $8,500')">Invoice #4432 · $8,500</div>
+              <div class="muted">Budget Used: 72%</div>
+              <div class="muted">Hours Burned: 118 / 160</div>
+            </div>
+          </div>
+        `;
+        focus.classList.add('open');
+        document.getElementById('closeFocus').onclick = () => focus.classList.remove('open');
+      }
+
+      window.openDetail = function(type, title, meta) {
+        drawer.innerHTML = `
+          <div class="row"><h3 style="margin:0;">${type} Detail</h3><button onclick="closeDrawer()">Close</button></div>
+          <p><strong>${title}</strong></p>
+          <p class="muted">${meta}</p>
+          <label>Editable Field<input class="input" value="${title}" /></label>
+          <label>Notes<textarea class="input" rows="5">Capture mission notes and updates for the team.</textarea></label>
+          <label>Attachments<input class="input" value="upload://document.pdf" /></label>
+          <label>Next Actions<input class="input" value="Assign owner and confirm date" /></label>
+          <div style="margin-top:10px;"><button>Save Changes</button></div>
+        `;
+        drawer.classList.add('open');
+      }
+
+      window.closeDrawer = function() { drawer.classList.remove('open'); };
+
+      render();
+    </script>
   </body>
-</html>html></p></p></h1></li></li>
-                  </ul>
-        </nav>
-  </body>
-      </style></title>
-  </head>
+</html>
