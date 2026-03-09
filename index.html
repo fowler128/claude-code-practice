@@ -5,351 +5,156 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BizDeedz Mission Control</title>
     <style>
-      :root {
-        color-scheme: dark;
-        --bg: #070c16;
-        --panel: #0e1828;
-        --panel-2: #122038;
-        --line: #273a58;
-        --text: #dbe8ff;
-        --muted: #8ea7d3;
-        --accent: #4f93ff;
-        --good: #28c58f;
-        --warn: #f2b84f;
-        --risk: #f06f86;
-      }
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        min-height: 100vh;
-        font-family: Inter, Segoe UI, Roboto, sans-serif;
-        background: radial-gradient(circle at top right, #1a3056, #070c16 38%);
-        color: var(--text);
-      }
-      .mission-control-layout {
-        display: grid;
-        grid-template-columns: 240px 1fr 330px;
-        grid-template-rows: 70px 1fr auto;
-        height: 100vh;
-      }
-      .sidebar {
-        grid-row: 1 / 4;
-        background: rgba(5, 9, 17, 0.88);
-        border-right: 1px solid var(--line);
-        padding: 16px;
-      }
-      .brand { font-size: 13px; letter-spacing: 0.12em; color: #95b9ff; margin-bottom: 16px; font-weight: 700; }
-      .nav-link {
-        padding: 10px;
-        border: 1px solid transparent;
-        border-radius: 10px;
-        color: var(--muted);
-        margin-bottom: 7px;
-      }
-      .nav-link.active, .nav-link:hover { color: var(--text); border-color: var(--line); background: var(--panel); }
-
-      .top-timeline-bar {
-        grid-column: 2 / 4;
-        border-bottom: 1px solid var(--line);
-        display: flex;
-        align-items: center;
-        padding: 10px 14px;
-        background: rgba(10, 16, 30, 0.82);
-        gap: 10px;
-      }
-      .timeline-label { min-width: 155px; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .09em; }
-      .stage-track { display: grid; grid-template-columns: repeat(6, minmax(110px, 1fr)); gap: 8px; width: 100%; }
-      .stage-slot {
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        min-height: 42px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: var(--muted);
-        font-size: 12px;
-        background: #101a2c;
-      }
-      .stage-slot.drag-over { border-color: var(--accent); color: #bad3ff; }
-
-      .main-engagement-board {
-        grid-column: 2;
-        display: grid;
-        grid-template-rows: auto auto 1fr auto;
-        overflow: hidden;
-      }
-      .metric-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 12px; border-bottom: 1px solid var(--line); }
-      .metric-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
-      .metric-card .label { color: var(--muted); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
-      .metric-card .value { font-size: 23px; font-weight: 700; margin-top: 2px; }
-
-      .board-header { padding: 12px; color: var(--muted); font-size: 13px; border-bottom: 1px solid var(--line); }
-      .engagement-board { padding: 12px; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(285px, 1fr)); gap: 10px; }
-      .engagement-card {
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        background: linear-gradient(135deg, #0f1a2d, #13243c);
-        padding: 11px;
-        cursor: pointer;
-      }
-      .engagement-card:hover { border-color: #3f5e89; }
-      .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-      .muted { color: var(--muted); font-size: 12px; }
-      .health { padding: 2px 7px; border-radius: 999px; font-size: 11px; }
-      .good { background: rgba(40, 197, 143, .2); color: #7be5c1; }
-      .watch { background: rgba(242, 184, 79, .2); color: #f8d593; }
-      .risk { background: rgba(240, 111, 134, .2); color: #fab6c3; }
-      .progress { margin-top: 8px; border: 1px solid #294066; height: 7px; border-radius: 999px; overflow: hidden; background: #0b1424; }
-      .progress > div { height: 100%; background: linear-gradient(90deg, #3874df, #58aeff); }
-
-      .activity-feed { border-top: 1px solid var(--line); padding: 11px 12px; background: rgba(7, 12, 22, 0.75); }
-      .feed-item { font-size: 12px; color: var(--muted); margin: 5px 0; }
-      .feed-item b { color: var(--text); }
-
-      .right-rail { grid-column: 3; grid-row: 2 / 4; border-left: 1px solid var(--line); padding: 12px; overflow: auto; }
-      .panel { border: 1px solid var(--line); background: var(--panel); border-radius: 10px; padding: 10px; margin-bottom: 10px; }
-      .alert { border-left: 3px solid var(--warn); padding-left: 8px; margin: 7px 0; color: #f1d9a8; font-size: 13px; }
-
-      .focus-layer {
-        position: absolute;
-        inset: 72px 338px 66px 246px;
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        background: rgba(6, 10, 18, .95);
-        padding: 12px;
-        opacity: 0;
-        pointer-events: none;
-        transform: scale(.96);
-        transition: all 260ms ease;
-      }
-      .focus-layer.open { opacity: 1; pointer-events: auto; transform: scale(1); }
-      .focus-grid { margin-top: 10px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 9px; }
-      .focus-list-item { border: 1px solid var(--line); border-radius: 8px; padding: 8px; margin: 6px 0; cursor: pointer; background: #0f1a2d; }
-
-      .detail-drawer {
-        position: fixed;
-        top: 0;
-        right: 0;
-        height: 100%;
-        width: 430px;
-        background: #0a1222;
-        border-left: 1px solid var(--line);
-        transform: translateX(100%);
-        transition: transform 250ms ease;
-        padding: 16px;
-        z-index: 30;
-      }
-      .detail-drawer.open { transform: translateX(0); }
-      .input { width: 100%; margin-top: 4px; margin-bottom: 8px; border: 1px solid #2a456c; background: #08111f; color: var(--text); border-radius: 8px; padding: 8px; }
-      button { border: 0; background: var(--accent); color: white; border-radius: 8px; padding: 8px 10px; cursor: pointer; }
-      .ghost { background: transparent; border: 1px solid var(--line); color: var(--muted); }
+      :root { color-scheme: dark; --bg:#070d18; --panel:#111b2e; --line:#2a3d5e; --text:#d9e7ff; --muted:#8ea9d7; --accent:#4b95ff; --good:#2ac790; --warn:#f5ba53; --bad:#f06d86; }
+      *{box-sizing:border-box} body{margin:0;font-family:Inter,Segoe UI,sans-serif;background:radial-gradient(circle at top right,#203964,#070d18 40%);color:var(--text)}
+      .layout{display:grid;grid-template-columns:230px 1fr 330px;grid-template-rows:64px 1fr auto;height:100vh}
+      .sidebar{grid-row:1/4;padding:14px;border-right:1px solid var(--line);background:rgba(8,13,24,.9)}
+      .brand{font-weight:700;font-size:12px;letter-spacing:.12em;color:#9bbcff;margin-bottom:10px}
+      .nav{padding:8px;border:1px solid transparent;border-radius:8px;color:var(--muted);margin-bottom:6px}.nav.active,.nav:hover{background:var(--panel);border-color:var(--line);color:var(--text)}
+      .top{grid-column:2/4;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(12,19,35,.8)}
+      .slots{display:grid;grid-template-columns:repeat(8,minmax(96px,1fr));gap:6px;width:100%}.slot{border:1px solid var(--line);border-radius:8px;min-height:38px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;background:#0f192c}.slot.over{border-color:var(--accent);color:#c8ddff}
+      .main{grid-column:2;display:grid;grid-template-rows:auto auto 1fr auto}
+      .metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:10px;border-bottom:1px solid var(--line)}
+      .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px}.label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.value{font-size:22px;font-weight:700}
+      .hint{padding:10px 12px;color:var(--muted);font-size:12px;border-bottom:1px solid var(--line)}
+      .board{padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;overflow:auto}
+      .eng{border:1px solid var(--line);border-radius:10px;padding:10px;background:linear-gradient(135deg,#0f1a2e,#142540);cursor:pointer}
+      .row{display:flex;justify-content:space-between;gap:8px;align-items:center}.muted{color:var(--muted);font-size:12px}
+      .badge{font-size:11px;padding:2px 7px;border-radius:999px}.green{background:rgba(42,199,144,.2);color:#8feac8}.yellow{background:rgba(245,186,83,.2);color:#ffd998}.red{background:rgba(240,109,134,.2);color:#ffc2d0}
+      .bar{height:7px;border:1px solid #2b4368;border-radius:99px;overflow:hidden;margin-top:7px}.bar>div{height:100%;background:linear-gradient(90deg,#3c78e6,#5ab1ff)}
+      .feed{padding:10px;border-top:1px solid var(--line);background:rgba(7,13,24,.8)}.feed-item{font-size:12px;color:var(--muted);margin:4px 0}
+      .rail{grid-column:3;grid-row:2/4;border-left:1px solid var(--line);padding:10px;overflow:auto}.panel{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:9px;margin-bottom:8px}.alert{font-size:12px;padding:6px 0;border-bottom:1px dashed #2b4064}
+      .focus{position:absolute;inset:66px 338px 62px 236px;border:1px solid var(--line);border-radius:12px;background:rgba(6,10,18,.96);padding:10px;opacity:0;pointer-events:none;transform:scale(.97);transition:all .22s ease}.focus.open{opacity:1;pointer-events:auto;transform:scale(1)}
+      .focus-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:8px;margin-top:8px}.item{border:1px solid var(--line);border-radius:8px;padding:8px;margin:6px 0;background:#0f1a2d;cursor:pointer}
+      .drawer{position:fixed;right:0;top:0;height:100%;width:420px;border-left:1px solid var(--line);background:#0a1323;padding:14px;transform:translateX(100%);transition:transform .22s ease}.drawer.open{transform:translateX(0)}
+      .input{width:100%;margin:4px 0 8px;border:1px solid #30507a;background:#091223;color:var(--text);border-radius:8px;padding:8px}button{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:7px 10px;cursor:pointer}.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
     </style>
   </head>
   <body>
-    <div id="app" class="mission-control-layout"></div>
-    <aside id="detailDrawer" class="detail-drawer"></aside>
-
+    <div id="app" class="layout"></div>
+    <aside id="drawer" class="drawer"></aside>
     <script>
-      const stageNames = ['Discovery', 'Audit', 'Automation', 'Testing', 'Implementation', 'Optimization'];
-      const navItems = ['Dashboard', 'Leads', 'Deals', 'Clients', 'Engagements', 'Tasks', 'Finance', 'Knowledge', 'Settings'];
-      const metrics = [
-        { label: 'Active Leads', value: 31 },
-        { label: 'Deals in Pipeline', value: 17 },
-        { label: 'Active Engagements', value: 12 },
-        { label: 'Overdue Tasks', value: 7 },
-        { label: 'Unpaid Invoices', value: 4 }
-      ];
+      const today = new Date('2026-03-09');
+      const ROLES = ['Admin','Operations','Sales','Finance','Viewer'];
+      const permissions = {
+        Admin:['*'], Operations:['engagements','tasks','events','deliverables'], Sales:['leads','deals','clients'], Finance:['finance'], Viewer:['dashboard:read']
+      };
+      const seeds = {
+        leads:[
+          {id:'L1',companyName:'Apex Immigration',status:'Qualified',owner:'Sam',nextStep:'Discovery call',nextStepDueDate:'2026-03-12'},
+          {id:'L2',companyName:'Harper Legal',status:'Contacted',owner:'Mika',nextStep:'Qualification follow-up',nextStepDueDate:'2026-03-11'},
+          {id:'L3',companyName:'Pine Tax',status:'New',owner:'Sam',nextStep:'Initial outreach',nextStepDueDate:'2026-03-10'}],
+        deals:[
+          {id:'D1',leadId:'L1',name:'AI Intake Modernization',stage:'Proposal Sent',nextStep:'Confirm review meeting'},
+          {id:'D2',leadId:'L2',name:'Workflow Automation Sprint',stage:'Negotiation',nextStep:'Redline terms'}],
+        clients:[
+          {id:'C1',name:'Immigration Firm'}, {id:'C2',name:'Northstar Clinic'}, {id:'C3',name:'Foundry Manufacturing'}],
+        engagements:[
+          {id:'E1',clientId:'C1',name:'AI Readiness Audit',stage:'Audit',healthStatus:'Green',owner:'Turea',progressPercent:65,nextMilestone:'Process map signoff',nextMilestoneDueDate:'2026-03-12'},
+          {id:'E2',clientId:'C2',name:'Client Intake Revamp',stage:'Testing',healthStatus:'Yellow',owner:'Ren',progressPercent:82,nextMilestone:'UAT complete',nextMilestoneDueDate:'2026-03-10'},
+          {id:'E3',clientId:'C3',name:'Ops Design',stage:'Implementation',healthStatus:'Red',owner:'Anya',progressPercent:44,nextMilestone:'Training launch',nextMilestoneDueDate:'2026-03-05'},
+          {id:'E4',clientId:'C1',name:'Workflow Automation Sprint',stage:'Automation',healthStatus:'Green',owner:'Mika',progressPercent:37,nextMilestone:'Bot validation',nextMilestoneDueDate:'2026-03-13'}],
+        tasks:[
+          {id:'T1',engagementId:'E1',title:'Audit interview synthesis',status:'In Progress',materialImpact:true,dueDate:'2026-03-10'},
+          {id:'T2',engagementId:'E1',title:'Evidence library cleanup',status:'Not Started',materialImpact:false,dueDate:'2026-03-14'},
+          {id:'T3',engagementId:'E2',title:'UAT defect triage',status:'Waiting',materialImpact:true,dueDate:'2026-03-08'},
+          {id:'T4',engagementId:'E2',title:'Client walkthrough prep',status:'Completed',materialImpact:false,dueDate:'2026-03-07'},
+          {id:'T5',engagementId:'E3',title:'Invoice reconciliation map',status:'Blocked',materialImpact:true,dueDate:'2026-03-04'},
+          {id:'T6',engagementId:'E3',title:'Ops handoff checklist',status:'In Progress',materialImpact:false,dueDate:'2026-03-11'},
+          {id:'T7',engagementId:'E4',title:'Automation test plan',status:'Not Started',materialImpact:true,dueDate:'2026-03-12'},
+          {id:'T8',engagementId:'E4',title:'Bot failover review',status:'Waiting',materialImpact:true,dueDate:'2026-03-09'}],
+        events:[
+          {id:'EV1',engagementId:'E1',summary:'Discovery call completed',nextStep:'Send questionnaire',nextStepDueDate:'2026-03-10',createdAt:'2026-03-08T10:32:00',clientNotificationRequired:false,clientNotificationSent:false},
+          {id:'EV2',engagementId:'E1',summary:'Client questionnaire received',nextStep:'Start audit analysis',nextStepDueDate:'2026-03-09',createdAt:'2026-03-08T10:45:00',clientNotificationRequired:false,clientNotificationSent:false},
+          {id:'EV3',engagementId:'E2',summary:'UAT kickoff',nextStep:'Defect sweep',nextStepDueDate:'2026-03-09',createdAt:'2026-03-01T11:00:00',clientNotificationRequired:false,clientNotificationSent:false},
+          {id:'EV4',engagementId:'E3',summary:'Leadership escalation',nextStep:'Resolve blocker',nextStepDueDate:'2026-03-06',createdAt:'2026-02-28T15:00:00',clientNotificationRequired:true,clientNotificationSent:false},
+          {id:'EV5',engagementId:'E4',summary:'Automation sprint started',nextStep:'Bot validation',nextStepDueDate:'2026-03-13',createdAt:'2026-03-05T09:15:00',clientNotificationRequired:false,clientNotificationSent:false}
+        ],
+        deliverables:[
+          {id:'DL1',engagementId:'E1',name:'Audit findings deck',status:'In Review',dueDate:'2026-03-15'},
+          {id:'DL2',engagementId:'E2',name:'Client intake SOP',status:'Draft',dueDate:'2026-03-13'},
+          {id:'DL3',engagementId:'E3',name:'Ops dashboard handoff',status:'Delivered',dueDate:'2026-03-03'}],
+        finance:[
+          {id:'F1',engagementId:'E1',invoiceNumber:'4432',amount:8500,status:'Sent',paymentReceived:false,dueDate:'2026-03-08'},
+          {id:'F2',engagementId:'E2',invoiceNumber:'4438',amount:6400,status:'Paid',paymentReceived:true,dueDate:'2026-03-07'},
+          {id:'F3',engagementId:'E3',invoiceNumber:'4441',amount:9200,status:'Overdue',paymentReceived:false,dueDate:'2026-03-01'}]
+      };
 
-      const engagements = [
-        { id: 1, name: 'AI Readiness Audit', client: 'Immigration Firm', progress: 65, stage: 'Audit', owner: 'Turea', health: 'Good', milestone: 'Finalize process map' },
-        { id: 2, name: 'Matter Intake Automation', client: 'Harper Legal', progress: 38, stage: 'Automation', owner: 'Mika', health: 'Watch', milestone: 'Integration checkpoint' },
-        { id: 3, name: 'Onboarding Workflow Upgrade', client: 'Northstar Clinic', progress: 81, stage: 'Testing', owner: 'Ren', health: 'Good', milestone: 'UAT sign-off' },
-        { id: 4, name: 'Finance Ops Visibility', client: 'Foundry Manufacturing', progress: 47, stage: 'Implementation', owner: 'Anya', health: 'Risk', milestone: 'Invoice reconciliation' }
-      ];
+      const stageList = ['Discovery','Audit','Automation','Testing','Implementation','Optimization','Completed','Paused'];
+      let role = 'Admin'; let dragId = null; let feed = ['10:32 AM — Discovery call completed','10:45 AM — Client questionnaire received'];
+      const app = document.getElementById('app'); const drawer = document.getElementById('drawer');
 
-      const alerts = [
-        'Proposal awaiting approval · Harper Legal',
-        'Client waiting response · Immigration Firm',
-        'Overdue deliverable · Foundry Manufacturing',
-        'Unpaid invoice · Northstar Clinic',
-        'Stalled engagement · Finance Ops Visibility'
-      ];
+      const idMap = (arr,id)=>arr.find(x=>x.id===id);
+      const isOverdue = (date)=> new Date(date) < today;
+      const can = (module)=> permissions[role].includes('*') || permissions[role].includes(module) || permissions[role].includes('dashboard:read');
 
-      const eventLog = [
-        '10:32 AM — Discovery call completed',
-        '10:45 AM — Client questionnaire received',
-        '11:15 AM — Audit analysis started',
-        '2:00 PM — Deliverable draft completed'
-      ];
-
-      let dragId = null;
-      const app = document.getElementById('app');
-      const drawer = document.getElementById('detailDrawer');
-
-      function MetricCard(metric) {
-        return `<article class="metric-card"><div class="label">${metric.label}</div><div class="value">${metric.value}</div></article>`;
+      function log(summary,engagementId='E1'){ const t=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); feed.unshift(`${t} — ${summary}`); seeds.events.unshift({id:`EV${Math.random().toString().slice(2,8)}`,engagementId,summary,nextStep:'Review and assign',nextStepDueDate:'2026-03-12',createdAt:new Date().toISOString(),clientNotificationRequired:false,clientNotificationSent:false}); }
+      function metrics(){
+        return [
+          {label:'Active Leads',value:seeds.leads.filter(l=>!['Converted','Closed Lost'].includes(l.status)).length},
+          {label:'Deals in Pipeline',value:seeds.deals.filter(d=>!['Won','Lost'].includes(d.stage)).length},
+          {label:'Active Engagements',value:seeds.engagements.filter(e=>!['Completed','Paused'].includes(e.stage)).length},
+          {label:'Overdue Tasks',value:seeds.tasks.filter(t=>t.status!=='Completed' && isOverdue(t.dueDate)).length},
+          {label:'Unpaid Invoices',value:seeds.finance.filter(f=>['Sent','Overdue'].includes(f.status)&&!f.paymentReceived).length}
+        ];
       }
-      function EngagementCard(item) {
-        const healthClass = item.health === 'Good' ? 'good' : item.health === 'Watch' ? 'watch' : 'risk';
-        return `
-          <article class="engagement-card" draggable="true" data-id="${item.id}">
-            <div class="row"><strong>${item.name}</strong><span class="health ${healthClass}">${item.health}</span></div>
-            <div class="muted">Client: ${item.client}</div>
-            <div class="row" style="margin-top:5px;"><span class="muted">Stage: ${item.stage}</span><span class="muted">Owner: ${item.owner}</span></div>
-            <div class="progress"><div style="width:${item.progress}%"></div></div>
-            <div class="row" style="margin-top:6px;"><span>${item.progress}%</span><span class="muted">Next: ${item.milestone}</span></div>
-          </article>
-        `;
-      }
-      function StageTimeline() {
-        return stageNames.map(name => `<div class="stage-slot" data-stage="${name}">${name}</div>`).join('');
-      }
-      function AlertList() {
-        return alerts.map(alert => `<div class="alert">${alert}</div>`).join('');
-      }
-      function ActivityFeed() {
-        return eventLog.slice(0, 10).map(line => {
-          const [time, msg] = line.split(' — ');
-          return `<div class="feed-item"><b>${time}</b> — ${msg}</div>`;
-        }).join('');
+      function alerts(){
+        const arr=[];
+        if(seeds.tasks.some(t=>t.status!=='Completed'&&isOverdue(t.dueDate))) arr.push('Overdue task exists');
+        if(seeds.engagements.some(e=>e.healthStatus==='Red')) arr.push('At least one engagement health is Red');
+        if(seeds.finance.some(f=>!f.paymentReceived && isOverdue(f.dueDate))) arr.push('Unpaid invoice is past due');
+        if(seeds.engagements.some(e=>isOverdue(e.nextMilestoneDueDate) && !['Completed','Paused'].includes(e.stage))) arr.push('Next milestone overdue');
+        if(seeds.events.some(e=>e.clientNotificationRequired && !e.clientNotificationSent)) arr.push('Client notification required but not sent');
+        if(seeds.deals.some(d=>!d.nextStep)) arr.push('Deal has no next step');
+        return arr;
       }
 
-      function render() {
-        app.innerHTML = `
-          <aside class="sidebar">
-            <div class="brand">BIZDEEDZ MISSION CONTROL</div>
-            ${navItems.map(n => `<div class="nav-link ${n === 'Dashboard' ? 'active' : ''}">${n}</div>`).join('')}
+      function render(){
+        app.innerHTML=`
+          <aside class='sidebar'>
+            <div class='brand'>BIZDEEDZ MISSION CONTROL</div>
+            ${['Dashboard','Leads','Deals','Clients','Engagements','Tasks','Events','Deliverables','Finance'].map((x,i)=>`<div class='nav ${i===0?'active':''}'>${x}</div>`).join('')}
+            <div class='panel' style='margin-top:10px'><div class='label'>Role</div><select id='roleSel' class='input'>${ROLES.map(r=>`<option ${r===role?'selected':''}>${r}</option>`)}</select><div class='muted'>Permissions: ${permissions[role].join(', ')}</div></div>
           </aside>
-
-          <header class="top-timeline-bar">
-            <div class="timeline-label">Engagement Stage Timeline</div>
-            <div class="stage-track">${StageTimeline()}</div>
-          </header>
-
-          <main class="main-engagement-board">
-            <section class="metric-grid">${metrics.map(MetricCard).join('')}</section>
-            <section class="board-header">Company Operations View · Drag cards across stages to update lifecycle and auto-log events.</section>
-            <section class="engagement-board">${engagements.map(EngagementCard).join('')}</section>
-            <section class="activity-feed">
-              <strong>Activity Feed</strong>
-              ${ActivityFeed()}
-            </section>
+          <header class='top'><div class='muted' style='min-width:130px'>Engagement Stages</div><div class='slots'>${stageList.map(s=>`<div class='slot' data-stage='${s}'>${s}</div>`).join('')}</div></header>
+          <main class='main'>
+            <section class='metrics'>${metrics().map(m=>`<article class='card'><div class='label'>${m.label}</div><div class='value'>${m.value}</div></article>`).join('')}</section>
+            <section class='hint'>Company Operations View · Drag engagement card to change stage (auto event log). Click card for Engagement Focus. </section>
+            <section class='board'>${seeds.engagements.map(e=>`<article class='eng' draggable='true' data-id='${e.id}'><div class='row'><b>${e.name}</b><span class='badge ${e.healthStatus==='Green'?'green':e.healthStatus==='Yellow'?'yellow':'red'}'>${e.healthStatus}</span></div><div class='muted'>Client: ${idMap(seeds.clients,e.clientId).name}</div><div class='row'><span class='muted'>Stage: ${e.stage}</span><span class='muted'>Owner: ${e.owner}</span></div><div class='bar'><div style='width:${e.progressPercent}%'></div></div><div class='row'><span>${e.progressPercent}%</span><span class='muted'>Next: ${e.nextMilestone}</span></div></article>`).join('')}</section>
+            <section class='feed'><b>Activity Feed</b>${feed.slice(0,12).map(x=>`<div class='feed-item'>${x}</div>`).join('')}</section>
           </main>
-
-          <aside class="right-rail">
-            <section class="panel">
-              <strong>Operational Alerts</strong>
-              ${AlertList()}
-            </section>
-            <section class="panel">
-              <strong>Leadership Visibility</strong>
-              <div class="muted" style="margin-top:6px;">Critical blockers: 2</div>
-              <div class="muted">Engagements with risk health: ${engagements.filter(e => e.health === 'Risk').length}</div>
-              <div class="muted">Avg engagement progress: ${Math.round(engagements.reduce((a, e) => a + e.progress, 0) / engagements.length)}%</div>
-            </section>
+          <aside class='rail'>
+            <section class='panel'><b>Operational Alerts</b>${alerts().map(a=>`<div class='alert'>${a}</div>`).join('')}</section>
+            <section class='panel'><b>MVP Scope (v1)</b><div class='muted'>In: Dashboard, Leads, Deals, Clients, Engagements, Tasks, Events, Deliverables, Finance</div><div class='muted' style='margin-top:6px'>Out: client portal, deep integrations, multi-workspace</div></section>
           </aside>
+          <section id='focus' class='focus'></section>`;
 
-          <section id="focusLayer" class="focus-layer"></section>
-        `;
-
-        bindInteractions();
-      }
-
-      function bindInteractions() {
-        document.querySelectorAll('.engagement-card').forEach(card => {
-          card.addEventListener('click', () => openFocus(Number(card.dataset.id)));
-          card.addEventListener('dragstart', () => dragId = Number(card.dataset.id));
+        document.getElementById('roleSel').onchange=(e)=>{role=e.target.value;render()};
+        document.querySelectorAll('.eng').forEach(el=>{
+          el.addEventListener('dragstart',()=>dragId=el.dataset.id);
+          el.addEventListener('click',()=>openFocus(el.dataset.id));
         });
-
-        document.querySelectorAll('.stage-slot').forEach(slot => {
-          slot.addEventListener('dragover', (e) => { e.preventDefault(); slot.classList.add('drag-over'); });
-          slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'));
-          slot.addEventListener('drop', () => {
-            slot.classList.remove('drag-over');
-            const engagement = engagements.find(e => e.id === dragId);
-            if (!engagement) return;
-            engagement.stage = slot.dataset.stage;
-            logEvent(`${engagement.name} moved to ${engagement.stage}`);
-            render();
+        document.querySelectorAll('.slot').forEach(s=>{
+          s.addEventListener('dragover',(e)=>{e.preventDefault();s.classList.add('over')});
+          s.addEventListener('dragleave',()=>s.classList.remove('over'));
+          s.addEventListener('drop',()=>{
+            s.classList.remove('over'); if(!can('engagements')) return alert('No permission for stage updates');
+            const e = idMap(seeds.engagements,dragId); if(!e) return; e.stage=s.dataset.stage; log(`Stage changed: ${e.name} -> ${e.stage}`,e.id); render();
           });
         });
       }
 
-      function openFocus(id) {
-        const engagement = engagements.find(e => e.id === id);
-        if (!engagement) return;
-        logEvent(`Focus opened for ${engagement.name}`);
-        const focus = document.getElementById('focusLayer');
-        focus.innerHTML = `
-          <div class="row">
-            <h3 style="margin:0;">${engagement.name} · ${engagement.client}</h3>
-            <button class="ghost" onclick="closeFocus()">Back to Company View</button>
-          </div>
-          <div class="muted">Owner: ${engagement.owner} · Stage: ${engagement.stage} · Health: ${engagement.health}</div>
-          <div class="progress" style="margin-top:8px;"><div style="width:${engagement.progress}%"></div></div>
-
-          <div class="focus-grid">
-            <section class="panel">
-              <strong>Milestones + Tasks + Events + Deliverables</strong>
-              <div class="focus-list-item" onclick="openDetail('Milestone', 'Process map validation', 'Due: Tuesday')">Milestone · Process map validation</div>
-              <div class="focus-list-item" onclick="openDetail('Task', 'Draft SOP automation rules', 'Assignee: ${engagement.owner}')">Task · Draft SOP automation rules</div>
-              <div class="focus-list-item" onclick="openDetail('Event', 'Client alignment session', 'Start: 3:30 PM')">Event · Client alignment session</div>
-              <div class="focus-list-item" onclick="openDetail('Deliverable', 'Audit findings deck', 'Status: In progress')">Deliverable · Audit findings deck</div>
-            </section>
-            <section class="panel">
-              <strong>Finance Snapshot</strong>
-              <div class="focus-list-item" onclick="openDetail('Finance Record', 'Invoice #4432', 'Amount: $8,500')">Finance Record · Invoice #4432 · $8,500</div>
-              <div class="muted">Budget used: 72%</div>
-              <div class="muted">Burned hours: 118 / 160</div>
-            </section>
-          </div>
-        `;
+      function openFocus(id){ const e=idMap(seeds.engagements,id), c=idMap(seeds.clients,e.clientId), focus=document.getElementById('focus');
+        const tasks=seeds.tasks.filter(t=>t.engagementId===id); const ev=seeds.events.filter(x=>x.engagementId===id).slice(0,3); const dl=seeds.deliverables.filter(d=>d.engagementId===id); const fin=seeds.finance.filter(f=>f.engagementId===id);
+        log(`Focus opened: ${e.name}`,id);
+        focus.innerHTML=`<div class='row'><h3 style='margin:0'>${e.name} · ${c.name}</h3><button class='ghost' onclick='closeFocus()'>Back</button></div><div class='muted'>Owner ${e.owner} · Stage ${e.stage}</div><div class='bar'><div style='width:${e.progressPercent}%'></div></div><div class='focus-grid'><section class='panel'><b>Tasks / Events / Deliverables</b>${tasks.map(t=>`<div class='item' onclick="openDetail('Task','${t.title}','Status: ${t.status}${t.materialImpact?' · Material impact':''}')">Task · ${t.title}</div>`).join('')}${ev.map(v=>`<div class='item' onclick="openDetail('Event','${v.summary}','Next: ${v.nextStep}')">Event · ${v.summary}</div>`).join('')}${dl.map(d=>`<div class='item' onclick="openDetail('Deliverable','${d.name}','Status: ${d.status}')">Deliverable · ${d.name}</div>`).join('')}</section><section class='panel'><b>Finance Snapshot</b>${fin.map(f=>`<div class='item' onclick="openDetail('Finance Record','Invoice #${f.invoiceNumber}','Status: ${f.status} · $${f.amount}')">Invoice #${f.invoiceNumber} · ${f.status}</div>`).join('')}</section></div>`;
         focus.classList.add('open');
       }
-
-      function closeFocus() {
-        const focus = document.getElementById('focusLayer');
-        focus.classList.remove('open');
-      }
-
-      function DetailDrawer({type, title, meta}) {
-        return `
-          <div class="row"><h3 style="margin:0;">${type} Detail</h3><button class="ghost" onclick="closeDrawer()">Close</button></div>
-          <p><strong>${title}</strong></p>
-          <p class="muted">${meta}</p>
-          <label>Editable Field<input class="input" value="${title}" /></label>
-          <label>Notes<textarea class="input" rows="4">Capture context, blockers, owner updates, and approvals.</textarea></label>
-          <label>Attachments<input class="input" value="upload://artifact.pdf" /></label>
-          <label>Next Actions<input class="input" value="Assign owner, confirm date, notify leadership" /></label>
-          <button onclick="saveDetail('${title}')">Save Changes</button>
-        `;
-      }
-
-      function openDetail(type, title, meta) {
-        logEvent(`${type} opened: ${title}`);
-        drawer.innerHTML = DetailDrawer({type, title, meta});
-        drawer.classList.add('open');
-      }
-
-      function saveDetail(title) {
-        logEvent(`Detail updated: ${title}`);
-        render();
-      }
-
-      function closeDrawer() {
-        drawer.classList.remove('open');
-      }
-
-      function logEvent(message) {
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        eventLog.unshift(`${time} — ${message}`);
-      }
-
-      window.openDetail = openDetail;
-      window.closeFocus = closeFocus;
-      window.closeDrawer = closeDrawer;
-      window.saveDetail = saveDetail;
-
+      function closeFocus(){document.getElementById('focus').classList.remove('open')}
+      function openDetail(type,title,meta){log(`${type} opened: ${title}`);drawer.innerHTML=`<div class='row'><h3 style='margin:0'>${type} Detail</h3><button class='ghost' onclick='closeDrawer()'>Close</button></div><p><b>${title}</b></p><p class='muted'>${meta}</p><label>Editable Field<input class='input' value='${title}'/></label><label>Notes<textarea class='input' rows='4'>Add operational notes, next step owner, and due date.</textarea></label><label>Next Actions<input class='input' value='Assign owner and set due date'/></label><button onclick="saveDetail('${title}')">Save Changes</button>`;drawer.classList.add('open')}
+      function saveDetail(title){log(`Detail updated: ${title}`);render()}
+      function closeDrawer(){drawer.classList.remove('open')}
+      window.openDetail=openDetail; window.closeFocus=closeFocus; window.closeDrawer=closeDrawer; window.saveDetail=saveDetail;
       render();
     </script>
   </body>
