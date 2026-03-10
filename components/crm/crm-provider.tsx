@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useMemo, useState } from "react";
 import { seedData } from "@/lib/seed";
-import { Client, Deal, Deliverable, Engagement, EventRecord, Lead, Task } from "@/lib/types";
+import { Client, Deal, Deliverable, Engagement, EventRecord, FinanceRecord, Lead, Task } from "@/lib/types";
 
 type DealCreateInput = {
   leadId: string;
@@ -24,6 +24,12 @@ type ConvertWonDealInput = {
 type TaskCreateInput = Omit<Task, "id">;
 type DeliverableCreateInput = Omit<Deliverable, "id">;
 
+type AlertItem = {
+  severity: "Critical" | "Warning";
+  message: string;
+  engagementId?: string;
+};
+
 type Ctx = {
   leads: Lead[];
   deals: Deal[];
@@ -32,6 +38,7 @@ type Ctx = {
   tasks: Task[];
   events: EventRecord[];
   deliverables: Deliverable[];
+  financeRecords: FinanceRecord[];
   createLead: (payload: Omit<Lead, "id">) => void;
   updateLead: (id: string, patch: Partial<Omit<Lead, "id">>) => void;
   qualifyLead: (id: string) => void;
@@ -51,6 +58,14 @@ type Ctx = {
   deleteDeliverable: (id: string) => void;
   progressForEngagement: (engagementId: string) => number;
   timelineForEngagement: (engagementId: string) => EventRecord[];
+  dashboardMetrics: () => {
+    activeLeads: number;
+    dealsInPipeline: number;
+    activeEngagements: number;
+    overdueTasks: number;
+    unpaidInvoices: number;
+  };
+  operationalAlerts: () => AlertItem[];
 };
 
 const CrmContext = createContext<Ctx | null>(null);
@@ -64,6 +79,9 @@ export function CrmProvider({ children }: { children: React.ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>(seedData.tasks);
   const [events, setEvents] = useState<EventRecord[]>(seedData.events);
   const [deliverables, setDeliverables] = useState<Deliverable[]>(seedData.deliverables);
+  const [financeRecords] = useState<FinanceRecord[]>(seedData.financeRecords);
+
+  const now = new Date("2026-03-09");
 
   const addEvent = (event: Omit<EventRecord, "id" | "createdAt">) => {
     setEvents((prev) => [{ id: uid("event"), createdAt: new Date().toISOString(), ...event }, ...prev]);
@@ -81,6 +99,55 @@ export function CrmProvider({ children }: { children: React.ReactNode }) {
       .filter((event) => event.engagementId === engagementId)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
+  const dashboardMetrics = () => ({
+    activeLeads: leads.filter((lead) => !["Converted", "Closed Lost"].includes(lead.status)).length,
+    dealsInPipeline: deals.filter((deal) => !["Won", "Lost"].includes(deal.stage)).length,
+    activeEngagements: engagements.filter((engagement) => !["Completed", "Paused"].includes(engagement.stage)).length,
+    overdueTasks: tasks.filter((task) => task.dueDate && new Date(task.dueDate) < now && task.status !== "Completed").length,
+    unpaidInvoices: financeRecords.filter((record) => ["Sent", "Overdue"].includes(record.status) && !record.paymentReceived).length
+  });
+
+  const operationalAlerts = (): AlertItem[] => {
+    const output: AlertItem[] = [];
+
+    financeRecords
+      .filter((record) => record.dueDate && new Date(record.dueDate) < now && !record.paymentReceived)
+      .forEach((record) => output.push({ severity: "Critical", message: `Invoice ${record.invoiceNumber ?? record.id} is past due`, engagementId: record.engagementId }));
+
+    engagements.forEach((engagement) => {
+      if (engagement.healthStatus === "Red") {
+        output.push({ severity: "Critical", message: `${engagement.name}: health is Red`, engagementId: engagement.id });
+      }
+      if (engagement.nextMilestoneDueDate) {
+        const overdueDays = (now.getTime() - new Date(engagement.nextMilestoneDueDate).getTime()) / (1000 * 60 * 60 * 24);
+        if (overdueDays > 3) {
+          output.push({ severity: "Critical", message: `${engagement.name}: milestone overdue by > 3 days`, engagementId: engagement.id });
+        }
+      }
+    });
+
+    if (tasks.some((task) => task.dueDate && new Date(task.dueDate) < now && task.status !== "Completed")) {
+      output.push({ severity: "Warning", message: "Overdue task exists" });
+    }
+    if (events.some((event) => event.clientNotificationRequired && !event.clientNotificationSent)) {
+      output.push({ severity: "Warning", message: "Client notification required but not sent" });
+    }
+    if (deals.some((deal) => !deal.nextStep)) {
+      output.push({ severity: "Warning", message: "Deal has no next step" });
+    }
+
+    const sevenDaysAgo = now.getTime() - 7 * 24 * 60 * 60 * 1000;
+    engagements.forEach((engagement) => {
+      const hasRecent = events.some((event) => event.engagementId === engagement.id && new Date(event.createdAt).getTime() >= sevenDaysAgo);
+      if (!hasRecent) {
+        output.push({ severity: "Warning", message: `${engagement.name}: no event in last 7 days`, engagementId: engagement.id });
+      }
+    });
+
+    const unique = Array.from(new Map(output.map((item) => [`${item.severity}-${item.message}`, item])).values());
+    return unique.sort((a, b) => (a.severity === b.severity ? 0 : a.severity === "Critical" ? -1 : 1)).slice(0, 5);
+  };
+
   const value = useMemo<Ctx>(
     () => ({
       leads,
@@ -90,17 +157,14 @@ export function CrmProvider({ children }: { children: React.ReactNode }) {
       tasks,
       events,
       deliverables,
+      financeRecords,
       createLead: (payload) => setLeads((prev) => [{ ...payload, id: uid("lead") }, ...prev]),
       updateLead: (id, patch) => setLeads((prev) => prev.map((lead) => (lead.id === id ? { ...lead, ...patch } : lead))),
       qualifyLead: (id) => setLeads((prev) => prev.map((lead) => (lead.id === id ? { ...lead, status: "Qualified" } : lead))),
       convertQualifiedLeadToDeal: (input) => {
         const lead = leads.find((item) => item.id === input.leadId);
         if (!lead || lead.status !== "Qualified") return;
-
-        setDeals((prev) => [
-          { id: uid("deal"), leadId: input.leadId, name: input.name, stage: input.stage, ownerId: input.ownerId, value: input.value, nextStep: input.nextStep },
-          ...prev
-        ]);
+        setDeals((prev) => [{ id: uid("deal"), leadId: input.leadId, name: input.name, stage: input.stage, ownerId: input.ownerId, value: input.value, nextStep: input.nextStep }, ...prev]);
         setLeads((prev) => prev.map((item) => (item.id === input.leadId ? { ...item, status: "Converted" } : item)));
       },
       createDeal: (payload) => setDeals((prev) => [{ ...payload, id: uid("deal") }, ...prev]),
@@ -108,7 +172,6 @@ export function CrmProvider({ children }: { children: React.ReactNode }) {
       convertWonDealToClientAndEngagement: (input) => {
         const deal = deals.find((item) => item.id === input.dealId);
         if (!deal || deal.stage !== "Won") return;
-
         const newClientId = uid("client");
         setClients((prev) => [{ id: newClientId, name: input.clientName, createdFromDealId: input.dealId }, ...prev]);
         setEngagements((prev) => [{ id: uid("eng"), clientId: newClientId, name: input.engagementName, stage: input.engagementStage, ownerId: input.engagementOwnerId, healthStatus: "Green" }, ...prev]);
@@ -125,11 +188,7 @@ export function CrmProvider({ children }: { children: React.ReactNode }) {
       completeTask: (id, eventSummary) => {
         const task = tasks.find((item) => item.id === id);
         if (!task) return { ok: false, reason: "Task not found" };
-
-        if (task.materialImpact && !eventSummary) {
-          return { ok: false, reason: "Material-impact task requires event logging" };
-        }
-
+        if (task.materialImpact && !eventSummary) return { ok: false, reason: "Material-impact task requires event logging" };
         setTasks((prev) => prev.map((item) => (item.id === id ? { ...item, status: "Completed" } : item)));
         if (eventSummary) {
           addEvent({ engagementId: task.engagementId, type: "Task Update", summary: eventSummary, ownerId: task.ownerId, clientNotificationRequired: false, clientNotificationSent: false });
@@ -140,26 +199,19 @@ export function CrmProvider({ children }: { children: React.ReactNode }) {
       updateDeliverable: (id, patch) => {
         const current = deliverables.find((item) => item.id === id);
         if (!current) return;
-
         const nextStatus = patch.status ?? current.status;
         setDeliverables((prev) => prev.map((item) => (item.id === id ? { ...item, ...patch } : item)));
-
         if (current.status !== "Delivered" && nextStatus === "Delivered") {
-          addEvent({
-            engagementId: current.engagementId,
-            type: "Deliverable Update",
-            summary: `${current.name} marked Delivered`,
-            ownerId: current.ownerId,
-            clientNotificationRequired: false,
-            clientNotificationSent: false
-          });
+          addEvent({ engagementId: current.engagementId, type: "Deliverable Update", summary: `${current.name} marked Delivered`, ownerId: current.ownerId, clientNotificationRequired: false, clientNotificationSent: false });
         }
       },
       deleteDeliverable: (id) => setDeliverables((prev) => prev.filter((item) => item.id !== id)),
       progressForEngagement,
-      timelineForEngagement
+      timelineForEngagement,
+      dashboardMetrics,
+      operationalAlerts
     }),
-    [clients, deals, deliverables, engagements, events, leads, tasks]
+    [clients, deals, deliverables, engagements, events, financeRecords, leads, tasks]
   );
 
   return <CrmContext.Provider value={value}>{children}</CrmContext.Provider>;
