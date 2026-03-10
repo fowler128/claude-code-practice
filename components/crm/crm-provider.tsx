@@ -23,6 +23,7 @@ type ConvertWonDealInput = {
 
 type TaskCreateInput = Omit<Task, "id">;
 type DeliverableCreateInput = Omit<Deliverable, "id">;
+type FinanceCreateInput = Omit<FinanceRecord, "id">;
 
 type AlertItem = {
   severity: "Critical" | "Warning";
@@ -56,6 +57,10 @@ type Ctx = {
   createDeliverable: (payload: DeliverableCreateInput) => void;
   updateDeliverable: (id: string, patch: Partial<Omit<Deliverable, "id">>) => void;
   deleteDeliverable: (id: string) => void;
+  createFinanceRecord: (payload: FinanceCreateInput) => void;
+  updateFinanceRecord: (id: string, patch: Partial<Omit<FinanceRecord, "id">>) => void;
+  deleteFinanceRecord: (id: string) => void;
+  effectiveFinanceStatus: (record: FinanceRecord) => FinanceRecord["status"];
   progressForEngagement: (engagementId: string) => number;
   timelineForEngagement: (engagementId: string) => EventRecord[];
   dashboardMetrics: () => {
@@ -79,9 +84,15 @@ export function CrmProvider({ children }: { children: React.ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>(seedData.tasks);
   const [events, setEvents] = useState<EventRecord[]>(seedData.events);
   const [deliverables, setDeliverables] = useState<Deliverable[]>(seedData.deliverables);
-  const [financeRecords] = useState<FinanceRecord[]>(seedData.financeRecords);
+  const [financeRecords, setFinanceRecords] = useState<FinanceRecord[]>(seedData.financeRecords);
 
   const now = new Date("2026-03-09");
+
+  const effectiveFinanceStatus = (record: FinanceRecord): FinanceRecord["status"] => {
+    if (record.paymentReceived || record.status === "Paid") return "Paid";
+    if (record.dueDate && new Date(record.dueDate) < now && record.status !== "Draft") return "Overdue";
+    return record.status;
+  };
 
   const addEvent = (event: Omit<EventRecord, "id" | "createdAt">) => {
     setEvents((prev) => [{ id: uid("event"), createdAt: new Date().toISOString(), ...event }, ...prev]);
@@ -104,7 +115,7 @@ export function CrmProvider({ children }: { children: React.ReactNode }) {
     dealsInPipeline: deals.filter((deal) => !["Won", "Lost"].includes(deal.stage)).length,
     activeEngagements: engagements.filter((engagement) => !["Completed", "Paused"].includes(engagement.stage)).length,
     overdueTasks: tasks.filter((task) => task.dueDate && new Date(task.dueDate) < now && task.status !== "Completed").length,
-    unpaidInvoices: financeRecords.filter((record) => ["Sent", "Overdue"].includes(record.status) && !record.paymentReceived).length
+    unpaidInvoices: financeRecords.filter((record) => ["Sent", "Overdue"].includes(effectiveFinanceStatus(record)) && !record.paymentReceived).length
   });
 
   const operationalAlerts = (): AlertItem[] => {
@@ -206,6 +217,10 @@ export function CrmProvider({ children }: { children: React.ReactNode }) {
         }
       },
       deleteDeliverable: (id) => setDeliverables((prev) => prev.filter((item) => item.id !== id)),
+      createFinanceRecord: (payload) => setFinanceRecords((prev) => [{ ...payload, id: uid("fin") }, ...prev]),
+      updateFinanceRecord: (id, patch) => setFinanceRecords((prev) => prev.map((record) => (record.id === id ? { ...record, ...patch } : record))),
+      deleteFinanceRecord: (id) => setFinanceRecords((prev) => prev.filter((record) => record.id !== id)),
+      effectiveFinanceStatus,
       progressForEngagement,
       timelineForEngagement,
       dashboardMetrics,
