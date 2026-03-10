@@ -7,5 +7,5 @@
 }
 
 body {
-  @apply bg-background text-text;
+  @apply bg-slate-950 text-slate-100;
 }

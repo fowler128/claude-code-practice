@@ -1,8 +1,14 @@
-export function PagePlaceholder({ title }: { title: string }) {
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+export function PagePlaceholder({ title, description }: { title: string; description: string }) {
   return (
-    <section className="rounded-lg border border-line bg-panel p-6">
-      <h2 className="text-xl font-semibold">{title}</h2>
-      <p className="mt-2 text-sm text-muted">Phase 1 scaffold complete. Module implementation is scheduled for subsequent phases.</p>
-    </section>
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-slate-400">{description}</p>
+      </CardContent>
+    </Card>
   );
 }
