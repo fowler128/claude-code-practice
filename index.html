@@ -3,81 +3,55 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BizDeedz Mission Control</title>
+    <title>BizDeedz Mission Control - Phase 1</title>
     <style>
-      :root { color-scheme: dark; --bg:#070d18; --panel:#111b2e; --line:#2a3d5e; --text:#d9e7ff; --muted:#8ea9d7; --accent:#4b95ff; --critical:#f06d86; --warning:#f5ba53; }
-      *{box-sizing:border-box} body{margin:0;font-family:Inter,Segoe UI,sans-serif;background:radial-gradient(circle at top right,#203964,#070d18 40%);color:var(--text)}
-      .layout{display:grid;grid-template-columns:230px 1fr 330px;grid-template-rows:64px 1fr auto;height:100vh}
-      .sidebar{grid-row:1/4;padding:14px;border-right:1px solid var(--line);background:rgba(8,13,24,.9)} .brand{font-weight:700;font-size:12px;letter-spacing:.12em;color:#9bbcff;margin-bottom:10px}
-      .nav{padding:8px;border:1px solid transparent;border-radius:8px;color:var(--muted);margin-bottom:6px}.nav.active,.nav:hover{background:var(--panel);border-color:var(--line);color:var(--text)}
-      .top{grid-column:2/4;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(12,19,35,.8)} .slots{display:grid;grid-template-columns:repeat(8,minmax(96px,1fr));gap:6px;width:100%}
-      .slot{border:1px solid var(--line);border-radius:8px;min-height:38px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;background:#0f192c}.slot.over{border-color:var(--accent);color:#c8ddff}
-      .main{grid-column:2;display:grid;grid-template-rows:auto auto 1fr auto}.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:10px;border-bottom:1px solid var(--line)}
-      .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px}.label{font-size:11px;color:var(--muted);text-transform:uppercase}.value{font-size:22px;font-weight:700}
-      .hint{padding:10px 12px;color:var(--muted);font-size:12px;border-bottom:1px solid var(--line)} .board{padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;overflow:auto}
-      .eng{border:1px solid var(--line);border-radius:10px;padding:10px;background:linear-gradient(135deg,#0f1a2e,#142540);cursor:pointer}.row{display:flex;justify-content:space-between;align-items:center;gap:8px}.muted{color:var(--muted);font-size:12px}
-      .badge{font-size:11px;padding:2px 7px;border-radius:999px}.green{background:rgba(42,199,144,.2);color:#8feac8}.yellow{background:rgba(245,186,83,.2);color:#ffd998}.red{background:rgba(240,109,134,.2);color:#ffc2d0}
-      .bar{height:7px;border:1px solid #2b4368;border-radius:99px;overflow:hidden;margin-top:7px}.bar>div{height:100%;background:linear-gradient(90deg,#3c78e6,#5ab1ff)}
-      .feed{padding:10px;border-top:1px solid var(--line);background:rgba(7,13,24,.8)}.feed-item{font-size:12px;color:var(--muted);margin:4px 0}
-      .rail{grid-column:3;grid-row:2/4;border-left:1px solid var(--line);padding:10px;overflow:auto}.panel{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:9px;margin-bottom:8px}
-      .alert{font-size:12px;padding:6px;border-radius:8px;margin:6px 0}.alert.critical{background:rgba(240,109,134,.15);border:1px solid rgba(240,109,134,.35)}.alert.warning{background:rgba(245,186,83,.12);border:1px solid rgba(245,186,83,.3)}
-      .focus{position:absolute;inset:66px 338px 62px 236px;border:1px solid var(--line);border-radius:12px;background:rgba(6,10,18,.96);padding:10px;opacity:0;pointer-events:none;transform:scale(.97);transition:all .22s ease}.focus.open{opacity:1;pointer-events:auto;transform:scale(1)}
-      .focus-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:8px;margin-top:8px}.item{border:1px solid var(--line);border-radius:8px;padding:8px;margin:6px 0;background:#0f1a2d;cursor:pointer}
-      .drawer{position:fixed;right:0;top:0;height:100%;width:420px;border-left:1px solid var(--line);background:#0a1323;padding:14px;transform:translateX(100%);transition:transform .22s ease}.drawer.open{transform:translateX(0)}
-      .input{width:100%;margin:4px 0 8px;border:1px solid #30507a;background:#091223;color:var(--text);border-radius:8px;padding:8px}button{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:7px 10px;cursor:pointer}.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+      :root {
+        color-scheme: dark;
+      }
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        background: #020617;
+        color: #e2e8f0;
+      }
+      .wrap {
+        max-width: 920px;
+        margin: 64px auto;
+        padding: 24px;
+      }
+      .card {
+        border: 1px solid #1e293b;
+        border-radius: 12px;
+        background: #0f172a;
+        padding: 20px;
+      }
+      h1 {
+        margin-top: 0;
+      }
+      p {
+        color: #94a3b8;
+        line-height: 1.6;
+      }
+      code {
+        color: #cbd5e1;
+      }
     </style>
   </head>
   <body>
-    <div id="app" class="layout"></div><aside id="drawer" class="drawer"></aside>
-    <script>
-      const today = new Date('2026-03-09');
-      const permissions={Admin:['*'],Operations:['engagements','tasks','events','deliverables'],Sales:['leads','deals','clients'],Finance:['finance'],Viewer:['dashboard:read']};
-      const roles=Object.keys(permissions); let role='Admin'; let dragId=null; let feed=['10:32 AM — Discovery call completed','10:45 AM — Client questionnaire received'];
-      const seeds={
-        deals:[{id:'D1',stage:'Proposal Sent',nextStep:'Confirm review meeting'},{id:'D2',stage:'Negotiation',nextStep:'Redline terms'}],
-        leads:[{id:'L1',status:'Qualified'},{id:'L2',status:'Contacted'},{id:'L3',status:'New'}],
-        clients:[{id:'C1',name:'Immigration Firm'},{id:'C2',name:'Northstar Clinic'},{id:'C3',name:'Foundry Manufacturing'}],
-        engagements:[{id:'E1',clientId:'C1',name:'AI Readiness Audit',offerType:'Audit',stage:'Audit',healthStatus:'Green',owner:'Turea',nextMilestone:'Process map signoff',nextMilestoneDueDate:'2026-03-12'},{id:'E2',clientId:'C2',name:'Client Intake Revamp',offerType:'Automation Sprint',stage:'Testing',healthStatus:'Yellow',owner:'Ren',nextMilestone:'UAT complete',nextMilestoneDueDate:'2026-03-10'},{id:'E3',clientId:'C3',name:'Ops Design',offerType:'Ops Design',stage:'Implementation',healthStatus:'Red',owner:'Anya',nextMilestone:'Training launch',nextMilestoneDueDate:'2026-03-05'},{id:'E4',clientId:'C1',name:'Workflow Automation Sprint',offerType:'Automation',stage:'Automation',healthStatus:'Green',owner:'Mika',nextMilestone:'Bot validation',nextMilestoneDueDate:'2026-03-13'}],
-        tasks:[{id:'T1',engagementId:'E1',title:'Audit interview synthesis',status:'In Progress',owner:'Turea',materialImpact:true,dueDate:'2026-03-10'},{id:'T2',engagementId:'E1',title:'Evidence library cleanup',status:'Not Started',owner:'Turea',materialImpact:false,dueDate:'2026-03-14'},{id:'T3',engagementId:'E2',title:'UAT defect triage',status:'Waiting',owner:'Ren',materialImpact:true,dueDate:'2026-03-08'},{id:'T4',engagementId:'E2',title:'Client walkthrough prep',status:'Completed',owner:'Ren',materialImpact:false,dueDate:'2026-03-07'},{id:'T5',engagementId:'E3',title:'Invoice reconciliation map',status:'Blocked',owner:'Anya',materialImpact:true,dueDate:'2026-03-04'},{id:'T6',engagementId:'E3',title:'Ops handoff checklist',status:'In Progress',owner:'Anya',materialImpact:false,dueDate:'2026-03-11'},{id:'T7',engagementId:'E4',title:'Automation test plan',status:'Not Started',owner:'Mika',materialImpact:true,dueDate:'2026-03-12'},{id:'T8',engagementId:'E4',title:'Bot failover review',status:'Waiting',owner:'Mika',materialImpact:true,dueDate:'2026-03-09'}],
-        events:[{id:'EV1',engagementId:'E1',summary:'Discovery call completed',createdAt:'2026-03-08T10:32:00',nextStep:'Send questionnaire',clientNotificationRequired:false,clientNotificationSent:false},{id:'EV2',engagementId:'E1',summary:'Client questionnaire received',createdAt:'2026-03-08T10:45:00',nextStep:'Start audit analysis',clientNotificationRequired:false,clientNotificationSent:false},{id:'EV3',engagementId:'E3',summary:'Leadership escalation',createdAt:'2026-02-28T15:00:00',nextStep:'Resolve blocker',clientNotificationRequired:true,clientNotificationSent:false}],
-        deliverables:[{id:'DL1',engagementId:'E1',name:'Audit findings deck',status:'In Review',owner:'Turea',dueDate:'2026-03-15',deliveredAt:null},{id:'DL2',engagementId:'E2',name:'Client intake SOP',status:'Draft',owner:'Ren',dueDate:'2026-03-13',deliveredAt:null},{id:'DL3',engagementId:'E3',name:'Ops dashboard handoff',status:'Delivered',owner:'Anya',dueDate:'2026-03-03',deliveredAt:'2026-03-03'}],
-        finance:[{id:'F1',engagementId:'E1',type:'Invoice',invoiceNumber:'4432',amount:8500,status:'Sent',paymentReceived:false,dueDate:'2026-03-08'},{id:'F2',engagementId:'E2',type:'Invoice',invoiceNumber:'4438',amount:6400,status:'Paid',paymentReceived:true,dueDate:'2026-03-07'},{id:'F3',engagementId:'E3',type:'Invoice',invoiceNumber:'4441',amount:9200,status:'Overdue',paymentReceived:false,dueDate:'2026-03-01'}]
-      };
-      const stages=['Discovery','Audit','Automation','Testing','Implementation','Optimization','Completed','Paused'];
-      const idMap=(arr,id)=>arr.find(x=>x.id===id); const overdue=(d)=>new Date(d)<today;
-      const can=(m)=>permissions[role].includes('*')||permissions[role].includes(m)||permissions[role].includes('dashboard:read');
-      const progress=(eid)=>{const t=seeds.tasks.filter(x=>x.engagementId===eid); if(!t.length) return 0; return Math.round((t.filter(x=>x.status==='Completed').length/t.length)*100)};
-      const eventAgeDays=(ev)=>Math.floor((today-new Date(ev.createdAt))/(1000*60*60*24));
-      function log(msg,eid='E1',type='System'){const tm=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});feed.unshift(`${tm} — ${msg}`);seeds.events.unshift({id:`EV${Math.random().toString().slice(2,8)}`,engagementId:eid,summary:msg,createdAt:new Date().toISOString(),nextStep:'Review and assign',clientNotificationRequired:false,clientNotificationSent:false,type});}
-      function buildAlerts(){
-        const all=[];
-        seeds.engagements.forEach(e=>{
-          if(e.healthStatus==='Red') all.push({sev:'Critical',engagementId:e.id,msg:`${e.name}: engagement health is Red`,age:2});
-          if(overdue(e.nextMilestoneDueDate)&&((today-new Date(e.nextMilestoneDueDate))/(1000*60*60*24)>3)) all.push({sev:'Critical',engagementId:e.id,msg:`${e.name}: milestone overdue > 3 days`,age:today-new Date(e.nextMilestoneDueDate)});
-          if(seeds.tasks.some(t=>t.engagementId===e.id&&t.status!=='Completed'&&overdue(t.dueDate))) all.push({sev:'Warning',engagementId:e.id,msg:`${e.name}: overdue task exists`,age:1});
-          const last=seeds.events.filter(v=>v.engagementId===e.id).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt))[0];
-          if(!last||eventAgeDays(last)>=7) all.push({sev:'Warning',engagementId:e.id,msg:`${e.name}: no recent event in 7 days`,age:last?eventAgeDays(last):99});
-        });
-        seeds.finance.filter(f=>!f.paymentReceived&&overdue(f.dueDate)).forEach(f=>all.push({sev:'Critical',engagementId:f.engagementId,msg:`Invoice #${f.invoiceNumber} past due`,age:today-new Date(f.dueDate)}));
-        if(seeds.events.some(e=>e.clientNotificationRequired&&!e.clientNotificationSent)) all.push({sev:'Warning',engagementId:'GLOBAL',msg:'Client notification required but not sent',age:1});
-        if(seeds.deals.some(d=>!d.nextStep)) all.push({sev:'Warning',engagementId:'GLOBAL',msg:'Deal has no next step',age:1});
-        const dedup = Object.values(all.reduce((acc,a)=>{const k=`${a.engagementId}:${a.msg}`; if(!acc[k]) acc[k]=a; return acc;},{}));
-        return dedup.sort((a,b)=>(a.sev===b.sev?b.age-a.age:(a.sev==='Critical'?-1:1))).slice(0,5);
-      }
-      function metrics(){return[{label:'Active Leads',value:seeds.leads.filter(l=>!['Converted','Closed Lost'].includes(l.status)).length},{label:'Deals in Pipeline',value:seeds.deals.filter(d=>!['Won','Lost'].includes(d.stage)).length},{label:'Active Engagements',value:seeds.engagements.filter(e=>!['Completed','Paused'].includes(e.stage)).length},{label:'Overdue Tasks',value:seeds.tasks.filter(t=>t.status!=='Completed'&&overdue(t.dueDate)).length},{label:'Unpaid Invoices',value:seeds.finance.filter(f=>['Sent','Overdue'].includes(f.status)&&!f.paymentReceived).length}]}
-      const app=document.getElementById('app'),drawer=document.getElementById('drawer');
-      function render(){
-        app.innerHTML=`<aside class='sidebar'><div class='brand'>BIZDEEDZ MISSION CONTROL</div>${['Dashboard','Leads','Deals','Clients','Engagements','Tasks','Events','Deliverables','Finance'].map((x,i)=>`<div class='nav ${i===0?'active':''}'>${x}</div>`).join('')}<div class='panel'><div class='label'>Role</div><select id='roleSel' class='input'>${roles.map(r=>`<option ${r===role?'selected':''}>${r}</option>`)}</select><div class='muted'>${permissions[role].join(', ')}</div></div></aside><header class='top'><div class='muted' style='min-width:130px'>Engagement Stages</div><div class='slots'>${stages.map(s=>`<div class='slot' data-stage='${s}'>${s}</div>`).join('')}</div></header><main class='main'><section class='metrics'>${metrics().map(m=>`<article class='card'><div class='label'>${m.label}</div><div class='value'>${m.value}</div></article>`).join('')}</section><section class='hint'>Default: Company Operations View. Drag stage = update + event log. Click card for Engagement Focus.</section><section class='board'>${seeds.engagements.map(e=>`<article class='eng' draggable='true' data-id='${e.id}'><div class='row'><b>${e.name}</b><span class='badge ${e.healthStatus==='Green'?'green':e.healthStatus==='Yellow'?'yellow':'red'}'>${e.healthStatus}</span></div><div class='muted'>Client: ${idMap(seeds.clients,e.clientId).name}</div><div class='row'><span class='muted'>Stage: ${e.stage}</span><span class='muted'>Owner: ${e.owner}</span></div><div class='bar'><div style='width:${progress(e.id)}%'></div></div><div class='row'><span>${progress(e.id)}%</span><span class='muted'>Next: ${e.nextMilestone}</span></div></article>`).join('')}</section><section class='feed'><b>Activity Feed</b>${feed.slice(0,12).map(x=>`<div class='feed-item'>${x}</div>`).join('')}</section></main><aside class='rail'><section class='panel'><b>Operational Alerts (max 5)</b>${buildAlerts().map(a=>`<div class='alert ${a.sev==='Critical'?'critical':'warning'}'><b>${a.sev}</b> · ${a.msg}</div>`).join('')}</section></aside><section id='focus' class='focus'></section>`;
-        document.getElementById('roleSel').onchange=(e)=>{role=e.target.value;render()};
-        document.querySelectorAll('.eng').forEach(el=>{el.addEventListener('dragstart',()=>dragId=el.dataset.id);el.addEventListener('click',()=>openFocus(el.dataset.id));});
-        document.querySelectorAll('.slot').forEach(s=>{s.addEventListener('dragover',e=>{e.preventDefault();s.classList.add('over')});s.addEventListener('dragleave',()=>s.classList.remove('over'));s.addEventListener('drop',()=>{s.classList.remove('over');if(!can('engagements')) return alert('No permission for stage updates');const e=idMap(seeds.engagements,dragId);if(!e) return;e.stage=s.dataset.stage;log(`Stage changed: ${e.name} -> ${e.stage}`,e.id,'Stage Change');render();});});
-      }
-      function openFocus(id){const e=idMap(seeds.engagements,id),c=idMap(seeds.clients,e.clientId),focus=document.getElementById('focus');const t=seeds.tasks.filter(x=>x.engagementId===id),ev=seeds.events.filter(x=>x.engagementId===id).slice(0,4),d=seeds.deliverables.filter(x=>x.engagementId===id),f=seeds.finance.filter(x=>x.engagementId===id),local=buildAlerts().filter(a=>a.engagementId===id);log(`Focus opened: ${e.name}`,id);focus.innerHTML=`<div class='row'><h3 style='margin:0'>${e.name} · ${c.name}</h3><button class='ghost' onclick='closeFocus()'>Back</button></div><div class='muted'>Offer: ${e.offerType} · Stage: ${e.stage} · Health: ${e.healthStatus} · Owner: ${e.owner}</div><div class='muted'>Next Milestone: ${e.nextMilestone} (${e.nextMilestoneDueDate})</div><div class='bar'><div style='width:${progress(id)}%'></div></div><div class='muted'>Progress: ${progress(id)}%</div>${local.map(a=>`<div class='alert ${a.sev==='Critical'?'critical':'warning'}'>${a.msg}</div>`).join('')}<div class='focus-grid'><section class='panel'><b>Tasks / Events / Deliverables</b>${t.map(x=>`<div class='item' onclick="openDetail('Task',${JSON.stringify(x)})">Task · ${x.title}</div>`).join('')}${ev.map(x=>`<div class='item' onclick="openDetail('Event',${JSON.stringify(x)})">Event · ${x.summary}</div>`).join('')}${d.map(x=>`<div class='item' onclick="openDetail('Deliverable',${JSON.stringify(x)})">Deliverable · ${x.name}</div>`).join('')}</section><section class='panel'><b>Finance Snapshot</b>${f.map(x=>`<div class='item' onclick="openDetail('FinanceRecord',${JSON.stringify(x)})">Invoice #${x.invoiceNumber} · ${x.status}</div>`).join('')}</section></div>`;focus.classList.add('open');}
-      function closeFocus(){document.getElementById('focus').classList.remove('open')}
-      function openDetail(type,obj){log(`${type} opened: ${obj.title||obj.name||obj.summary||obj.invoiceNumber}`);const body= type==='Task' ? `<label>title<input class='input' value='${obj.title}'/></label><label>status<input class='input' value='${obj.status}'/></label><label>owner<input class='input' value='${obj.owner}'/></label><label>dueDate<input class='input' value='${obj.dueDate}'/></label><label>materialImpact<input class='input' value='${obj.materialImpact}'/></label>` : type==='Event' ? `<label>type<input class='input' value='${obj.type||'System'}'/></label><label>summary<input class='input' value='${obj.summary}'/></label><label>notes<textarea class='input' rows='3'></textarea></label><label>owner<input class='input' value='${obj.owner||''}'/></label><label>nextStep<input class='input' value='${obj.nextStep||''}'/></label><label>clientNotificationRequired<input class='input' value='${obj.clientNotificationRequired}'/></label><label>clientNotificationSent<input class='input' value='${obj.clientNotificationSent}'/></label>` : type==='Deliverable' ? `<label>name<input class='input' value='${obj.name}'/></label><label>status<input class='input' value='${obj.status}'/></label><label>owner<input class='input' value='${obj.owner||''}'/></label><label>dueDate<input class='input' value='${obj.dueDate}'/></label><label>deliveredAt<input class='input' value='${obj.deliveredAt||''}'/></label>` : `<label>type<input class='input' value='${obj.type}'/></label><label>invoiceNumber<input class='input' value='${obj.invoiceNumber}'/></label><label>amount<input class='input' value='${obj.amount}'/></label><label>dueDate<input class='input' value='${obj.dueDate}'/></label><label>status<input class='input' value='${obj.status}'/></label><label>paymentReceived<input class='input' value='${obj.paymentReceived}'/></label>`;
-        drawer.innerHTML=`<div class='row'><h3 style='margin:0'>${type} Detail</h3><button class='ghost' onclick='closeDrawer()'>Close</button></div>${body}<button onclick='saveDetail()'>Save Changes</button>`;drawer.classList.add('open');}
-      function saveDetail(){log('Detail updated');render()} function closeDrawer(){drawer.classList.remove('open')}
-      window.closeFocus=closeFocus;window.openDetail=openDetail;window.closeDrawer=closeDrawer;window.saveDetail=saveDetail;render();
-    </script>
+    <main class="wrap">
+      <section class="card">
+        <h1>BizDeedz Mission Control</h1>
+        <p>
+          This repository now targets a strict Phase 1 foundation: Next.js app shell, protected routes,
+          Supabase auth wiring, Tailwind + shadcn/ui styling primitives, and Prisma connection setup.
+        </p>
+        <p>
+          Run the application with <code>npm run dev</code> and use the App Router pages under
+          <code>/dashboard</code>, <code>/leads</code>, <code>/deals</code>, <code>/clients</code>,
+          <code>/engagements</code>, <code>/tasks</code>, <code>/finance</code>, <code>/knowledge</code>, and
+          <code>/settings</code>.
+        </p>
+      </section>
+    </main>
   </body>
 </html>
