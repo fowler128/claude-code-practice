@@ -26,9 +26,18 @@ export type EngagementStage =
 
 export type TaskStatus = "NOT_STARTED" | "IN_PROGRESS" | "WAITING" | "COMPLETED" | "BLOCKED";
 
+export type InvoiceStatus = "DRAFT" | "SENT" | "OVERDUE" | "PAID";
+
 export type EventEntityType = "DEAL" | "ENGAGEMENT" | "TASK";
 
 export type EventType = "STAGE_CHANGED" | "TASK_COMPLETED";
+
+export interface DealRecord {
+  id: string;
+  name: string;
+  stage: "QUALIFIED" | "DISCOVERY_SCHEDULED" | "DISCOVERY_COMPLETED" | "PROPOSAL_SENT" | "NEGOTIATION" | "WON" | "LOST";
+  nextStep?: string;
+}
 
 export interface EngagementRecord {
   id: string;
@@ -40,8 +49,16 @@ export interface TaskRecord {
   id: string;
   title: string;
   status: TaskStatus;
+  dueDate?: string;
   engagementId?: string;
   dealId?: string;
+}
+
+export interface InvoiceRecord {
+  id: string;
+  invoiceNumber: string;
+  status: InvoiceStatus;
+  dueDate?: string;
 }
 
 export interface EventRecord {
@@ -52,4 +69,16 @@ export interface EventRecord {
   description: string;
   createdBy: string;
   createdAt: string;
+}
+
+export type AlertType =
+  | "DEAL_NO_NEXT_STEP"
+  | "ENGAGEMENT_NO_EVENT_7_DAYS"
+  | "OVERDUE_TASK"
+  | "UNPAID_INVOICE";
+
+export interface AlertRecord {
+  id: string;
+  type: AlertType;
+  message: string;
 }
