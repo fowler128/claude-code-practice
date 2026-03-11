@@ -1,0 +1,121 @@
+{
+  "bizdeedz": {
+    "knowledge_management": [
+      "legal knowledge management",
+      "law firm knowledge base",
+      "precedent search",
+      "work product management",
+      "document retrieval legal",
+      "shared drive chaos",
+      "legal document retrieval",
+      "legal templates scattered",
+      "knowledge base law firm"
+    ],
+    "adoption": [
+      "AI adoption legal",
+      "legal tech adoption",
+      "lawyer adoption",
+      "nobody uses the system",
+      "resistance to change law firm",
+      "workflow adoption",
+      "change management legal",
+      "AI rollout problems",
+      "legal AI implementation"
+    ],
+    "intake_handoff": [
+      "law firm intake process",
+      "client intake broken",
+      "legal workflow bottleneck",
+      "case handoff",
+      "intake problems law firm",
+      "workflow inconsistency",
+      "law firm backlog",
+      "case setup errors",
+      "rework legal operations"
+    ],
+    "bankruptcy_operations": [
+      "bankruptcy workflow",
+      "chapter 13 process",
+      "bankruptcy intake",
+      "bankruptcy case management",
+      "chapter 13 backlog",
+      "trustee requirements confusion",
+      "bankruptcy CRM",
+      "bankruptcy document preparation"
+    ],
+    "law_firm_operations": [
+      "law firm operations",
+      "legal operations",
+      "legal ops",
+      "law firm systems",
+      "legal workflow automation",
+      "law firm process improvement",
+      "legal service delivery",
+      "law firm efficiency"
+    ]
+  },
+  "turea": {
+    "leadership_capacity": [
+      "leadership burnout",
+      "decision fatigue",
+      "overwhelmed leader",
+      "management burnout",
+      "capacity management",
+      "team overload",
+      "executive burnout",
+      "leadership boundaries"
+    ],
+    "legal_ops_leadership": [
+      "legal ops leadership",
+      "director of legal operations",
+      "legal operations strategy",
+      "legal ops transformation",
+      "law firm operations manager",
+      "legal team efficiency",
+      "legal process improvement"
+    ],
+    "career_elevation": [
+      "paralegal to legal ops",
+      "legal ops career path",
+      "career pivot operations",
+      "experienced professional stuck",
+      "director-level career advice",
+      "operational leadership",
+      "career growth women leaders"
+    ],
+    "women_in_leadership": [
+      "women in leadership",
+      "Black women in leadership",
+      "women leaders burnout",
+      "executive presence women",
+      "leadership visibility",
+      "women leaders boundaries"
+    ],
+    "change_management": [
+      "change management",
+      "AI adoption in legal",
+      "legal transformation",
+      "operationalizing AI",
+      "AI resistance at work",
+      "leadership keeps changing direction"
+    ]
+  },
+  "pain_phrases": [
+    "our processes are a mess",
+    "nobody follows the process",
+    "we can't find anything",
+    "documents are everywhere",
+    "shared drive mess",
+    "my team is drowning",
+    "we need better systems",
+    "technology isn't helping",
+    "cases keep getting stuck",
+    "staff is overwhelmed",
+    "we are doing everything manually",
+    "too much rework",
+    "workflow is broken",
+    "intake is a mess",
+    "backlog is growing",
+    "lawyers won't use it"
+  ]
+}

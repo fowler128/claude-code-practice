@@ -1,0 +1,67 @@
+{
+  "_comment": "Source configuration. V1 active sources only. Set active:false to disable without deleting.",
+  "reddit": {
+    "active": true,
+    "apify_actor_id": "trudax/reddit-scraper-lite",
+    "_note": "Use Apify Reddit actor. Configure APIFY_API_TOKEN in .env",
+    "subreddits": {
+      "active": [
+        {
+          "name": "legaltech",
+          "priority": "high",
+          "max_posts": 25
+        },
+        {
+          "name": "lawyers",
+          "priority": "high",
+          "max_posts": 25
+        },
+        {
+          "name": "LawFirm",
+          "priority": "high",
+          "max_posts": 25
+        },
+        {
+          "name": "smallbusiness",
+          "priority": "medium",
+          "max_posts": 20
+        },
+        {
+          "name": "Entrepreneur",
+          "priority": "medium",
+          "max_posts": 20
+        }
+      ],
+      "scaffold_only": [
+        { "name": "artificial", "active": false },
+        { "name": "MachineLearning", "active": false },
+        { "name": "startups", "active": false },
+        { "name": "SaaS", "active": false },
+        { "name": "operations", "active": false },
+        { "name": "careerguidance", "active": false },
+        { "name": "paralegal", "active": false },
+        { "name": "findapath", "active": false }
+      ]
+    },
+    "post_settings": {
+      "sort": "new",
+      "time_filter": "day",
+      "include_comments": false,
+      "max_age_hours": 24
+    }
+  },
+  "rss": {
+    "active": true,
+    "_note": "Feed list managed in config/rss-feeds.json"
+  },
+  "inactive_sources": {
+    "_note": "These sources are NOT active in V1. Scaffold only.",
+    "linkedin": { "active": false },
+    "x_twitter": { "active": false },
+    "github": { "active": false },
+    "hacker_news": { "active": false },
+    "youtube": { "active": false },
+    "job_boards": { "active": false },
+    "vendor_review_sites": { "active": false }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "_comment": "Rule-based pre-filter scoring config. Adjust weights here without touching scripts.",
+  "rules": {
+    "bizdeedz_keyword_match": {
+      "points": 2,
+      "description": "At least one BizDeedz keyword cluster matched"
+    },
+    "turea_keyword_match": {
+      "points": 2,
+      "description": "At least one Turea keyword cluster matched"
+    },
+    "pain_phrase_match": {
+      "points": 2,
+      "description": "At least one pain/problem phrase matched"
+    },
+    "priority_source": {
+      "points": 1,
+      "description": "Signal came from a priority subreddit or high-priority RSS feed"
+    },
+    "high_engagement": {
+      "points": 1,
+      "description": "Reddit post has above-threshold upvotes or comment count"
+    }
+  },
+  "thresholds": {
+    "min_rule_score": 3,
+    "reddit_upvote_threshold": 10,
+    "reddit_comment_threshold": 5
+  },
+  "ai_score_labels": {
+    "1": "Noise - irrelevant",
+    "2": "Weak signal - marginally relevant",
+    "3": "Moderate - some relevance but no clear action",
+    "4": "Strong signal - clear relevance and potential action",
+    "5": "High-value signal - directly actionable or highly relevant"
+  }
+}
