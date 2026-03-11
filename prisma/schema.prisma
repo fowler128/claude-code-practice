@@ -64,6 +64,13 @@ enum InvoiceStatus {
   PAID
 }
 
+enum AIJobStatus {
+  QUEUED     @map("queued")
+  PROCESSING @map("processing")
+  COMPLETED  @map("completed")
+  FAILED     @map("failed")
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -78,6 +85,7 @@ model User {
   createdEvents     Event[]      @relation("EventCreatedBy")
   ownedDeliverables Deliverable[] @relation("DeliverableOwner")
   issuedInvoices    Invoice[]    @relation("InvoiceOwner")
+  aiJobs           AIJob[]      @relation("AIJobRequestedBy")
 }
 
 model Lead {
@@ -240,4 +248,25 @@ model Invoice {
   @@index([ownerId])
   @@index([dealId])
   @@index([engagementId])
+}
+
+
+model AIJob {
+  id           String      @id @default(uuid())
+  type         String
+  status       AIJobStatus @default(QUEUED)
+  entityType   String
+  entityId     String
+  inputPayload Json
+  outputPayload Json?
+  errorMessage String?
+  requestedBy  String
+  createdAt    DateTime    @default(now())
+  completedAt  DateTime?
+
+  requestedByUser User @relation("AIJobRequestedBy", fields: [requestedBy], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([requestedBy])
+  @@index([entityType, entityId])
+  @@index([status, createdAt])
 }
