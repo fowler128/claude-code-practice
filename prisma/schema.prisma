@@ -71,6 +71,13 @@ enum AIJobStatus {
   FAILED     @map("failed")
 }
 
+enum AIInsightSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -86,6 +93,7 @@ model User {
   ownedDeliverables Deliverable[] @relation("DeliverableOwner")
   issuedInvoices    Invoice[]    @relation("InvoiceOwner")
   aiJobs           AIJob[]      @relation("AIJobRequestedBy")
+  aiInsights       AIInsight[] @relation("AIInsightCreatedBy")
 }
 
 model Lead {
@@ -269,4 +277,22 @@ model AIJob {
   @@index([requestedBy])
   @@index([entityType, entityId])
   @@index([status, createdAt])
+}
+
+
+model AIInsight {
+  id             String            @id @default(uuid())
+  entityType     String
+  entityId       String
+  summary        String
+  recommendation String
+  severity       AIInsightSeverity
+  createdBy      String
+  createdAt      DateTime          @default(now())
+
+  createdByUser User @relation("AIInsightCreatedBy", fields: [createdBy], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([createdBy])
+  @@index([entityType, entityId])
+  @@index([severity, createdAt])
 }
