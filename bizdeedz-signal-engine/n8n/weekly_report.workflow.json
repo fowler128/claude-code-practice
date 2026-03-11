@@ -75,6 +75,35 @@
     },
     {
       "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.signal_count }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node_if_week_signals_exist",
+      "name": "IF — Signals Exist This Week",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1100, 300],
+      "notes": "Guard: if zero signals this week, skip synthesis entirely to avoid confusing LLM output. True branch proceeds. False branch terminates — no email sent (silence is fine for a zero-signal week)."
+    },
+    {
+      "parameters": {
         "model": "={{ $env.DIGEST_MODEL || 'claude-sonnet-4-6' }}",
         "options": {
           "temperature": 0.4,
@@ -93,7 +122,7 @@
       "name": "Weekly Report Synthesis (Premium)",
       "type": "@n8n/n8n-nodes-langchain.anthropic",
       "typeVersion": 1,
-      "position": [1150, 300],
+      "position": [1350, 200],
       "credentials": {
         "anthropicApi": {
           "name": "Anthropic"
@@ -109,7 +138,7 @@
       "name": "Format Weekly Email",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1400, 300],
+      "position": [1600, 200],
       "notes": "Formats weekly report as HTML email."
     },
     {
@@ -125,7 +154,7 @@
       "name": "Send Weekly Report Email",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
-      "position": [1650, 300],
+      "position": [1850, 200],
       "credentials": {
         "gmailOAuth2": {
           "name": "Gmail"
@@ -145,7 +174,13 @@
       "main": [[{ "node": "Filter + Format Week Signals", "type": "main", "index": 0 }]]
     },
     "Filter + Format Week Signals": {
-      "main": [[{ "node": "Weekly Report Synthesis (Premium)", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "IF — Signals Exist This Week", "type": "main", "index": 0 }]]
+    },
+    "IF — Signals Exist This Week": {
+      "main": [
+        [{ "node": "Weekly Report Synthesis (Premium)", "type": "main", "index": 0 }],
+        []
+      ]
     },
     "Weekly Report Synthesis (Premium)": {
       "main": [[{ "node": "Format Weekly Email", "type": "main", "index": 0 }]]
@@ -161,8 +196,8 @@
     "errorWorkflow": ""
   },
   "meta": {
-    "description": "SCAFFOLD ONLY — NOT ACTIVE IN V1. Weekly report workflow for Phase 2. Reads last 7 days from Google Sheets, synthesizes trends with premium model, emails report on Monday mornings.",
-    "version": "1.0.0-scaffold",
+    "description": "SCAFFOLD ONLY — NOT ACTIVE IN V1. Weekly report workflow for Phase 2. Zero-signals guard added: synthesis is skipped entirely if no signals this week. Reads last 7 days from Google Sheets, synthesizes trends, emails Monday mornings.",
+    "version": "1.1.0-scaffold",
     "brand": "BizDeedz Signal Engine MVP",
     "phase": "Phase 2"
   }
