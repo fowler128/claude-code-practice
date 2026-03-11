@@ -1,12 +1,33 @@
+# AGENTS.md
+
+## Project
 BizDeedz Mission Control is an internal operations platform for BizDeedz.
 
-Follow the build spec exactly.
+## Source of truth
+Follow `BizDeedz-Mission-Control-v1-Build-Spec.md` exactly.
 
-Key rules:
-- implement in phases
-- avoid speculative features
-- keep architecture simple
-- maintain event-driven design
-- prioritize clarity over abstraction
+## Working style
+- Build in phases
+- Do not add features outside v1 scope
+- Keep architecture simple and extensible
+- Use event-driven design
+- Prioritize clarity over abstraction
+- If behavior is unclear, document the assumption
 
-If behavior is unclear, document the assumption.
+## Stack
+- Next.js App Router
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- Framer Motion
+- Supabase
+- PostgreSQL
+- Prisma
+- Vercel
+
+## Validation
+After each phase:
+- summarize what was implemented
+- list files changed
+- list assumptions made
+- run relevant checks if available
