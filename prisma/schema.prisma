@@ -36,6 +36,13 @@ enum EngagementStage {
   PAUSED
 }
 
+
+enum EngagementStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
 enum TaskStatus {
   NOT_STARTED
   IN_PROGRESS
@@ -136,7 +143,8 @@ model Engagement {
   createdFromDealId    String?
   name                 String
   offerType            String?
-  stage                EngagementStage @default(DISCOVERY)
+  stage                EngagementStage  @default(DISCOVERY)
+  status               EngagementStatus @default(ACTIVE)
   ownerId              String
   startDate            DateTime?
   targetEndDate        DateTime?
