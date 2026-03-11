@@ -234,6 +234,17 @@
     },
     {
       "parameters": {
+        "jsCode": "// Lead Radar — Tag Offer\n// Evaluates each item against the primary offer criteria from config/offer-map.json.\n// Sets lead_radar=true and recommended_offer when a signal is a strong candidate\n// for the AI Readiness Audit for Law Firms offer.\n//\n// Criteria for lead_radar=true (all must be met):\n//   1. score >= 4\n//   2. lane is BizDeedz or Both\n//   3. signal_type is buyer pain, workflow gap, or adoption barrier\n//   4. at least one keyword_cluster is in the offer's trigger_clusters\n\n// Primary offer config (mirrors config/offer-map.json — keep in sync)\nconst PRIMARY_OFFER = 'AI Readiness Audit for Law Firms';\nconst OFFER_TRIGGER_CLUSTERS = new Set([\n  'knowledge_management',\n  'adoption',\n  'intake_handoff',\n  'law_firm_operations',\n  'bankruptcy_operations'\n]);\nconst OFFER_TRIGGER_SIGNAL_TYPES = new Set(['buyer pain', 'workflow gap', 'adoption barrier']);\nconst OFFER_LANES = new Set(['BizDeedz', 'Both']);\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const s = item.json;\n\n  const score = s.score || 0;\n  const lane = s.lane || 'Ignore';\n  const signal_type = s.signal_type || 'ignore';\n  const clusters = Array.isArray(s.keyword_cluster) ? s.keyword_cluster : [];\n\n  // Check all four criteria\n  const meetsScore = score >= 4;\n  const meetsLane = OFFER_LANES.has(lane);\n  const meetsSignalType = OFFER_TRIGGER_SIGNAL_TYPES.has(signal_type);\n  const meetsCluster = clusters.some(c => OFFER_TRIGGER_CLUSTERS.has(c));\n\n  const lead_radar = meetsScore && meetsLane && meetsSignalType && meetsCluster;\n\n  results.push({\n    ...s,\n    lead_radar,\n    recommended_offer: lead_radar ? PRIMARY_OFFER : null,\n  });\n}\n\nreturn results.map(item => ({ json: item }));"
+      },
+      "id": "node_lead_radar",
+      "name": "Lead Radar — Tag Offer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2350, 300],
+      "notes": "Tags items with lead_radar=true and recommended_offer='AI Readiness Audit for Law Firms' when all four criteria are met: score>=4, lane=BizDeedz/Both, signal_type=buyer pain/workflow gap/adoption barrier, and at least one keyword_cluster in the offer trigger list. Keep trigger lists in sync with config/offer-map.json."
+    },
+    {
+      "parameters": {
         "conditions": {
           "options": {
             "caseSensitive": false,
@@ -258,19 +269,19 @@
       "name": "IF — Score >= 4 (Keep)",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [2350, 300],
+      "position": [2550, 300],
       "notes": "Final gate: only items with keep=true (AI score >= 4) are written to Google Sheets. False branch is intentionally empty."
     },
     {
       "parameters": {
-        "jsCode": "// Prepare the final row for Google Sheets\nconst items = $input.all();\nconst rows = [];\n\nfor (const item of items) {\n  const s = item.json;\n  rows.push({\n    captured_at: new Date().toISOString(),\n    source: s.source || '',\n    source_type: s.source_type || '',\n    title: (s.title || '').slice(0, 500),\n    url: s.url || '',\n    author: s.author || '',\n    published_at: s.published_at || '',\n    matched_keywords: Array.isArray(s.matched_keywords) ? s.matched_keywords.join(', ') : '',\n    lane: s.lane || '',\n    signal_type: s.signal_type || '',\n    keyword_cluster: Array.isArray(s.keyword_cluster) ? s.keyword_cluster.join(', ') : '',\n    score: s.score || 0,\n    confidence: s.confidence || '',\n    rule_score: s.rule_score || 0,\n    summary: '',\n    why_it_matters: '',\n    recommended_action: '',\n    status: 'new',\n    notes: '',\n    dedupe_hash: s.dedupe_hash || '',\n  });\n}\n\nreturn rows.map(row => ({ json: row }));"
+        "jsCode": "// Prepare the final row for Google Sheets\nconst items = $input.all();\nconst rows = [];\n\nfor (const item of items) {\n  const s = item.json;\n  rows.push({\n    captured_at: new Date().toISOString(),\n    source: s.source || '',\n    source_type: s.source_type || '',\n    title: (s.title || '').slice(0, 500),\n    url: s.url || '',\n    author: s.author || '',\n    published_at: s.published_at || '',\n    matched_keywords: Array.isArray(s.matched_keywords) ? s.matched_keywords.join(', ') : '',\n    lane: s.lane || '',\n    signal_type: s.signal_type || '',\n    keyword_cluster: Array.isArray(s.keyword_cluster) ? s.keyword_cluster.join(', ') : '',\n    score: s.score || 0,\n    confidence: s.confidence || '',\n    rule_score: s.rule_score || 0,\n    lead_radar: s.lead_radar === true,\n    recommended_offer: s.recommended_offer || '',\n    summary: '',\n    why_it_matters: '',\n    recommended_action: '',\n    status: 'new',\n    notes: '',\n    dedupe_hash: s.dedupe_hash || '',\n  });\n}\n\nreturn rows.map(row => ({ json: row }));"
       },
       "id": "node_prepare_sheet_row",
       "name": "Prepare Sheet Row",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2550, 300],
-      "notes": "Maps final signal data to Google Sheets schema. Includes rule_score for audit visibility."
+      "position": [2750, 300],
+      "notes": "Maps final signal data to Google Sheets schema. Includes rule_score, lead_radar, and recommended_offer for audit visibility and lead routing."
     },
     {
       "parameters": {
@@ -296,7 +307,7 @@
         }
       },
       "id": "node_sheets_append",
-      "name": "Google Sheets — Append",
+      "name": "Google Sheets — Append (High_Value_Signals)",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.4,
       "position": [2750, 300],
@@ -305,7 +316,7 @@
           "name": "Google Sheets"
         }
       },
-      "notes": "Appends high-value signals to the High_Value_Signals sheet. Requires GOOGLE_SHEETS_SPREADSHEET_ID env var and Google Sheets credential."
+      "notes": "Appends high-value signals to the High_Value_Signals sheet. Row includes lead_radar and recommended_offer columns. Requires GOOGLE_SHEETS_SPREADSHEET_ID env var and Google Sheets credential."
     }
   ],
   "connections": {
@@ -354,6 +365,9 @@
       "main": [[{ "node": "Parse Classification", "type": "main", "index": 0 }]]
     },
     "Parse Classification": {
+      "main": [[{ "node": "Lead Radar — Tag Offer", "type": "main", "index": 0 }]]
+    },
+    "Lead Radar — Tag Offer": {
       "main": [[{ "node": "IF — Score >= 4 (Keep)", "type": "main", "index": 0 }]]
     },
     "IF — Score >= 4 (Keep)": {
@@ -363,7 +377,7 @@
       ]
     },
     "Prepare Sheet Row": {
-      "main": [[{ "node": "Google Sheets — Append", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Google Sheets — Append (High_Value_Signals)", "type": "main", "index": 0 }]]
     }
   },
   "settings": {
@@ -373,8 +387,8 @@
     "errorWorkflow": ""
   },
   "meta": {
-    "description": "Collects Reddit and RSS signals daily at 7:00 AM Central. Hard disqualifiers: negative keywords, content < 80 chars. Rule filter (threshold 4) with dual-match and specificity bonuses. Classifier with vendor-blog downgrade rule. Stores score >= 4 items to Google Sheets.",
-    "version": "1.1.0",
+    "description": "Collects Reddit and RSS signals daily at 7:00 AM Central. Hard disqualifiers: negative keywords, content < 80 chars. Rule filter (threshold 4) with dual-match and specificity bonuses. Classifier with vendor-blog downgrade rule. Lead Radar node tags qualifying signals with lead_radar=true and recommended_offer. Stores score >= 4 items to Google Sheets.",
+    "version": "1.2.0",
     "brand": "BizDeedz Signal Engine MVP"
   }
 }

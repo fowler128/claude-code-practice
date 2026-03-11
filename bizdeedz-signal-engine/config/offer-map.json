@@ -1,0 +1,67 @@
+{
+  "_notes": {
+    "purpose": "Maps keyword clusters and signal types to consulting offers. Used by the lead radar logic in the collector pipeline to assign recommended_offer and flag lead_radar=true on high-quality BizDeedz signals.",
+    "primary_offer": "AI Readiness Audit for Law Firms",
+    "lead_radar_criteria": {
+      "score": ">=4",
+      "lane": "BizDeedz or Both",
+      "signal_type": ["buyer pain", "workflow gap", "adoption barrier"]
+    }
+  },
+  "offers": [
+    {
+      "id": "ai_readiness_audit",
+      "name": "AI Readiness Audit for Law Firms",
+      "description": "Structured assessment of a law firm's current processes, tools, and team to identify AI adoption readiness and highest-leverage automation opportunities.",
+      "primary": true,
+      "trigger_clusters": [
+        "knowledge_management",
+        "adoption",
+        "intake_handoff",
+        "law_firm_operations",
+        "bankruptcy_operations"
+      ],
+      "trigger_signal_types": [
+        "buyer pain",
+        "workflow gap",
+        "adoption barrier"
+      ],
+      "trigger_pain_phrases": [
+        "nobody uses the system",
+        "lawyers won't use it",
+        "attorneys won't follow the process",
+        "each attorney does it differently",
+        "no standard process",
+        "ai rollout problems",
+        "legal ai implementation",
+        "ai resistance law firm",
+        "we keep recreating the wheel",
+        "no one follows the same process"
+      ]
+    }
+  ],
+  "lead_radar_sheet_schema": {
+    "_note": "Scaffold for Lead_Radar Google Sheet tab. Create this tab in V1 Phase 2. The collector will write to it when lead_radar=true.",
+    "columns": [
+      "captured_at",
+      "source",
+      "platform",
+      "title",
+      "url",
+      "author",
+      "pain_summary",
+      "keyword_cluster",
+      "recommended_offer",
+      "confidence",
+      "next_action",
+      "status",
+      "notes"
+    ],
+    "default_values": {
+      "pain_summary": "",
+      "next_action": "",
+      "status": "new",
+      "notes": ""
+    }
+  }
+}
