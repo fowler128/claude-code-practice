@@ -75,7 +75,7 @@ model User {
   ownedDeals        Deal[]       @relation("DealOwner")
   ownedEngagements  Engagement[] @relation("EngagementOwner")
   assignedTasks     Task[]       @relation("TaskOwner")
-  authoredEvents    Event[]      @relation("EventOwner")
+  createdEvents     Event[]      @relation("EventCreatedBy")
   ownedDeliverables Deliverable[] @relation("DeliverableOwner")
   issuedInvoices    Invoice[]    @relation("InvoiceOwner")
 }
@@ -116,7 +116,6 @@ model Deal {
   convertedClient Client?
   engagements     Engagement[]
   tasks           Task[]
-  events          Event[]
   invoices        Invoice[]
 
   @@index([leadId])
@@ -159,7 +158,6 @@ model Engagement {
   owner User @relation("EngagementOwner", fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   tasks        Task[]
-  events       Event[]
   deliverables Deliverable[]
   invoices     Invoice[]
 
@@ -189,23 +187,19 @@ model Task {
 }
 
 model Event {
-  id           String   @id @default(uuid())
-  type         String
-  summary      String
-  notes        String?
-  ownerId      String
-  dealId       String?
-  engagementId String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String   @id @default(uuid())
+  entityType  String
+  entityId    String
+  eventType   String
+  description String
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  owner      User        @relation("EventOwner", fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  deal       Deal?       @relation(fields: [dealId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  engagement Engagement? @relation(fields: [engagementId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdByUser User @relation("EventCreatedBy", fields: [createdBy], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
-  @@index([ownerId])
-  @@index([dealId, createdAt])
-  @@index([engagementId, createdAt])
+  @@index([entityType, entityId, createdAt])
+  @@index([createdBy])
 }
 
 model Deliverable {
