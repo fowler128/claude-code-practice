@@ -36,8 +36,11 @@ const initialEngagements: EngagementRecord[] = [
 ];
 
 const initialTasks: TaskRecord[] = [
-  { id: "task_1", title: "Discovery packet review", status: "IN_PROGRESS", dueDate: "2026-03-08", engagementId: "eng_1" },
-  { id: "task_2", title: "Milestone QA checklist", status: "NOT_STARTED", dueDate: "2026-03-20", engagementId: "eng_2" }
+  { id: "task_1", title: "Discovery packet review", owner: "Turea", status: "IN_PROGRESS", dueDate: "2026-03-08", engagementId: "eng_1" },
+  { id: "task_2", title: "Milestone QA checklist", owner: "Ren", status: "NOT_STARTED", dueDate: "2026-03-20", engagementId: "eng_2" },
+  { id: "task_3", title: "Automation test mapping", owner: "Turea", status: "WAITING", dueDate: "2026-03-16", engagementId: "eng_2" },
+  { id: "task_4", title: "Client sign-off prep", owner: "Anya", status: "COMPLETED", dueDate: "2026-03-07", engagementId: "eng_1" },
+  { id: "task_5", title: "Ops handoff checklist", owner: "Ren", status: "BLOCKED", dueDate: "2026-03-11", engagementId: "eng_1" }
 ];
 
 const initialInvoices: InvoiceRecord[] = [

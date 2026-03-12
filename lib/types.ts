@@ -48,6 +48,7 @@ export interface EngagementRecord {
 export interface TaskRecord {
   id: string;
   title: string;
+  owner: string;
   status: TaskStatus;
   dueDate?: string;
   engagementId?: string;
