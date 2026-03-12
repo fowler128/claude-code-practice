@@ -86,7 +86,7 @@ export function CrmProvider({ children }: { children: React.ReactNode }) {
   const [events, setEvents] = useState<EventRecord[]>(initialEvents);
 
   const alerts = useMemo<AlertRecord[]>(() => {
-    const now = new Date("2026-03-15T00:00:00.000Z");
+    const now = new Date();
 
     const dealAlerts = deals
       .filter((deal) => !deal.nextStep || deal.nextStep.trim().length === 0)
@@ -136,46 +136,44 @@ export function CrmProvider({ children }: { children: React.ReactNode }) {
       events,
       alerts,
       updateEngagementStage: (engagementId, stage, createdBy) => {
-        setEngagements((current) => {
-          const target = current.find((engagement) => engagement.id === engagementId);
-          if (!target || target.stage === stage) {
-            return current;
-          }
+        const target = engagements.find((engagement) => engagement.id === engagementId);
+        if (!target || target.stage === stage) {
+          return;
+        }
 
-          setEvents((prev) => [
-            makeEvent({
-              entityType: "ENGAGEMENT",
-              entityId: engagementId,
-              eventType: "STAGE_CHANGED",
-              description: `${target.name} stage changed from ${target.stage} to ${stage}`,
-              createdBy
-            }),
-            ...prev
-          ]);
-
-          return current.map((engagement) => (engagement.id === engagementId ? { ...engagement, stage } : engagement));
-        });
+        setEngagements((current) =>
+          current.map((engagement) => (engagement.id === engagementId ? { ...engagement, stage } : engagement))
+        );
+        setEvents((prev) => [
+          makeEvent({
+            entityType: "ENGAGEMENT",
+            entityId: engagementId,
+            eventType: "STAGE_CHANGED",
+            description: `${target.name} stage changed from ${target.stage} to ${stage}`,
+            createdBy
+          }),
+          ...prev
+        ]);
       },
       completeTask: (taskId, createdBy) => {
-        setTasks((current) => {
-          const target = current.find((task) => task.id === taskId);
-          if (!target || target.status === "COMPLETED") {
-            return current;
-          }
+        const target = tasks.find((task) => task.id === taskId);
+        if (!target || target.status === "COMPLETED") {
+          return;
+        }
 
-          setEvents((prev) => [
-            makeEvent({
-              entityType: "TASK",
-              entityId: taskId,
-              eventType: "TASK_COMPLETED",
-              description: `${target.title} marked completed`,
-              createdBy
-            }),
-            ...prev
-          ]);
-
-          return current.map((task) => (task.id === taskId ? { ...task, status: "COMPLETED" } : task));
-        });
+        setTasks((current) =>
+          current.map((task) => (task.id === taskId ? { ...task, status: "COMPLETED" as const } : task))
+        );
+        setEvents((prev) => [
+          makeEvent({
+            entityType: "TASK",
+            entityId: taskId,
+            eventType: "TASK_COMPLETED",
+            description: `${target.title} marked completed`,
+            createdBy
+          }),
+          ...prev
+        ]);
       }
     }),
     [alerts, deals, engagements, events, invoices, tasks]
