@@ -6,6 +6,7 @@ export type NavigationRoute =
   | "/engagements"
   | "/tasks"
   | "/finance"
+  | "/content"
   | "/knowledge"
   | "/settings";
 
@@ -82,4 +83,42 @@ export interface AlertRecord {
   id: string;
   type: AlertType;
   message: string;
+}
+
+// ── Content Module Types ──
+
+export type ArticleStatus = "IDEA" | "DRAFTING" | "REVIEW" | "PUBLISHED";
+
+export type ContentType = "BLOG" | "SOCIAL";
+
+export interface GscMetrics {
+  impressions: number;
+  clicks: number;
+  ctr: number;
+  avgPosition: number;
+}
+
+export interface AeoGeoCheckItem {
+  label: string;
+  passed: boolean;
+}
+
+export interface SchemaMarkup {
+  type: string;
+  snippet: string;
+}
+
+export interface ArticleRecord {
+  id: string;
+  clientId: string;
+  clientName: string;
+  title: string;
+  targetKeyword: string;
+  contentType: ContentType;
+  status: ArticleStatus;
+  publishedAt?: string;
+  url?: string;
+  gsc: GscMetrics;
+  aeoGeoChecklist: AeoGeoCheckItem[];
+  schemaMarkup: SchemaMarkup[];
 }

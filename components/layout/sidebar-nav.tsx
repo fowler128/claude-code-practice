@@ -12,6 +12,7 @@ const items = [
   { href: "/engagements", label: "Engagements" },
   { href: "/tasks", label: "Tasks" },
   { href: "/finance", label: "Finance" },
+  { href: "/content", label: "Content" },
   { href: "/knowledge", label: "Knowledge" },
   { href: "/settings", label: "Settings" }
 ];
