@@ -78,6 +78,28 @@ enum AIInsightSeverity {
   CRITICAL
 }
 
+enum DailyFocusStatus {
+  NOT_STARTED
+  ACTIVE
+  SNOOZED
+  COMPLETED
+  CLOSED
+}
+
+enum DailyChecklistItemType {
+  CEO_SCAN
+  REVENUE_MOVE
+  DELIVERY_MOVE
+  CASH_MOVE
+  STRATEGIC_MOVE
+  PROPOSAL_TOUCH
+  BLOCKER_CLEAR
+  PROOF_CAPTURE
+  CASH_REVIEW
+  CONTENT_SEED
+  END_OF_DAY_WRAP
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -94,6 +116,8 @@ model User {
   issuedInvoices    Invoice[]    @relation("InvoiceOwner")
   aiJobs           AIJob[]      @relation("AIJobRequestedBy")
   aiInsights       AIInsight[] @relation("AIInsightCreatedBy")
+  dailyFocusSessions DailyFocusSession[]
+  reminderPreference UserReminderPreference?
 }
 
 model Lead {
@@ -295,4 +319,66 @@ model AIInsight {
   @@index([createdBy])
   @@index([entityType, entityId])
   @@index([severity, createdAt])
+}
+
+
+model DailyFocusSession {
+  id                 String           @id @default(uuid())
+  userId             String
+  sessionDate        DateTime
+  status             DailyFocusStatus @default(NOT_STARTED)
+  revenueFocusText   String
+  deliveryFocusText  String
+  cashFocusText      String
+  strategicFocusText String?
+  startedAt          DateTime?
+  completedAt        DateTime?
+  wrapUpCompletedAt  DateTime?
+  snoozedUntil       DateTime?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  user  User                 @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  items DailyChecklistItem[]
+
+  @@unique([userId, sessionDate])
+  @@index([userId, sessionDate])
+  @@index([status, sessionDate])
+}
+
+model DailyChecklistItem {
+  id                  String                @id @default(uuid())
+  dailyFocusSessionId String
+  type                DailyChecklistItemType
+  label               String
+  isCompleted         Boolean               @default(false)
+  completedAt         DateTime?
+  linkedEntityType    String?
+  linkedEntityId      String?
+  sortOrder           Int
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+
+  session DailyFocusSession @relation(fields: [dailyFocusSessionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([dailyFocusSessionId, sortOrder])
+  @@index([linkedEntityType, linkedEntityId])
+}
+
+model UserReminderPreference {
+  id                        String   @id @default(uuid())
+  userId                    String   @unique
+  startOfDayReminderEnabled Boolean  @default(true)
+  middayReminderEnabled     Boolean  @default(true)
+  endOfDayReminderEnabled   Boolean  @default(true)
+  reminderChannelInApp      Boolean  @default(true)
+  reminderChannelEmail      Boolean  @default(false)
+  firstReminderTime         String?
+  middayReminderTime        String?
+  endOfDayReminderTime      String?
+  snoozeMinutesDefault      Int      @default(30)
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
