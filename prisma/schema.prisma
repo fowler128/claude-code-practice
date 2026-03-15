@@ -100,6 +100,80 @@ enum DailyChecklistItemType {
   END_OF_DAY_WRAP
 }
 
+enum ConsultStatus {
+  SCHEDULED
+  COMPLETED
+  NO_SHOW
+  CANCELED
+}
+
+enum ProposalStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  BLOCKED
+  RESOLVED
+  CLOSED
+}
+
+enum FinanceRecordType {
+  INVOICE
+  PAYMENT
+  CREDIT
+  REFUND
+}
+
+enum FinanceRecordStatus {
+  DRAFT
+  SENT
+  PARTIALLY_PAID
+  PAID
+  OVERDUE
+  VOID
+}
+
+enum QualityCheckStatus {
+  PENDING
+  PASSED
+  FAILED
+}
+
+enum RiskSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ExpansionOpportunityStatus {
+  IDENTIFIED
+  PROPOSED
+  WON
+  LOST
+}
+
+enum RenewalStatus {
+  UPCOMING
+  IN_NEGOTIATION
+  RENEWED
+  CHURNED
+}
+
+enum AutomationRunStatus {
+  QUEUED
+  RUNNING
+  SUCCEEDED
+  FAILED
+  CANCELED
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -118,6 +192,15 @@ model User {
   aiInsights       AIInsight[] @relation("AIInsightCreatedBy")
   dailyFocusSessions DailyFocusSession[]
   reminderPreference UserReminderPreference?
+  consults          Consult[]
+  proposals         Proposal[]
+  tickets           Ticket[]
+  financeRecords    FinanceRecord[]
+  qualityChecks     QualityCheck[]
+  riskFlags         RiskFlag[]
+  expansionOpportunities ExpansionOpportunity[] @relation("ExpansionOwner")
+  renewalRecords    RenewalRecord[]
+  automationRuns    AutomationRun[]
 }
 
 model Lead {
@@ -157,6 +240,8 @@ model Deal {
   engagements     Engagement[]
   tasks           Task[]
   invoices        Invoice[]
+  consults        Consult[]
+  proposals       Proposal[]
 
   @@index([leadId])
   @@index([ownerId])
@@ -172,6 +257,8 @@ model Client {
 
   createdFromDeal Deal?        @relation(fields: [createdFromDealId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   engagements     Engagement[]
+  expansionOpportunities ExpansionOpportunity[]
+  renewalRecords         RenewalRecord[]
 
   @@index([createdFromDealId])
 }
@@ -200,6 +287,10 @@ model Engagement {
   tasks        Task[]
   deliverables Deliverable[]
   invoices     Invoice[]
+  financeRecords FinanceRecord[]
+  tickets      Ticket[]
+  qualityChecks QualityCheck[]
+  riskFlags    RiskFlag[]
 
   @@index([clientId])
   @@index([createdFromDealId])
@@ -381,4 +472,172 @@ model UserReminderPreference {
   updatedAt                 DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+
+model Consult {
+  id           String       @id @default(uuid())
+  dealId        String
+  ownerId       String
+  scheduledFor  DateTime?
+  status        ConsultStatus @default(SCHEDULED)
+  notes         String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  deal          Deal         @relation(fields: [dealId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  owner         User         @relation(fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  proposals     Proposal[]
+
+  @@index([dealId])
+  @@index([ownerId, scheduledFor])
+}
+
+model Proposal {
+  id           String         @id @default(uuid())
+  dealId        String
+  consultId     String?
+  ownerId       String
+  title         String
+  status        ProposalStatus @default(DRAFT)
+  sentAt        DateTime?
+  acceptedAt    DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  deal          Deal          @relation(fields: [dealId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  consult       Consult?      @relation(fields: [consultId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  owner         User          @relation(fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([dealId])
+  @@index([consultId])
+  @@index([ownerId, status])
+}
+
+model Ticket {
+  id           String       @id @default(uuid())
+  engagementId  String
+  ownerId       String
+  title         String
+  status        TicketStatus @default(OPEN)
+  dueDate       DateTime?
+  blockedReason String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  engagement    Engagement   @relation(fields: [engagementId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  owner         User         @relation(fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([engagementId, status])
+  @@index([ownerId, dueDate])
+}
+
+model FinanceRecord {
+  id            String             @id @default(uuid())
+  engagementId   String
+  ownerId        String
+  type           FinanceRecordType
+  amount         Decimal
+  status         FinanceRecordStatus
+  dueDate        DateTime?
+  paidAt         DateTime?
+  notes          String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  engagement     Engagement         @relation(fields: [engagementId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  owner          User               @relation(fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([engagementId, status])
+  @@index([ownerId])
+}
+
+model QualityCheck {
+  id            String             @id @default(uuid())
+  engagementId   String
+  ownerId        String
+  status         QualityCheckStatus @default(PENDING)
+  notes          String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  engagement     Engagement         @relation(fields: [engagementId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  owner          User               @relation(fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([engagementId, status])
+  @@index([ownerId])
+}
+
+model RiskFlag {
+  id            String       @id @default(uuid())
+  engagementId   String
+  ownerId        String
+  severity       RiskSeverity
+  description    String
+  isResolved     Boolean      @default(false)
+  resolvedAt     DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  engagement     Engagement   @relation(fields: [engagementId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  owner          User         @relation(fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([engagementId, severity])
+  @@index([isResolved, severity])
+}
+
+model ExpansionOpportunity {
+  id            String                     @id @default(uuid())
+  clientId       String
+  ownerId        String
+  title          String
+  status         ExpansionOpportunityStatus @default(IDENTIFIED)
+  estimatedValue Decimal?
+  createdAt      DateTime                   @default(now())
+  updatedAt      DateTime                   @updatedAt
+
+  client         Client                     @relation(fields: [clientId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  owner          User                       @relation("ExpansionOwner", fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([clientId, status])
+  @@index([ownerId])
+}
+
+model RenewalRecord {
+  id            String        @id @default(uuid())
+  clientId       String
+  ownerId        String
+  status         RenewalStatus @default(UPCOMING)
+  renewalDate    DateTime
+  notes          String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  client         Client        @relation(fields: [clientId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  owner          User          @relation(fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([clientId, renewalDate])
+  @@index([ownerId, status])
+}
+
+model AutomationRun {
+  id            String               @id @default(uuid())
+  name          String
+  status        AutomationRunStatus  @default(QUEUED)
+  entityType    String
+  entityId      String
+  inputPayload  Json
+  outputPayload Json?
+  errorMessage  String?
+  requestedBy   String
+  startedAt     DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  requester     User @relation(fields: [requestedBy], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([requestedBy])
+  @@index([entityType, entityId])
+  @@index([status, createdAt])
 }
