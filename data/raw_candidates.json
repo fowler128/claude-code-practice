@@ -1,0 +1,126 @@
+{
+  "generated_at": 1775355334,
+  "dry_run": true,
+  "records": [
+    {
+      "platform": "youtube",
+      "lane": "legal_ops",
+      "query": "legal operations workflow",
+      "creator_name": "DryRun Creator",
+      "video_title_or_topic": "Dry run candidate for legal operations workflow",
+      "source_url": "https://example.com/dry-run",
+      "posting_date": "",
+      "discovery_source": "dry_run"
+    },
+    {
+      "platform": "youtube",
+      "lane": "legal_ops",
+      "query": "contract lifecycle bottlenecks",
+      "creator_name": "DryRun Creator",
+      "video_title_or_topic": "Dry run candidate for contract lifecycle bottlenecks",
+      "source_url": "https://example.com/dry-run",
+      "posting_date": "",
+      "discovery_source": "dry_run"
+    },
+    {
+      "platform": "youtube",
+      "lane": "legal_ops",
+      "query": "legal ops dashboard",
+      "creator_name": "DryRun Creator",
+      "video_title_or_topic": "Dry run candidate for legal ops dashboard",
+      "source_url": "https://example.com/dry-run",
+      "posting_date": "",
+      "discovery_source": "dry_run"
+    },
+    {
+      "platform": "youtube",
+      "lane": "grc",
+      "query": "GRC operating model",
+      "creator_name": "DryRun Creator",
+      "video_title_or_topic": "Dry run candidate for GRC operating model",
+      "source_url": "https://example.com/dry-run",
+      "posting_date": "",
+      "discovery_source": "dry_run"
+    },
+    {
+      "platform": "youtube",
+      "lane": "grc",
+      "query": "risk and compliance process improvement",
+      "creator_name": "DryRun Creator",
+      "video_title_or_topic": "Dry run candidate for risk and compliance process improvement",
+      "source_url": "https://example.com/dry-run",
+      "posting_date": "",
+      "discovery_source": "dry_run"
+    },
+    {
+      "platform": "youtube",
+      "lane": "grc",
+      "query": "governance risk compliance metrics",
+      "creator_name": "DryRun Creator",
+      "video_title_or_topic": "Dry run candidate for governance risk compliance metrics",
+      "source_url": "https://example.com/dry-run",
+      "posting_date": "",
+      "discovery_source": "dry_run"
+    },
+    {
+      "platform": "youtube",
+      "lane": "ai_governance",
+      "query": "AI governance framework",
+      "creator_name": "DryRun Creator",
+      "video_title_or_topic": "Dry run candidate for AI governance framework",
+      "source_url": "https://example.com/dry-run",
+      "posting_date": "",
+      "discovery_source": "dry_run"
+    },
+    {
+      "platform": "youtube",
+      "lane": "ai_governance",
+      "query": "enterprise AI risk controls",
+      "creator_name": "DryRun Creator",
+      "video_title_or_topic": "Dry run candidate for enterprise AI risk controls",
+      "source_url": "https://example.com/dry-run",
+      "posting_date": "",
+      "discovery_source": "dry_run"
+    },
+    {
+      "platform": "youtube",
+      "lane": "ai_governance",
+      "query": "AI policy implementation",
+      "creator_name": "DryRun Creator",
+      "video_title_or_topic": "Dry run candidate for AI policy implementation",
+      "source_url": "https://example.com/dry-run",
+      "posting_date": "",
+      "discovery_source": "dry_run"
+    },
+    {
+      "platform": "youtube",
+      "lane": "operations_leadership",
+      "query": "operations leadership systems",
+      "creator_name": "DryRun Creator",
+      "video_title_or_topic": "Dry run candidate for operations leadership systems",
+      "source_url": "https://example.com/dry-run",
+      "posting_date": "",
+      "discovery_source": "dry_run"
+    },
+    {
+      "platform": "youtube",
+      "lane": "operations_leadership",
+      "query": "workflow integrity",
+      "creator_name": "DryRun Creator",
+      "video_title_or_topic": "Dry run candidate for workflow integrity",
+      "source_url": "https://example.com/dry-run",
+      "posting_date": "",
+      "discovery_source": "dry_run"
+    },
+    {
+      "platform": "youtube",
+      "lane": "operations_leadership",
+      "query": "business systems strategy",
+      "creator_name": "DryRun Creator",
+      "video_title_or_topic": "Dry run candidate for business systems strategy",
+      "source_url": "https://example.com/dry-run",
+      "posting_date": "",
+      "discovery_source": "dry_run"
+    }
+  ]
+}

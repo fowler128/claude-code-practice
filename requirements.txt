@@ -1,0 +1,2 @@
+# Discovery v1 intentionally uses Python standard library only in this environment.
+# Add optional dependencies here if you later switch to richer YAML/HTTP clients.

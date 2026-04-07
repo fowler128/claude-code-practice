@@ -1,0 +1,27 @@
+lanes:
+  legal_ops:
+    - "legal operations workflow"
+    - "contract lifecycle bottlenecks"
+    - "legal ops dashboard"
+  grc:
+    - "GRC operating model"
+    - "risk and compliance process improvement"
+    - "governance risk compliance metrics"
+  ai_governance:
+    - "AI governance framework"
+    - "enterprise AI risk controls"
+    - "AI policy implementation"
+  operations_leadership:
+    - "operations leadership systems"
+    - "workflow integrity"
+    - "business systems strategy"
+platforms:
+  youtube:
+    enabled: true
+    max_results_per_query: 20
+  tiktok:
+    enabled: true
+    max_results_per_query: 15
+  linkedin:
+    enabled: true
+    max_results_per_query: 15
