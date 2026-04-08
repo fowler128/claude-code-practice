@@ -1,0 +1,29 @@
+platforms:
+  youtube:
+    discovery_mode: "apify_or_rss"
+    actor_env: "APIFY_ACTOR_YOUTUBE"
+    defaults:
+      content_type: "video"
+      platform: "YouTube"
+  tiktok:
+    discovery_mode: "apify_or_search"
+    actor_env: "APIFY_ACTOR_TIKTOK"
+    defaults:
+      content_type: "short_video"
+      platform: "TikTok"
+  linkedin:
+    discovery_mode: "apify_or_search"
+    actor_env: "APIFY_ACTOR_LINKEDIN"
+    defaults:
+      content_type: "post_or_video"
+      platform: "LinkedIn"
+normalization:
+  csv_output: "output/market_intelligence.csv"
+  required_fields:
+    - creator_name
+    - platform
+    - source_url
+  review_fields:
+    - transcript
+    - opening_hook
+    - cta
