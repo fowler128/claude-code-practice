@@ -1,207 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>My Professional Landing Page</title>
-      <style>
-                * {
-                              margin: 0;
-                              padding: 0;
-                              box-sizing: border-box;
-                }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Professional Landing Page</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-                body {
-                              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                              line-height: 1.6;
-                              color: #333;
-                }
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: #333;
+      }
 
-                /* Navigation */
-                nav {
-                              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                              padding: 1rem 2rem;
-                              position: sticky;
-                              top: 0;
-                              z-index: 100;
-                }
+      nav {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 1rem 2rem;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
 
-                nav ul {
-                              list-style: none;
-                              display: flex;
-                              justify-content: center;
-                              gap: 2rem;
-                }
+      nav ul {
+        list-style: none;
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+      }
 
-                nav a {
-                              color: white;
-                              text-decoration: none;
-                              font-weight: 500;
-                              transition: opacity 0.3s;
-                }
+      nav a {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        transition: opacity 0.3s;
+      }
 
-                nav a:hover {
-                              opacity: 0.8;
-                }
+      nav a:hover {
+        opacity: 0.85;
+      }
 
-                /* Hero Section */
-                .hero {
-                              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                              color: white;
-                              padding: 6rem 2rem;
-                              text-align: center;
-                              min-height: 60vh;
-                              display: flex;
-                              flex-direction: column;
-                              justify-content: center;
-                              align-items: center;
-                }
+      .hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 6rem 2rem;
+        text-align: center;
+        min-height: 60vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
 
-                .hero h1 {
-                              font-size: 3rem;
-                              margin-bottom: 1rem;
-                }
+      .hero h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
 
-                .hero p {
-                              font-size: 1.3rem;
-                              margin-bottom: 2rem;
-                              opacity: 0.95;
-                }
+      .hero p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.95;
+      }
 
-                .cta-button {
-                              background: white;
-                              color: #667eea;
-                              padding: 0.8rem 2rem;
-                              border: none;
-                              border-radius: 5px;
-                              font-size: 1.1rem;
-                              font-weight: bold;
-                              cursor: pointer;
-                              transition: transform 0.3s, box-shadow 0.3s;
-                }
+      .cta-button {
+        background: white;
+        color: #667eea;
+        padding: 0.8rem 2rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: bold;
+      }
 
-                .cta-button:hover {
-                              transform: translateY(-2px);
-                              box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-                }
+      .features,
+      .repos {
+        padding: 4rem 2rem;
+      }
 
-                /* Features Section */
-                .features {
-                              padding: 4rem 2rem;
-                              background: #f8f9fa;
-                }
+      .features {
+        background: #f8f9fa;
+      }
 
-                .features-container {
-                              max-width: 1200px;
-                              margin: 0 auto;
-                }
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
 
-                .features h2 {
-                              text-align: center;
-                              margin-bottom: 3rem;
-                              font-size: 2rem;
-                }
+      h2 {
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 2rem;
+      }
 
-                .features-grid {
-                              display: grid;
-                              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                              gap: 2rem;
-                }
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+      }
 
-                .feature-card {
-                              background: white;
-                              padding: 2rem;
-                              border-radius: 8px;
-                              text-align: center;
-                              box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                              transition: transform 0.3s;
-                }
+      .feature-card,
+      .repo-item {
+        background: white;
+        padding: 1.25rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      }
 
-                .feature-card:hover {
-                              transform: translateY(-5px);
-                }
+      .repo-list {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
 
-                .feature-card h3 {
-                              color: #667eea;
-                              margin-bottom: 1rem;
-                }
+      .repo-item a {
+        color: #4d5dd1;
+        font-weight: 600;
+        text-decoration: none;
+      }
 
-                /* Footer */
-                footer {
-                              background: #333;
-                              color: white;
-                              text-align: center;
-                              padding: 2rem;
-                }
+      .repo-item a:hover {
+        text-decoration: underline;
+      }
 
-                footer p {
-                              margin: 0.5rem 0;
-                }
+      footer {
+        background: #333;
+        color: white;
+        text-align: center;
+        padding: 2rem;
+      }
 
-                /* Responsive */
-                @media (max-width: 768px) {
-                              nav ul {
-                                                flex-direction: column;
-                                                gap: 1rem;
-                              }
+      @media (max-width: 768px) {
+        nav ul {
+          flex-wrap: wrap;
+          gap: 1rem;
+        }
 
-                              .hero h1 {
-                                                font-size: 2rem;
-                              }
-
-                              .hero p {
-                                                font-size: 1.1rem;
-                              }
-                }
-            </style>
+        .hero h1 {
+          font-size: 2rem;
+        }
+      }
+    </style>
   </head>
   <body>
-        <!-- Navigation -->
-        <nav>
-                  <ul>
-                                <li><a href="#home">Home</a>a></li>
-                              <li><a href="#features">Features</a>a></li>
-                              <li><a href="#contact">Contact</a>a></li>
-                  </ul>
-        </nav>
-  
-      <!-- Hero Section -->
-      <section class="hero" id="home">
-              <h1>Welcome to My Landing Page</h1>
-              <p>Create amazing web experiences with modern design and clean code</p>
-              <button class="cta-button">Get Started</button>button>
-      </section>section>
-  
-      <!-- Features Section -->
-      <section class="features" id="features">
-              <div class="features-container">
-                          <h2>Key Features</h2>
-                          <div class="features-grid">
-                                          <div class="feature-card">
-                                                              <h3>🎨 Modern Design</h3>
-                                                              <p>Beautiful and responsive design that works on all devices</p>
-                                          </div>div>
-                                          <div class="feature-card">
-                                                              <h3>⚡ Fast Performance</h3>
-                                                              <p>Optimized code for quick loading and smooth interactions</p>
-                                          </div>div>
-                                          <div class="feature-card">
-                                                              <h3>📱 Mobile Friendly</h3>
-                                                              <p>Looks great on phones, tablets, and desktop computers</p>
-                                          </div>div>
-                          </div>div>
-              </div>div>
-      </section>section>
-  
-      <!-- Footer -->
-      <footer id="contact">
-              <p>&copy; 2026 My Landing Page. All rights reserved.</p>
-              <p>Email: contact@example.com | Phone: (555) 123-4567</p>
-      </footer>footer>
+    <nav>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#repos">GitHub Repos</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+
+    <section class="hero" id="home">
+      <h1>Welcome to My Landing Page</h1>
+      <p>Create amazing web experiences with modern design and clean code</p>
+      <button class="cta-button">Get Started</button>
+    </section>
+
+    <section class="features" id="features">
+      <div class="container">
+        <h2>Key Features</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <h3>🎨 Modern Design</h3>
+            <p>Beautiful and responsive design that works on all devices.</p>
+          </div>
+          <div class="feature-card">
+            <h3>⚡ Fast Performance</h3>
+            <p>Optimized code for quick loading and smooth interactions.</p>
+          </div>
+          <div class="feature-card">
+            <h3>📱 Mobile Friendly</h3>
+            <p>Looks great on phones, tablets, and desktop computers.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="repos" id="repos">
+      <div class="container">
+        <h2>Added GitHub Repositories</h2>
+        <div class="repo-list">
+          <div class="repo-item">
+            <a href="https://github.com/kepano/obsidian-skills" target="_blank" rel="noreferrer">Obsidian Skills</a>
+            <p>github.com/kepano/obsidian-skills</p>
+          </div>
+          <div class="repo-item">
+            <a href="https://github.com/czlonkowski/n8n-mcp" target="_blank" rel="noreferrer">n8n-MCP</a>
+            <p>github.com/czlonkowski/n8n-mcp</p>
+          </div>
+          <div class="repo-item">
+            <a href="https://github.com/nextlevelbuilder/ui-ux-pro-max-skill" target="_blank" rel="noreferrer">UI/UX Pro Max</a>
+            <p>github.com/nextlevelbuilder/ui-ux-pro-max-skill</p>
+          </div>
+          <div class="repo-item">
+            <a href="https://github.com/thedotmack/claude-mem" target="_blank" rel="noreferrer">Claude Mem</a>
+            <p>github.com/thedotmack/claude-mem</p>
+          </div>
+          <div class="repo-item">
+            <a href="https://github.com/glittercowboy/get-shit-done" target="_blank" rel="noreferrer">GSD (Get Shit Done)</a>
+            <p>github.com/glittercowboy/get-shit-done</p>
+          </div>
+          <div class="repo-item">
+            <a href="https://github.com/hesreallyhim/awesome-claude-code" target="_blank" rel="noreferrer">Awesome Claude Code</a>
+            <p>github.com/hesreallyhim/awesome-claude-code</p>
+          </div>
+          <div class="repo-item">
+            <a href="https://github.com/obra/superpowers" target="_blank" rel="noreferrer">Superpowers</a>
+            <p>github.com/obra/superpowers</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer id="contact">
+      <p>&copy; 2026 My Landing Page. All rights reserved.</p>
+      <p>Email: contact@example.com | Phone: (555) 123-4567</p>
+    </footer>
   </body>
-</html>html></p></p></h1></li></li>
-                  </ul>
-        </nav>
-  </body>
-      </style></title>
-  </head>
+</html>
