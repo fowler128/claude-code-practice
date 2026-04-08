@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Local Sensitive Data Redactor (Flask)</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 2rem auto; max-width: 900px; }
+      fieldset { margin: 1rem 0; padding: 1rem; }
+      .row { display: flex; gap: 1rem; }
+      .row > div { flex: 1; }
+      .note { background: #f8f8ff; border-left: 4px solid #4a68d4; padding: 0.75rem; }
+    </style>
+  </head>
+  <body>
+    <h1>🔒 Local Sensitive Data Redactor (Flask)</h1>
+    <p class="note">
+      Alternative to Streamlit: this app uses Flask and a simple HTML form. For legal production,
+      prefer native PDF object-level redaction and manual QA before release.
+    </p>
+
+    <form action="/redact" method="post" enctype="multipart/form-data">
+      <fieldset>
+        <legend>Upload</legend>
+        <input type="file" name="file" accept=".pdf,.docx" required />
+      </fieldset>
+
+      <fieldset>
+        <legend>Matter & audit details</legend>
+        <div class="row">
+          <div>
+            <label>Matter ID <input type="text" name="matter_id" /></label>
+          </div>
+          <div>
+            <label>Reviewer initials <input type="text" name="reviewer" /></label>
+          </div>
+        </div>
+        <label><input type="checkbox" name="auto_log" checked /> Append event to local JSONL audit log</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Redaction categories</legend>
+        <label><input type="checkbox" name="redact_emails" checked /> Emails</label><br />
+        <label><input type="checkbox" name="redact_phones" checked /> Phone numbers</label><br />
+        <label><input type="checkbox" name="redact_ssn_tax_ids" checked /> SSN / Tax IDs</label><br />
+        <label><input type="checkbox" name="redact_addresses" checked /> Addresses</label><br />
+        <label><input type="checkbox" name="redact_names" checked /> Likely names</label><br />
+        <label><input type="checkbox" name="redact_dob" checked /> DOB</label><br />
+        <label><input type="checkbox" name="redact_passport_numbers" checked /> Passport numbers</label><br />
+        <label><input type="checkbox" name="redact_claim_numbers" checked /> Claim/Case references</label><br />
+        <label><input type="checkbox" name="redact_medical_record_numbers" checked /> Medical record numbers</label><br />
+      </fieldset>
+
+      <fieldset>
+        <legend>PDF options</legend>
+        <label><input type="checkbox" name="enable_ocr_fallback" checked /> Enable OCR fallback for scanned PDFs</label><br />
+        <label><input type="checkbox" name="use_native_pdf_redaction" checked /> Use native PDF object-level redaction</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Custom terms</legend>
+        <textarea name="custom_terms" rows="6" cols="80" placeholder="Acme Corp&#10;John Q Public"></textarea>
+      </fieldset>
+
+      <fieldset>
+        <legend>Output</legend>
+        <button type="submit" name="action" value="preview">Preview JSON</button>
+        <button type="submit" name="action" value="report">Download report JSON (response)</button>
+        <button type="submit" name="action" value="download_docx">Download redacted DOCX</button>
+        <button type="submit" name="action" value="download_pdf">Download redacted PDF</button>
+      </fieldset>
+    </form>
+  </body>
+</html>
