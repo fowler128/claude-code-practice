@@ -1,0 +1,298 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CONVERTED
+  CLOSED_LOST
+}
+
+enum DealStage {
+  QUALIFIED
+  DISCOVERY_SCHEDULED
+  DISCOVERY_COMPLETED
+  PROPOSAL_SENT
+  NEGOTIATION
+  WON
+  LOST
+}
+
+enum EngagementStage {
+  DISCOVERY
+  AUDIT
+  AUTOMATION
+  TESTING
+  IMPLEMENTATION
+  OPTIMIZATION
+  COMPLETED
+  PAUSED
+}
+
+
+enum EngagementStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  WAITING
+  COMPLETED
+  BLOCKED
+}
+
+enum DeliverableStatus {
+  DRAFT
+  IN_REVIEW
+  DELIVERED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  OVERDUE
+  PAID
+}
+
+enum AIJobStatus {
+  QUEUED     @map("queued")
+  PROCESSING @map("processing")
+  COMPLETED  @map("completed")
+  FAILED     @map("failed")
+}
+
+enum AIInsightSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  fullName  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownedLeads        Lead[]       @relation("LeadOwner")
+  ownedDeals        Deal[]       @relation("DealOwner")
+  ownedEngagements  Engagement[] @relation("EngagementOwner")
+  assignedTasks     Task[]       @relation("TaskOwner")
+  createdEvents     Event[]      @relation("EventCreatedBy")
+  ownedDeliverables Deliverable[] @relation("DeliverableOwner")
+  issuedInvoices    Invoice[]    @relation("InvoiceOwner")
+  aiJobs           AIJob[]      @relation("AIJobRequestedBy")
+  aiInsights       AIInsight[] @relation("AIInsightCreatedBy")
+}
+
+model Lead {
+  id              String     @id @default(uuid())
+  companyName     String
+  contactName     String
+  source          String?
+  status          LeadStatus @default(NEW)
+  ownerId         String
+  nextStep        String?
+  nextStepDueDate DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  owner User @relation("LeadOwner", fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  deals Deal[]
+
+  @@index([ownerId])
+}
+
+model Deal {
+  id              String    @id @default(uuid())
+  leadId          String
+  name            String
+  stage           DealStage @default(QUALIFIED)
+  value           Decimal?
+  ownerId         String
+  nextStep        String?
+  nextStepDueDate DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  owner User @relation("DealOwner", fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  convertedClient Client?
+  engagements     Engagement[]
+  tasks           Task[]
+  invoices        Invoice[]
+
+  @@index([leadId])
+  @@index([ownerId])
+}
+
+model Client {
+  id                String   @id @default(uuid())
+  name              String
+  primaryContact    String?
+  createdFromDealId String?  @unique
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  createdFromDeal Deal?        @relation(fields: [createdFromDealId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  engagements     Engagement[]
+
+  @@index([createdFromDealId])
+}
+
+model Engagement {
+  id                   String          @id @default(uuid())
+  clientId             String
+  createdFromDealId    String?
+  name                 String
+  offerType            String?
+  stage                EngagementStage  @default(DISCOVERY)
+  status               EngagementStatus @default(ACTIVE)
+  ownerId              String
+  startDate            DateTime?
+  targetEndDate        DateTime?
+  nextMilestone        String?
+  nextMilestoneDueDate DateTime?
+  progressPercent      Int             @default(0)
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  createdFromDeal Deal? @relation(fields: [createdFromDealId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  owner User @relation("EngagementOwner", fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  tasks        Task[]
+  deliverables Deliverable[]
+  invoices     Invoice[]
+
+  @@index([clientId])
+  @@index([createdFromDealId])
+  @@index([ownerId])
+}
+
+model Task {
+  id           String     @id @default(uuid())
+  title        String
+  status       TaskStatus @default(NOT_STARTED)
+  ownerId      String
+  dealId       String?
+  engagementId String?
+  dueDate      DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  owner      User        @relation("TaskOwner", fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  deal       Deal?       @relation(fields: [dealId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  engagement Engagement? @relation(fields: [engagementId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([ownerId])
+  @@index([dealId])
+  @@index([engagementId])
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  entityType  String
+  entityId    String
+  eventType   String
+  description String
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdByUser User @relation("EventCreatedBy", fields: [createdBy], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([entityType, entityId, createdAt])
+  @@index([createdBy])
+}
+
+model Deliverable {
+  id           String            @id @default(uuid())
+  engagementId String
+  name         String
+  status       DeliverableStatus @default(DRAFT)
+  ownerId      String
+  dueDate      DateTime?
+  deliveredAt  DateTime?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  engagement Engagement @relation(fields: [engagementId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  owner      User       @relation("DeliverableOwner", fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([engagementId])
+  @@index([ownerId])
+}
+
+model Invoice {
+  id           String        @id @default(uuid())
+  invoiceNumber String?
+  amount       Decimal
+  status       InvoiceStatus @default(DRAFT)
+  dueDate      DateTime?
+  paidAt       DateTime?
+  ownerId      String
+  dealId       String?
+  engagementId String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  owner      User        @relation("InvoiceOwner", fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  deal       Deal?       @relation(fields: [dealId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  engagement Engagement? @relation(fields: [engagementId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@index([ownerId])
+  @@index([dealId])
+  @@index([engagementId])
+}
+
+
+model AIJob {
+  id           String      @id @default(uuid())
+  type         String
+  status       AIJobStatus @default(QUEUED)
+  entityType   String
+  entityId     String
+  inputPayload Json
+  outputPayload Json?
+  errorMessage String?
+  requestedBy  String
+  createdAt    DateTime    @default(now())
+  completedAt  DateTime?
+
+  requestedByUser User @relation("AIJobRequestedBy", fields: [requestedBy], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([requestedBy])
+  @@index([entityType, entityId])
+  @@index([status, createdAt])
+}
+
+
+model AIInsight {
+  id             String            @id @default(uuid())
+  entityType     String
+  entityId       String
+  summary        String
+  recommendation String
+  severity       AIInsightSeverity
+  createdBy      String
+  createdAt      DateTime          @default(now())
+
+  createdByUser User @relation("AIInsightCreatedBy", fields: [createdBy], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([createdBy])
+  @@index([entityType, entityId])
+  @@index([severity, createdAt])
+}
