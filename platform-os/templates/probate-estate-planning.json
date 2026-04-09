@@ -1,0 +1,499 @@
+{
+  "template_id": "pe-estate-v1",
+  "template_version": 1,
+  "practice_area": "PE",
+  "matter_type": "PE-ESTATE",
+  "name": "Probate/Estate: Estate Planning Package",
+  "description": "Estate planning workflow including wills, trusts, powers of attorney, and healthcare directives.",
+
+  "lanes": [
+    {
+      "id": "intake",
+      "name": "Intake",
+      "order": 1,
+      "roles": ["intake_specialist", "paralegal"],
+      "description": "Initial consultation and information gathering"
+    },
+    {
+      "id": "engagement",
+      "name": "Engagement",
+      "order": 2,
+      "roles": ["paralegal", "estate_attorney"],
+      "description": "Conflicts, engagement, and planning approach"
+    },
+    {
+      "id": "planning",
+      "name": "Planning",
+      "order": 3,
+      "roles": ["estate_attorney", "paralegal"],
+      "description": "Develop estate plan and strategy"
+    },
+    {
+      "id": "drafting",
+      "name": "Drafting",
+      "order": 4,
+      "roles": ["paralegal", "estate_attorney"],
+      "description": "Draft estate planning documents"
+    },
+    {
+      "id": "review",
+      "name": "Review",
+      "order": 5,
+      "roles": ["estate_attorney", "senior_paralegal"],
+      "description": "Attorney review and client review"
+    },
+    {
+      "id": "execution",
+      "name": "Execution",
+      "order": 6,
+      "roles": ["paralegal", "notary"],
+      "description": "Document signing and notarization"
+    },
+    {
+      "id": "finalization",
+      "name": "Finalization",
+      "order": 7,
+      "roles": ["paralegal"],
+      "description": "Finalize and deliver documents"
+    },
+    {
+      "id": "closed",
+      "name": "Closed",
+      "order": 8,
+      "roles": ["admin"],
+      "description": "Estate plan completed"
+    }
+  ],
+
+  "statuses": [
+    {
+      "id": "new",
+      "name": "New - Consultation Scheduled",
+      "lane": "intake",
+      "order": 1,
+      "is_initial": true,
+      "sla_hours": 48,
+      "allowed_transitions": ["intake_complete", "declined"]
+    },
+    {
+      "id": "intake_complete",
+      "name": "Intake Complete",
+      "lane": "engagement",
+      "order": 2,
+      "sla_hours": 24,
+      "allowed_transitions": ["conflicts_pending"]
+    },
+    {
+      "id": "conflicts_pending",
+      "name": "Conflicts Check Pending",
+      "lane": "engagement",
+      "order": 3,
+      "sla_hours": 24,
+      "allowed_transitions": ["conflicts_clear", "conflicts_found"]
+    },
+    {
+      "id": "conflicts_clear",
+      "name": "Conflicts Clear",
+      "lane": "engagement",
+      "order": 4,
+      "sla_hours": 48,
+      "allowed_transitions": ["engagement_sent"]
+    },
+    {
+      "id": "engagement_sent",
+      "name": "Engagement Sent",
+      "lane": "engagement",
+      "order": 5,
+      "sla_hours": 120,
+      "allowed_transitions": ["engagement_signed"]
+    },
+    {
+      "id": "engagement_signed",
+      "name": "Engagement Signed",
+      "lane": "planning",
+      "order": 6,
+      "sla_hours": 72,
+      "allowed_transitions": ["planning_meeting_scheduled"]
+    },
+    {
+      "id": "planning_meeting_scheduled",
+      "name": "Planning Meeting Scheduled",
+      "lane": "planning",
+      "order": 7,
+      "sla_hours": 168,
+      "allowed_transitions": ["planning_complete"]
+    },
+    {
+      "id": "planning_complete",
+      "name": "Planning Complete",
+      "lane": "drafting",
+      "order": 8,
+      "sla_hours": 48,
+      "allowed_transitions": ["in_drafting"]
+    },
+    {
+      "id": "in_drafting",
+      "name": "In Drafting",
+      "lane": "drafting",
+      "order": 9,
+      "sla_hours": 120,
+      "allowed_transitions": ["draft_complete", "returned_for_corrections"]
+    },
+    {
+      "id": "draft_complete",
+      "name": "Draft Complete",
+      "lane": "review",
+      "order": 10,
+      "sla_hours": 48,
+      "allowed_transitions": ["attorney_review"]
+    },
+    {
+      "id": "attorney_review",
+      "name": "Attorney Review",
+      "lane": "review",
+      "order": 11,
+      "sla_hours": 72,
+      "allowed_transitions": ["attorney_approved", "returned_for_corrections"]
+    },
+    {
+      "id": "attorney_approved",
+      "name": "Attorney Approved",
+      "lane": "review",
+      "order": 12,
+      "sla_hours": 48,
+      "allowed_transitions": ["sent_to_client"]
+    },
+    {
+      "id": "sent_to_client",
+      "name": "Sent to Client for Review",
+      "lane": "review",
+      "order": 13,
+      "sla_hours": 168,
+      "allowed_transitions": ["client_approved", "client_revisions_requested"]
+    },
+    {
+      "id": "client_revisions_requested",
+      "name": "Client Revisions Requested",
+      "lane": "drafting",
+      "order": 14,
+      "sla_hours": 72,
+      "allowed_transitions": ["in_drafting"]
+    },
+    {
+      "id": "client_approved",
+      "name": "Client Approved",
+      "lane": "execution",
+      "order": 15,
+      "sla_hours": 48,
+      "allowed_transitions": ["signing_scheduled"]
+    },
+    {
+      "id": "signing_scheduled",
+      "name": "Signing Scheduled",
+      "lane": "execution",
+      "order": 16,
+      "sla_hours": 240,
+      "allowed_transitions": ["signing_complete"]
+    },
+    {
+      "id": "signing_complete",
+      "name": "Signing Complete",
+      "lane": "finalization",
+      "order": 17,
+      "sla_hours": 48,
+      "allowed_transitions": ["final_docs_prep"]
+    },
+    {
+      "id": "final_docs_prep",
+      "name": "Final Documents in Preparation",
+      "lane": "finalization",
+      "order": 18,
+      "sla_hours": 72,
+      "allowed_transitions": ["final_docs_complete"]
+    },
+    {
+      "id": "final_docs_complete",
+      "name": "Final Documents Complete",
+      "lane": "finalization",
+      "order": 19,
+      "sla_hours": 24,
+      "allowed_transitions": ["delivered_to_client"]
+    },
+    {
+      "id": "returned_for_corrections",
+      "name": "Returned for Corrections",
+      "lane": "drafting",
+      "order": 99,
+      "sla_hours": 48,
+      "requires_defect_reason": true,
+      "allowed_transitions": ["in_drafting"]
+    },
+    {
+      "id": "delivered_to_client",
+      "name": "Delivered to Client",
+      "lane": "closed",
+      "order": 1000,
+      "is_terminal": true,
+      "allowed_transitions": []
+    },
+    {
+      "id": "declined",
+      "name": "Declined",
+      "lane": "closed",
+      "order": 1001,
+      "is_terminal": true,
+      "allowed_transitions": []
+    },
+    {
+      "id": "withdrawn",
+      "name": "Withdrawn",
+      "lane": "closed",
+      "order": 1002,
+      "is_terminal": true,
+      "allowed_transitions": []
+    }
+  ],
+
+  "required_artifacts": [
+    {
+      "artifact_type": "INTAKE_QUESTIONNAIRE",
+      "required_at_status": ["new", "intake_complete"],
+      "description": "Estate planning questionnaire"
+    },
+    {
+      "artifact_type": "ENGAGEMENT_SIGNED",
+      "required_at_status": ["engagement_signed"],
+      "description": "Signed engagement letter"
+    },
+    {
+      "artifact_type": "PAYMENT_CONFIRMATION",
+      "required_at_status": ["engagement_signed"],
+      "description": "Retainer or fee payment"
+    },
+    {
+      "artifact_type": "FINANCIAL_DOCS",
+      "required_at_status": ["planning_complete"],
+      "description": "Asset inventory and valuations"
+    },
+    {
+      "artifact_type": "DRAFT_FILING",
+      "required_at_status": ["draft_complete", "attorney_review"],
+      "description": "Draft estate planning documents"
+    },
+    {
+      "artifact_type": "FINAL_ORDERS",
+      "required_at_status": ["signing_complete", "delivered_to_client"],
+      "description": "Executed estate planning documents"
+    }
+  ],
+
+  "qc_gates": [
+    {
+      "gate_id": "planning_qc",
+      "name": "Planning Review",
+      "at_status": "planning_complete",
+      "checks": [
+        "Client goals clearly documented",
+        "Beneficiaries and alternates identified",
+        "Asset distribution plan outlined",
+        "Tax implications considered",
+        "Trust needs assessed (if applicable)"
+      ]
+    },
+    {
+      "gate_id": "draft_qc",
+      "name": "Draft Document QC",
+      "at_status": "attorney_review",
+      "checks": [
+        "All names and dates correct",
+        "Beneficiary designations match plan",
+        "Powers of attorney scope appropriate",
+        "Healthcare directive preferences clear",
+        "Trust provisions (if applicable) complete",
+        "Execution requirements met (witnesses, notary)",
+        "Attorney certification present"
+      ]
+    },
+    {
+      "gate_id": "execution_qc",
+      "name": "Execution QC",
+      "at_status": "signing_complete",
+      "checks": [
+        "All required signatures present",
+        "Witness signatures (if required)",
+        "Notarization complete",
+        "Self-proving affidavit (if applicable)",
+        "All pages initialed"
+      ]
+    }
+  ],
+
+  "automation_rules": [
+    {
+      "rule_id": "auto_create_starter_tasks",
+      "trigger": "matter_created",
+      "actions": [
+        {
+          "type": "create_task",
+          "config": {
+            "title": "Run conflicts check",
+            "priority": "high",
+            "due_offset_hours": 24
+          }
+        },
+        {
+          "type": "create_task",
+          "config": {
+            "title": "Schedule planning meeting",
+            "priority": "medium",
+            "due_offset_hours": 72
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "auto_planning_reminder",
+      "trigger": "status_changed_to",
+      "trigger_status": "planning_meeting_scheduled",
+      "actions": [
+        {
+          "type": "create_task",
+          "config": {
+            "title": "Send pre-meeting questionnaire",
+            "priority": "high",
+            "due_offset_hours": 24
+          }
+        },
+        {
+          "type": "schedule_reminders",
+          "config": {
+            "reminder_days": [2, 1],
+            "reminder_type": "meeting_reminder"
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "auto_client_review_reminder",
+      "trigger": "status_changed_to",
+      "trigger_status": "sent_to_client",
+      "actions": [
+        {
+          "type": "schedule_reminders",
+          "config": {
+            "reminder_days": [3, 7, 10],
+            "reminder_type": "client_review_followup"
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "auto_escalate_sla_breach",
+      "trigger": "sla_breach",
+      "conditions": {
+        "missing_artifacts": true
+      },
+      "actions": [
+        {
+          "type": "escalate",
+          "config": {
+            "escalate_to_role": "ops_lead",
+            "reason": "SLA breach in estate planning matter"
+          }
+        },
+        {
+          "type": "add_health_driver",
+          "config": {
+            "driver": "Planning docs aging"
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "auto_corrections_workflow",
+      "trigger": "status_changed_to",
+      "trigger_status": "returned_for_corrections",
+      "actions": [
+        {
+          "type": "require_defect_reason",
+          "config": {
+            "require_note": true
+          }
+        },
+        {
+          "type": "increment_defect_count"
+        },
+        {
+          "type": "create_task",
+          "config": {
+            "title": "Correct issues in estate plan",
+            "priority": "urgent",
+            "due_offset_hours": 24,
+            "assign_to_previous_lane_owner": true
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "auto_ai_approval_gate",
+      "trigger": "ai_run_created",
+      "conditions": {
+        "risk_level": ["medium", "high"]
+      },
+      "actions": [
+        {
+          "type": "require_approval",
+          "config": {
+            "approval_role": "estate_attorney"
+          }
+        },
+        {
+          "type": "block_external_send",
+          "config": {
+            "until_approved": true
+          }
+        }
+      ]
+    }
+  ],
+
+  "allowed_ai_actions": [
+    {
+      "action_type": "document_generation",
+      "description": "Generate will, trust, or POA documents",
+      "default_risk_level": "high",
+      "requires_approval": true
+    },
+    {
+      "action_type": "estate_tax_analysis",
+      "description": "Analyze estate tax implications",
+      "default_risk_level": "medium",
+      "requires_approval": true
+    },
+    {
+      "action_type": "asset_inventory_review",
+      "description": "Review and categorize assets",
+      "default_risk_level": "low",
+      "requires_approval": false
+    },
+    {
+      "action_type": "document_qa",
+      "description": "Quality check estate planning documents",
+      "default_risk_level": "low",
+      "requires_approval": false
+    },
+    {
+      "action_type": "client_letter_draft",
+      "description": "Draft client communication",
+      "default_risk_level": "medium",
+      "requires_approval": true
+    }
+  ],
+
+  "metadata": {
+    "created_by": "system",
+    "created_at": "2026-01-15T00:00:00Z",
+    "last_updated": "2026-01-15T00:00:00Z",
+    "schema_version": "1.0"
+  }
+}

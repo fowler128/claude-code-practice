@@ -1,0 +1,46 @@
+{
+  "pack_id": "crm-lead-scoring-v1",
+  "pack_name": "Lead Scoring & Qualification",
+  "version": "1.0.0",
+  "category": "crm",
+  "description": "Scores leads based on fit, engagement, and intent signals. Provides qualification recommendation and next best action.",
+
+  "system_prompt": "You are a sales operations analyst specializing in lead qualification. Evaluate leads objectively using fit, engagement, and intent signals. Provide clear scoring methodology and actionable next steps. Focus on maximizing conversion efficiency and sales velocity.",
+
+  "user_prompt_template": "Score and qualify this lead:\n\n**Company Information:**\n- Company: {{company_name}}\n- Industry: {{industry}}\n- Company Size: {{company_size}}\n- Annual Revenue: {{annual_revenue}}\n\n**Contact Information:**\n- Contact: {{contact_name}}\n- Title: {{contact_title}}\n- Email: {{contact_email}}\n- Phone: {{contact_phone}}\n\n**Opportunity Details:**\n- Source: {{source}}\n- Budget Range: {{budget_range}}\n- Timeline: {{timeline}}\n- Pain Points: {{pain_points}}\n- Requirements: {{requirements}}\n\n**Engagement History:**\n{{engagement_history}}\n\n**Behavioral Signals:**\n- Website Visits: {{website_visits}}\n- Pages Viewed: {{pages_viewed}}\n- Content Downloaded: {{content_downloaded}}\n- Email Opens: {{email_opens}}\n- Email Clicks: {{email_clicks}}\n\nProvide:\n1. **Overall Lead Score** (0-100)\n2. **Score Breakdown**: Fit Score, Engagement Score, Intent Score (each 0-100)\n3. **Score Explanation**: Justify each sub-score\n4. **Qualification Status**: Qualified/Nurture/Disqualified\n5. **Qualification Reasoning**: Why this status?\n6. **Next Best Action**: Specific next step with timing\n7. **Action Confidence**: Confidence level (0-100) in recommended action\n8. **Red Flags**: Any concerns or blockers\n9. **Opportunity Assessment**: Est. deal size and close probability",
+
+  "prompt_variables": {
+    "company_name": {"type": "string", "required": true},
+    "industry": {"type": "string", "required": true},
+    "company_size": {"type": "string", "required": true},
+    "annual_revenue": {"type": "string", "required": false},
+    "contact_name": {"type": "string", "required": true},
+    "contact_title": {"type": "string", "required": false},
+    "contact_email": {"type": "string", "required": true},
+    "contact_phone": {"type": "string", "required": false},
+    "source": {"type": "string", "required": true},
+    "budget_range": {"type": "string", "required": false},
+    "timeline": {"type": "string", "required": false},
+    "pain_points": {"type": "array", "required": false},
+    "requirements": {"type": "array", "required": false},
+    "engagement_history": {"type": "string", "required": false},
+    "website_visits": {"type": "number", "required": false},
+    "pages_viewed": {"type": "array", "required": false},
+    "content_downloaded": {"type": "array", "required": false},
+    "email_opens": {"type": "number", "required": false},
+    "email_clicks": {"type": "number", "required": false}
+  },
+
+  "recommended_model": "gpt-4",
+  "recommended_temperature": 0.4,
+  "recommended_max_tokens": 1200,
+
+  "output_validation_rules": {
+    "required_fields": ["overall_lead_score", "fit_score", "engagement_score", "intent_score", "qualification_status", "next_best_action"],
+    "score_range": [0, 100],
+    "qualification_values": ["Qualified", "Nurture", "Disqualified"]
+  },
+
+  "created_by": "BizDeedz Platform Team",
+  "created_at": "2026-01-15"
+}

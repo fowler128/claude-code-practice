@@ -1,0 +1,33 @@
+{
+  "name": "bizdeedz-platform-os-backend",
+  "version": "1.0.0",
+  "description": "BizDeedz Platform OS - Backend API Server (MVP+)",
+  "main": "server-integrated.js",
+  "scripts": {
+    "start": "node server-integrated.js",
+    "dev": "nodemon server-integrated.js",
+    "db:create": "psql -U postgres -c 'CREATE DATABASE bizdeedz_platform;' || echo 'Database may already exist'",
+    "db:migrate": "psql -U postgres -d bizdeedz_platform -f ../database/complete-migration.sql",
+    "db:seed": "psql -U postgres -d bizdeedz_platform -f ../database/seed-data.sql",
+    "db:setup": "npm run db:create && npm run db:migrate && npm run db:seed",
+    "templates:load": "node scripts/loadTemplates.js",
+    "setup": "npm run db:setup && npm run templates:load",
+    "test:reports": "node scripts/testReports.js"
+  },
+  "keywords": ["legal", "practice-management", "workflow", "automation"],
+  "author": "BizDeedz",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "pg": "^8.11.3",
+    "uuid": "^9.0.1",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

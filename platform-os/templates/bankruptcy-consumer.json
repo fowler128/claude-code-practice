@@ -1,0 +1,493 @@
+{
+  "template_id": "bk-consumer-v1",
+  "template_version": 1,
+  "practice_area": "BK",
+  "matter_type": "BK-CONSUMER",
+  "name": "Bankruptcy: Consumer (General)",
+  "description": "Standard consumer bankruptcy workflow with intake, document collection, filing preparation, and court submission.",
+
+  "lanes": [
+    {
+      "id": "intake",
+      "name": "Intake",
+      "order": 1,
+      "roles": ["intake_specialist", "paralegal"],
+      "description": "Initial client onboarding and information gathering"
+    },
+    {
+      "id": "engagement",
+      "name": "Engagement",
+      "order": 2,
+      "roles": ["paralegal", "attorney"],
+      "description": "Conflicts check, engagement letter, and retainer"
+    },
+    {
+      "id": "docs_collection",
+      "name": "Docs Collection",
+      "order": 3,
+      "roles": ["paralegal"],
+      "description": "Gather required financial and personal documents"
+    },
+    {
+      "id": "preparation",
+      "name": "Preparation",
+      "order": 4,
+      "roles": ["paralegal", "attorney"],
+      "description": "Prepare bankruptcy petition and schedules"
+    },
+    {
+      "id": "qc_review",
+      "name": "QC Review",
+      "order": 5,
+      "roles": ["senior_paralegal", "attorney"],
+      "description": "Quality control and attorney review"
+    },
+    {
+      "id": "filing",
+      "name": "Filing",
+      "order": 6,
+      "roles": ["paralegal", "ops_lead"],
+      "description": "File with bankruptcy court"
+    },
+    {
+      "id": "post_filing",
+      "name": "Post-Filing",
+      "order": 7,
+      "roles": ["paralegal", "attorney"],
+      "description": "341 meeting preparation and trustee communications"
+    },
+    {
+      "id": "closed",
+      "name": "Closed",
+      "order": 8,
+      "roles": ["admin"],
+      "description": "Matter completed or discharged"
+    }
+  ],
+
+  "statuses": [
+    {
+      "id": "new",
+      "name": "New - Intake Pending",
+      "lane": "intake",
+      "order": 1,
+      "is_initial": true,
+      "sla_hours": 24,
+      "allowed_transitions": ["intake_complete"]
+    },
+    {
+      "id": "intake_complete",
+      "name": "Intake Complete",
+      "lane": "engagement",
+      "order": 2,
+      "sla_hours": 48,
+      "allowed_transitions": ["conflicts_pending", "rejected"]
+    },
+    {
+      "id": "conflicts_pending",
+      "name": "Conflicts Check Pending",
+      "lane": "engagement",
+      "order": 3,
+      "sla_hours": 24,
+      "allowed_transitions": ["conflicts_clear", "conflicts_found"]
+    },
+    {
+      "id": "conflicts_clear",
+      "name": "Conflicts Clear",
+      "lane": "engagement",
+      "order": 4,
+      "sla_hours": 48,
+      "allowed_transitions": ["engagement_sent"]
+    },
+    {
+      "id": "engagement_sent",
+      "name": "Engagement Sent",
+      "lane": "engagement",
+      "order": 5,
+      "sla_hours": 120,
+      "allowed_transitions": ["engagement_signed", "engagement_expired"]
+    },
+    {
+      "id": "engagement_signed",
+      "name": "Engagement Signed",
+      "lane": "engagement",
+      "order": 6,
+      "sla_hours": 72,
+      "allowed_transitions": ["retainer_received", "docs_requested"]
+    },
+    {
+      "id": "docs_requested",
+      "name": "Docs Requested",
+      "lane": "docs_collection",
+      "order": 7,
+      "sla_hours": 168,
+      "allowed_transitions": ["docs_partial", "docs_complete"]
+    },
+    {
+      "id": "docs_partial",
+      "name": "Docs Partially Received",
+      "lane": "docs_collection",
+      "order": 8,
+      "sla_hours": 120,
+      "allowed_transitions": ["docs_complete", "docs_requested"]
+    },
+    {
+      "id": "docs_complete",
+      "name": "Docs Complete",
+      "lane": "preparation",
+      "order": 9,
+      "sla_hours": 72,
+      "allowed_transitions": ["in_preparation"]
+    },
+    {
+      "id": "in_preparation",
+      "name": "In Preparation",
+      "lane": "preparation",
+      "order": 10,
+      "sla_hours": 120,
+      "allowed_transitions": ["ready_for_qc", "returned_for_corrections"]
+    },
+    {
+      "id": "ready_for_qc",
+      "name": "Ready for QC",
+      "lane": "qc_review",
+      "order": 11,
+      "sla_hours": 48,
+      "allowed_transitions": ["in_qc_review"]
+    },
+    {
+      "id": "in_qc_review",
+      "name": "In QC Review",
+      "lane": "qc_review",
+      "order": 12,
+      "sla_hours": 72,
+      "allowed_transitions": ["qc_approved", "returned_for_corrections"]
+    },
+    {
+      "id": "qc_approved",
+      "name": "QC Approved",
+      "lane": "filing",
+      "order": 13,
+      "sla_hours": 48,
+      "allowed_transitions": ["ready_to_file"]
+    },
+    {
+      "id": "ready_to_file",
+      "name": "Ready to File",
+      "lane": "filing",
+      "order": 14,
+      "sla_hours": 24,
+      "allowed_transitions": ["filed_with_court"]
+    },
+    {
+      "id": "filed_with_court",
+      "name": "Filed with Court",
+      "lane": "post_filing",
+      "order": 15,
+      "sla_hours": 240,
+      "allowed_transitions": ["awaiting_341_meeting", "returned_by_court"]
+    },
+    {
+      "id": "awaiting_341_meeting",
+      "name": "Awaiting 341 Meeting",
+      "lane": "post_filing",
+      "order": 16,
+      "sla_hours": 720,
+      "allowed_transitions": ["341_complete", "continued_341"]
+    },
+    {
+      "id": "341_complete",
+      "name": "341 Meeting Complete",
+      "lane": "post_filing",
+      "order": 17,
+      "sla_hours": 1440,
+      "allowed_transitions": ["awaiting_discharge", "additional_docs_required"]
+    },
+    {
+      "id": "awaiting_discharge",
+      "name": "Awaiting Discharge",
+      "lane": "post_filing",
+      "order": 18,
+      "sla_hours": 1440,
+      "allowed_transitions": ["discharged", "dismissed"]
+    },
+    {
+      "id": "returned_for_corrections",
+      "name": "Returned for Corrections",
+      "lane": "preparation",
+      "order": 99,
+      "sla_hours": 48,
+      "requires_defect_reason": true,
+      "allowed_transitions": ["in_preparation"]
+    },
+    {
+      "id": "returned_by_court",
+      "name": "Returned by Court",
+      "lane": "preparation",
+      "order": 98,
+      "sla_hours": 72,
+      "requires_defect_reason": true,
+      "allowed_transitions": ["in_preparation"]
+    },
+    {
+      "id": "discharged",
+      "name": "Discharged",
+      "lane": "closed",
+      "order": 1000,
+      "is_terminal": true,
+      "allowed_transitions": []
+    },
+    {
+      "id": "dismissed",
+      "name": "Dismissed",
+      "lane": "closed",
+      "order": 1001,
+      "is_terminal": true,
+      "allowed_transitions": []
+    },
+    {
+      "id": "rejected",
+      "name": "Rejected/Declined",
+      "lane": "closed",
+      "order": 1002,
+      "is_terminal": true,
+      "allowed_transitions": []
+    }
+  ],
+
+  "required_artifacts": [
+    {
+      "artifact_type": "INTAKE_QUESTIONNAIRE",
+      "required_at_status": ["new"],
+      "description": "Client intake form with basic information"
+    },
+    {
+      "artifact_type": "ENGAGEMENT_SIGNED",
+      "required_at_status": ["engagement_signed", "docs_requested"],
+      "description": "Signed engagement letter"
+    },
+    {
+      "artifact_type": "PAYMENT_CONFIRMATION",
+      "required_at_status": ["engagement_signed", "docs_requested"],
+      "description": "Retainer payment confirmation"
+    },
+    {
+      "artifact_type": "IDENTITY_DOCS",
+      "required_at_status": ["docs_complete", "in_preparation"],
+      "description": "Driver's license, SSN card, etc."
+    },
+    {
+      "artifact_type": "FINANCIAL_DOCS",
+      "required_at_status": ["docs_complete", "in_preparation"],
+      "description": "Bank statements, pay stubs, tax returns"
+    },
+    {
+      "artifact_type": "DRAFT_FILING",
+      "required_at_status": ["ready_for_qc", "in_qc_review"],
+      "description": "Draft bankruptcy petition and schedules"
+    },
+    {
+      "artifact_type": "FINAL_FILING",
+      "required_at_status": ["ready_to_file", "filed_with_court"],
+      "description": "Final approved bankruptcy petition"
+    }
+  ],
+
+  "qc_gates": [
+    {
+      "gate_id": "engagement_qc",
+      "name": "Engagement Review",
+      "at_status": "conflicts_clear",
+      "checks": [
+        "Conflicts check completed",
+        "Client information verified",
+        "Retainer amount calculated"
+      ]
+    },
+    {
+      "gate_id": "docs_completeness",
+      "name": "Document Completeness",
+      "at_status": "docs_complete",
+      "checks": [
+        "All required artifacts received",
+        "Financial documents within date range",
+        "Identity documents legible and valid"
+      ]
+    },
+    {
+      "gate_id": "petition_qc",
+      "name": "Petition QC",
+      "at_status": "in_qc_review",
+      "checks": [
+        "All schedules completed accurately",
+        "Means test calculated correctly",
+        "Creditor matrix formatted properly",
+        "Attorney signature present",
+        "Client signature present"
+      ]
+    }
+  ],
+
+  "automation_rules": [
+    {
+      "rule_id": "auto_create_starter_tasks",
+      "trigger": "matter_created",
+      "actions": [
+        {
+          "type": "create_task",
+          "config": {
+            "title": "Run conflicts check",
+            "priority": "high",
+            "due_offset_hours": 24
+          }
+        },
+        {
+          "type": "create_task",
+          "config": {
+            "title": "Prepare engagement letter",
+            "priority": "medium",
+            "due_offset_hours": 48
+          }
+        },
+        {
+          "type": "create_task",
+          "config": {
+            "title": "Set up retainer billing",
+            "priority": "medium",
+            "due_offset_hours": 48
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "auto_docs_request",
+      "trigger": "status_changed_to",
+      "trigger_status": "docs_requested",
+      "actions": [
+        {
+          "type": "create_task",
+          "config": {
+            "title": "Send document request email",
+            "priority": "high",
+            "due_offset_hours": 4
+          }
+        },
+        {
+          "type": "schedule_reminders",
+          "config": {
+            "reminder_days": [2, 5, 10],
+            "reminder_type": "docs_followup"
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "auto_escalate_sla_breach",
+      "trigger": "sla_breach",
+      "conditions": {
+        "missing_artifacts": true
+      },
+      "actions": [
+        {
+          "type": "escalate",
+          "config": {
+            "escalate_to_role": "ops_lead",
+            "reason": "SLA breach with missing artifacts"
+          }
+        },
+        {
+          "type": "add_health_driver",
+          "config": {
+            "driver": "Docs aging beyond SLA"
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "auto_corrections_workflow",
+      "trigger": "status_changed_to",
+      "trigger_status": "returned_for_corrections",
+      "actions": [
+        {
+          "type": "require_defect_reason",
+          "config": {
+            "require_note": true
+          }
+        },
+        {
+          "type": "increment_defect_count"
+        },
+        {
+          "type": "create_task",
+          "config": {
+            "title": "Review and correct defects",
+            "priority": "urgent",
+            "due_offset_hours": 24,
+            "assign_to_previous_lane_owner": true
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "auto_ai_approval_gate",
+      "trigger": "ai_run_created",
+      "conditions": {
+        "risk_level": ["medium", "high"]
+      },
+      "actions": [
+        {
+          "type": "require_approval",
+          "config": {
+            "approval_role": "attorney"
+          }
+        },
+        {
+          "type": "block_external_send",
+          "config": {
+            "until_approved": true
+          }
+        }
+      ]
+    }
+  ],
+
+  "allowed_ai_actions": [
+    {
+      "action_type": "document_generation",
+      "description": "Generate bankruptcy petition from intake data",
+      "default_risk_level": "high",
+      "requires_approval": true
+    },
+    {
+      "action_type": "means_test_calculation",
+      "description": "Calculate means test from financial data",
+      "default_risk_level": "medium",
+      "requires_approval": true
+    },
+    {
+      "action_type": "creditor_extraction",
+      "description": "Extract creditor list from uploaded documents",
+      "default_risk_level": "low",
+      "requires_approval": false
+    },
+    {
+      "action_type": "document_qa",
+      "description": "Quality check completed petition",
+      "default_risk_level": "low",
+      "requires_approval": false
+    },
+    {
+      "action_type": "client_communication_draft",
+      "description": "Draft client email or letter",
+      "default_risk_level": "medium",
+      "requires_approval": true
+    }
+  ],
+
+  "metadata": {
+    "created_by": "system",
+    "created_at": "2026-01-15T00:00:00Z",
+    "last_updated": "2026-01-15T00:00:00Z",
+    "schema_version": "1.0"
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "pack_id": "legal-matter-health-v1",
+  "pack_name": "Legal Matter Health Analysis",
+  "version": "1.0.0",
+  "category": "legal",
+  "description": "Analyzes legal matter health and provides actionable recommendations based on status, artifacts, SLAs, and defect history.",
+
+  "system_prompt": "You are a legal operations analyst specializing in matter health assessment. Analyze matters objectively based on data provided, identify risks and opportunities, and provide clear, actionable recommendations. Focus on improving matter velocity, reducing defects, and ensuring client satisfaction.",
+
+  "user_prompt_template": "Analyze this legal matter and provide health assessment:\n\n**Matter Information:**\n- Matter Number: {{matter_number}}\n- Client: {{client_name}}\n- Practice Area: {{practice_area}}\n- Matter Type: {{matter_type}}\n\n**Current Status:**\n- Status: {{current_status}}\n- Lane: {{current_lane}}\n- Days in Status: {{days_in_status}}\n- SLA Hours: {{sla_hours}}\n- SLA Breach: {{sla_breach}}\n\n**Artifacts:**\n- Required: {{required_artifacts}}\n- Received: {{received_artifacts}}\n- Missing: {{missing_artifacts}}\n\n**Quality Metrics:**\n- Defect Count: {{defect_count}}\n- Return Count: {{return_count}}\n- Escalation Count: {{escalation_count}}\n\n**Recent Activity:**\n{{last_activity}}\n\n**Task Summary:**\n- Pending Tasks: {{pending_tasks}}\n- Overdue Tasks: {{overdue_tasks}}\n\nProvide:\n1. **Health Score** (0-100) with calculation breakdown\n2. **Risk Tier** (Low/Medium/High) with justification\n3. **Top 3 Risk Factors** threatening matter health\n4. **Top 3 Recommended Actions** to improve health and advance matter\n5. **Urgency Level** (Low/Medium/High/Critical) for action\n6. **Next Milestone** to target",
+
+  "prompt_variables": {
+    "matter_number": {"type": "string", "required": true, "description": "Unique matter identifier"},
+    "client_name": {"type": "string", "required": true, "description": "Client name"},
+    "practice_area": {"type": "string", "required": true, "description": "Legal practice area"},
+    "matter_type": {"type": "string", "required": true, "description": "Specific matter type"},
+    "current_status": {"type": "string", "required": true, "description": "Current workflow status"},
+    "current_lane": {"type": "string", "required": true, "description": "Current workflow lane"},
+    "days_in_status": {"type": "number", "required": true, "description": "Days matter has been in current status"},
+    "sla_hours": {"type": "number", "required": true, "description": "SLA threshold for current status (hours)"},
+    "sla_breach": {"type": "boolean", "required": true, "description": "Whether SLA has been breached"},
+    "required_artifacts": {"type": "array", "required": true, "description": "List of required artifact types"},
+    "received_artifacts": {"type": "array", "required": true, "description": "List of received artifact types"},
+    "missing_artifacts": {"type": "array", "required": true, "description": "List of missing artifact types"},
+    "defect_count": {"type": "number", "required": true, "description": "Number of times returned for corrections"},
+    "return_count": {"type": "number", "required": true, "description": "Number of returns"},
+    "escalation_count": {"type": "number", "required": true, "description": "Number of escalations"},
+    "last_activity": {"type": "string", "required": false, "description": "Description of most recent activity"},
+    "pending_tasks": {"type": "number", "required": true, "description": "Count of pending tasks"},
+    "overdue_tasks": {"type": "number", "required": true, "description": "Count of overdue tasks"}
+  },
+
+  "example_inputs": [
+    {
+      "matter_number": "BK-26-0015",
+      "client_name": "John Doe",
+      "practice_area": "Bankruptcy",
+      "matter_type": "Consumer Chapter 7",
+      "current_status": "docs_requested",
+      "current_lane": "docs_collection",
+      "days_in_status": 15,
+      "sla_hours": 168,
+      "sla_breach": false,
+      "required_artifacts": ["FINANCIAL_DOCS", "IDENTITY_DOCS", "PAYMENT_CONFIRMATION"],
+      "received_artifacts": ["IDENTITY_DOCS"],
+      "missing_artifacts": ["FINANCIAL_DOCS", "PAYMENT_CONFIRMATION"],
+      "defect_count": 0,
+      "return_count": 0,
+      "escalation_count": 0,
+      "last_activity": "Sent document request reminder on Day 10",
+      "pending_tasks": 2,
+      "overdue_tasks": 0
+    }
+  ],
+
+  "example_outputs": [
+    {
+      "health_score": 70,
+      "health_score_breakdown": {
+        "base_score": 100,
+        "deductions": [
+          {"reason": "Missing 2 required artifacts", "points": -20},
+          {"reason": "15 days in docs collection (approaching SLA)", "points": -10}
+        ]
+      },
+      "risk_tier": "Medium",
+      "risk_tier_justification": "Matter is aging in docs collection with 2 critical artifacts outstanding. While not yet in SLA breach, continued delay increases risk of timeline compression later.",
+      "top_risk_factors": [
+        "Missing financial documents may delay petition preparation by 2-3 weeks",
+        "Missing payment confirmation prevents engagement finalization",
+        "Aging in docs_requested increases likelihood of client disengagement"
+      ],
+      "top_recommended_actions": [
+        "Escalate to ops lead for direct client outreach (phone call vs email)",
+        "Offer document collection assistance (guided upload session)",
+        "Consider partial processing with available docs while awaiting remainder"
+      ],
+      "urgency_level": "Medium",
+      "next_milestone": "All artifacts received → Move to Preparation"
+    }
+  ],
+
+  "recommended_model": "gpt-4",
+  "recommended_temperature": 0.3,
+  "recommended_max_tokens": 1000,
+
+  "output_validation_rules": {
+    "required_fields": ["health_score", "risk_tier", "top_risk_factors", "top_recommended_actions"],
+    "health_score_range": [0, 100],
+    "risk_tier_values": ["Low", "Medium", "High"],
+    "min_risk_factors": 3,
+    "min_recommended_actions": 3
+  },
+
+  "usage_notes": [
+    "Best used on matters that have been open >7 days",
+    "Run weekly for all active matters to track trends",
+    "Compare scores over time to measure improvement",
+    "Prioritize action on matters with declining scores"
+  ],
+
+  "created_by": "BizDeedz Platform Team",
+  "created_at": "2026-01-15",
+  "last_updated": "2026-02-05"
+}
