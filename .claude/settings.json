@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(scripts/*.bat)",
+      "Bash(powershell -File scripts/*.ps1)",
+      "Bash(cmd /c scripts/*.bat)",
+      "Read(*)",
+      "Write(output/**)",
+      "Write(.claude/**)",
+      "Write(docs/**)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git reset --hard *)"
+    ]
+  },
+  "hooks": {
+    "notification": {
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"param([string]$Title,[string]$Message) Add-Type -AssemblyName System.Windows.Forms; $ni = New-Object System.Windows.Forms.NotifyIcon; $ni.Icon = [System.Drawing.SystemIcons]::Information; $ni.BalloonTipTitle = $Title; $ni.BalloonTipText = $Message; $ni.Visible = $true; $ni.ShowBalloonTip(8000); Start-Sleep -Seconds 9; $ni.Dispose()\"",
+      "events": [
+        "needs_input",
+        "run_completed",
+        "run_failed"
+      ]
+    }
+  },
+  "env": {
+    "BIZDEEDZ_LOG_DIR": "output/logs"
+  }
+}
