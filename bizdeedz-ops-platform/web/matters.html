@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matters - BizDeedz Ops Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* View toggle */
+        .view-toggle {
+            display: flex;
+            background: var(--gray-100);
+            border-radius: var(--radius-md);
+            padding: 2px;
+        }
+
+        .view-toggle-btn {
+            padding: var(--space-2) var(--space-3);
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            transition: var(--transition-fast);
+        }
+
+        .view-toggle-btn.active {
+            background: white;
+            color: var(--gray-900);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Filter bar */
+        .filter-bar {
+            display: flex;
+            gap: var(--space-3);
+            margin-bottom: var(--space-4);
+            flex-wrap: wrap;
+        }
+
+        .filter-bar .form-select,
+        .filter-bar .form-input {
+            width: auto;
+            min-width: 150px;
+        }
+
+        /* Kanban specific */
+        .kanban-wrapper {
+            overflow-x: auto;
+            padding-bottom: var(--space-4);
+        }
+
+        .kanban-board {
+            min-width: max-content;
+        }
+
+        .kanban-column {
+            width: 300px;
+        }
+
+        /* Deadline badge */
+        .deadline-badge {
+            font-size: 0.625rem;
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+        }
+
+        .deadline-badge.overdue {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .deadline-badge.soon {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .deadline-badge.ok {
+            background: var(--gray-100);
+            color: var(--gray-600);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="24" height="24" rx="6" fill="#2563eb"/>
+                        <path d="M7 8h10M7 12h10M7 16h6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    BizDeedz Ops
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a href="dashboard.html" class="nav-link">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7" rx="1"/>
+                            <rect x="14" y="3" width="7" height="7" rx="1"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1"/>
+                            <rect x="14" y="14" width="7" height="7" rx="1"/>
+                        </svg>
+                        Dashboard
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Work</div>
+                    <a href="matters.html" class="nav-link active">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                        Matters
+                        <span class="nav-badge">12</span>
+                    </a>
+                    <a href="firms.html" class="nav-link">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                            <polyline points="9,22 9,12 15,12 15,22"/>
+                        </svg>
+                        Firms
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Billing</div>
+                    <a href="billing.html" class="nav-link">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="1" y="4" width="22" height="16" rx="2"/>
+                            <line x1="1" y1="10" x2="23" y2="10"/>
+                        </svg>
+                        Invoices & AR
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports</div>
+                    <a href="#" class="nav-link">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="20" x2="18" y2="10"/>
+                            <line x1="12" y1="20" x2="12" y2="4"/>
+                            <line x1="6" y1="20" x2="6" y2="14"/>
+                        </svg>
+                        Metrics
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <h1 class="page-title">Matters</h1>
+                <div class="page-actions">
+                    <div class="view-toggle">
+                        <button class="view-toggle-btn active" onclick="setView('kanban')" id="view-kanban">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="5" height="18" rx="1"/>
+                                <rect x="10" y="3" width="5" height="12" rx="1"/>
+                                <rect x="17" y="3" width="5" height="8" rx="1"/>
+                            </svg>
+                            Board
+                        </button>
+                        <button class="view-toggle-btn" onclick="setView('table')" id="view-table">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="3" y1="6" x2="21" y2="6"/>
+                                <line x1="3" y1="12" x2="21" y2="12"/>
+                                <line x1="3" y1="18" x2="21" y2="18"/>
+                            </svg>
+                            Table
+                        </button>
+                    </div>
+                    <button class="btn btn-primary" onclick="showNewMatterModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        New Matter
+                    </button>
+                </div>
+            </header>
+
+            <div class="page-body">
+                <!-- Filter Bar -->
+                <div class="filter-bar">
+                    <select class="form-select" id="filter-firm">
+                        <option value="">All Firms</option>
+                        <option value="11111111-1111-1111-1111-111111111111">Johnson & Associates</option>
+                        <option value="22222222-2222-2222-2222-222222222222">Smith Legal Group</option>
+                        <option value="33333333-3333-3333-3333-333333333333">Davis Bankruptcy Law</option>
+                    </select>
+                    <select class="form-select" id="filter-type">
+                        <option value="">All Types</option>
+                        <option value="ch7">Chapter 7</option>
+                        <option value="ch13">Chapter 13</option>
+                        <option value="amendment">Amendment</option>
+                    </select>
+                    <select class="form-select" id="filter-rush">
+                        <option value="">All Priority</option>
+                        <option value="rush">Rush Only</option>
+                        <option value="standard">Standard Only</option>
+                    </select>
+                    <select class="form-select" id="filter-assigned">
+                        <option value="">All Assigned</option>
+                        <option value="Turea">Turea</option>
+                        <option value="Staff">Staff</option>
+                    </select>
+                    <input type="text" class="form-input" placeholder="Search matters..." id="search-matters" style="min-width: 200px;">
+                </div>
+
+                <!-- Kanban View -->
+                <div id="kanban-view" class="kanban-wrapper">
+                    <div class="kanban-board">
+                        <!-- Assigned Column -->
+                        <div class="kanban-column assigned">
+                            <div class="kanban-column-header">
+                                <span>Assigned</span>
+                                <span class="kanban-column-count">2</span>
+                            </div>
+                            <div class="kanban-cards">
+                                <div class="kanban-card" onclick="openMatterDetail('m1')">
+                                    <div class="kanban-card-title">Harris, Thomas – Ch 7</div>
+                                    <div class="kanban-card-meta">
+                                        <span>Johnson & Associates</span>
+                                        <span>•</span>
+                                        <span>N.D. Texas</span>
+                                    </div>
+                                    <div class="kanban-card-tags">
+                                        <span class="kanban-tag ch7">Ch 7</span>
+                                        <span class="deadline-badge ok">Due Feb 25</span>
+                                    </div>
+                                </div>
+                                <div class="kanban-card" onclick="openMatterDetail('m2')">
+                                    <div class="kanban-card-title">White, Emily – Ch 13</div>
+                                    <div class="kanban-card-meta">
+                                        <span>Smith Legal</span>
+                                        <span>•</span>
+                                        <span>S.D. Texas</span>
+                                    </div>
+                                    <div class="kanban-card-tags">
+                                        <span class="kanban-tag ch13">Ch 13</span>
+                                        <span class="kanban-tag rush">Rush</span>
+                                        <span class="deadline-badge soon">Due Feb 8</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Waiting Inputs Column -->
+                        <div class="kanban-column waiting-inputs">
+                            <div class="kanban-column-header">
+                                <span>Waiting Inputs</span>
+                                <span class="kanban-column-count">3</span>
+                            </div>
+                            <div class="kanban-cards">
+                                <div class="kanban-card" onclick="openMatterDetail('aaaa3333')">
+                                    <div class="kanban-card-title">Clark, David – Ch 7</div>
+                                    <div class="kanban-card-meta">
+                                        <span>Smith Legal</span>
+                                        <span>•</span>
+                                        <span>5 days waiting</span>
+                                    </div>
+                                    <div class="kanban-card-tags">
+                                        <span class="kanban-tag ch7">Ch 7</span>
+                                        <span class="deadline-badge overdue">Due Feb 18</span>
+                                    </div>
+                                </div>
+                                <div class="kanban-card" onclick="openMatterDetail('m4')">
+                                    <div class="kanban-card-title">Garcia, Maria – Ch 13</div>
+                                    <div class="kanban-card-meta">
+                                        <span>Johnson & Associates</span>
+                                        <span>•</span>
+                                        <span>2 days waiting</span>
+                                    </div>
+                                    <div class="kanban-card-tags">
+                                        <span class="kanban-tag ch13">Ch 13</span>
+                                    </div>
+                                </div>
+                                <div class="kanban-card" onclick="openMatterDetail('m5')">
+                                    <div class="kanban-card-title">Lee, Robert – Ch 7</div>
+                                    <div class="kanban-card-meta">
+                                        <span>Davis Bankruptcy</span>
+                                        <span>•</span>
+                                        <span>1 day waiting</span>
+                                    </div>
+                                    <div class="kanban-card-tags">
+                                        <span class="kanban-tag ch7">Ch 7</span>
+                                        <span class="kanban-tag rush">Rush</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Conflicts Review Column -->
+                        <div class="kanban-column conflicts-review">
+                            <div class="kanban-column-header">
+                                <span>Conflicts Review</span>
+                                <span class="kanban-column-count">1</span>
+                            </div>
+                            <div class="kanban-cards">
+                                <div class="kanban-card" onclick="openMatterDetail('m6')">
+                                    <div class="kanban-card-title">Wilson, James – Ch 7</div>
+                                    <div class="kanban-card-meta">
+                                        <span>Johnson & Associates</span>
+                                        <span>•</span>
+                                        <span class="text-warning">Potential Match</span>
+                                    </div>
+                                    <div class="kanban-card-tags">
+                                        <span class="kanban-tag ch7">Ch 7</span>
+                                        <span class="status-badge potential">Potential</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- In Progress Column -->
+                        <div class="kanban-column in-progress">
+                            <div class="kanban-column-header">
+                                <span>In Progress</span>
+                                <span class="kanban-column-count">3</span>
+                            </div>
+                            <div class="kanban-cards">
+                                <div class="kanban-card" onclick="openMatterDetail('aaaa1111')">
+                                    <div class="kanban-card-title">Adams, Michael – Ch 7</div>
+                                    <div class="kanban-card-meta">
+                                        <span>Johnson & Associates</span>
+                                        <span>•</span>
+                                        <span>Assigned: Turea</span>
+                                    </div>
+                                    <div class="kanban-card-tags">
+                                        <span class="kanban-tag ch7">Ch 7</span>
+                                        <span class="deadline-badge ok">Due Feb 15</span>
+                                    </div>
+                                </div>
+                                <div class="kanban-card" onclick="openMatterDetail('m8')">
+                                    <div class="kanban-card-title">Brown, Angela – Ch 13</div>
+                                    <div class="kanban-card-meta">
+                                        <span>Smith Legal</span>
+                                        <span>•</span>
+                                        <span>Assigned: Staff</span>
+                                    </div>
+                                    <div class="kanban-card-tags">
+                                        <span class="kanban-tag ch13">Ch 13</span>
+                                    </div>
+                                </div>
+                                <div class="kanban-card" onclick="openMatterDetail('m9')">
+                                    <div class="kanban-card-title">Taylor, Susan – Amendment</div>
+                                    <div class="kanban-card-meta">
+                                        <span>Johnson & Associates</span>
+                                        <span>•</span>
+                                        <span>Assigned: Turea</span>
+                                    </div>
+                                    <div class="kanban-card-tags">
+                                        <span class="kanban-tag amendment">Amendment</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- QC Column -->
+                        <div class="kanban-column qc">
+                            <div class="kanban-column-header">
+                                <span>QC</span>
+                                <span class="kanban-column-count">2</span>
+                            </div>
+                            <div class="kanban-cards">
+                                <div class="kanban-card" onclick="openMatterDetail('aaaa2222')">
+                                    <div class="kanban-card-title">Baker, Jennifer – Ch 13</div>
+                                    <div class="kanban-card-meta">
+                                        <span>Johnson & Associates</span>
+                                        <span>•</span>
+                                        <span>Ready for QC</span>
+                                    </div>
+                                    <div class="kanban-card-tags">
+                                        <span class="kanban-tag ch13">Ch 13</span>
+                                        <span class="kanban-tag rush">Rush</span>
+                                    </div>
+                                </div>
+                                <div class="kanban-card" onclick="openMatterDetail('m11')">
+                                    <div class="kanban-card-title">Thompson, Lisa – Amendment</div>
+                                    <div class="kanban-card-meta">
+                                        <span>Smith Legal</span>
+                                        <span>•</span>
+                                        <span>Ready for QC</span>
+                                    </div>
+                                    <div class="kanban-card-tags">
+                                        <span class="kanban-tag amendment">Amendment</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Revision Column -->
+                        <div class="kanban-column revision">
+                            <div class="kanban-column-header">
+                                <span>Revision</span>
+                                <span class="kanban-column-count">1</span>
+                            </div>
+                            <div class="kanban-cards">
+                                <div class="kanban-card" onclick="openMatterDetail('m12')">
+                                    <div class="kanban-card-title">Martinez, Carlos – Ch 7</div>
+                                    <div class="kanban-card-meta">
+                                        <span>Smith Legal</span>
+                                        <span>•</span>
+                                        <span>Round 2</span>
+                                    </div>
+                                    <div class="kanban-card-tags">
+                                        <span class="kanban-tag ch7">Ch 7</span>
+                                        <span class="status-badge revision">Rev 2</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paused AR Column -->
+                        <div class="kanban-column paused-ar">
+                            <div class="kanban-column-header">
+                                <span>Paused – AR</span>
+                                <span class="kanban-column-count">1</span>
+                            </div>
+                            <div class="kanban-cards">
+                                <div class="kanban-card" onclick="openMatterDetail('aaaa5555')">
+                                    <div class="kanban-card-title">Foster, William – Ch 7</div>
+                                    <div class="kanban-card-meta">
+                                        <span>Davis Bankruptcy</span>
+                                        <span>•</span>
+                                        <span class="text-danger">Invoice 8+ days</span>
+                                    </div>
+                                    <div class="kanban-card-tags">
+                                        <span class="kanban-tag ch7">Ch 7</span>
+                                        <span class="status-badge paused-ar">Paused</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table View -->
+                <div id="table-view" style="display: none;">
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Matter</th>
+                                    <th>Firm</th>
+                                    <th>Type</th>
+                                    <th>Stage</th>
+                                    <th>Inputs</th>
+                                    <th>Conflicts</th>
+                                    <th>Deadline</th>
+                                    <th>Assigned</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="matters-table-body">
+                                <tr onclick="openMatterDetail('aaaa1111')" style="cursor: pointer;">
+                                    <td>
+                                        <strong>Adams, Michael – Ch 7</strong>
+                                        <div class="text-sm text-muted">N.D. Texas</div>
+                                    </td>
+                                    <td>Johnson & Associates</td>
+                                    <td><span class="kanban-tag ch7">Ch 7</span></td>
+                                    <td><span class="status-badge in-progress">In Progress</span></td>
+                                    <td><span class="status-badge clear">Complete</span></td>
+                                    <td><span class="status-badge clear">Clear</span></td>
+                                    <td>Feb 15, 2026</td>
+                                    <td>Turea</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();">View</button>
+                                    </td>
+                                </tr>
+                                <tr onclick="openMatterDetail('aaaa2222')" style="cursor: pointer;">
+                                    <td>
+                                        <strong>Baker, Jennifer – Ch 13</strong>
+                                        <div class="text-sm text-muted">N.D. Texas</div>
+                                    </td>
+                                    <td>Johnson & Associates</td>
+                                    <td>
+                                        <span class="kanban-tag ch13">Ch 13</span>
+                                        <span class="kanban-tag rush">Rush</span>
+                                    </td>
+                                    <td><span class="status-badge qc">QC</span></td>
+                                    <td><span class="status-badge clear">Complete</span></td>
+                                    <td><span class="status-badge clear">Clear</span></td>
+                                    <td>Feb 20, 2026</td>
+                                    <td>Turea</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();">View</button>
+                                    </td>
+                                </tr>
+                                <tr onclick="openMatterDetail('aaaa3333')" style="cursor: pointer;">
+                                    <td>
+                                        <strong>Clark, David – Ch 7</strong>
+                                        <div class="text-sm text-muted">S.D. Texas</div>
+                                    </td>
+                                    <td>Smith Legal Group</td>
+                                    <td><span class="kanban-tag ch7">Ch 7</span></td>
+                                    <td><span class="status-badge waiting-inputs">Waiting Inputs</span></td>
+                                    <td><span class="status-badge warning">Incomplete</span></td>
+                                    <td><span class="status-badge not-run">Not Run</span></td>
+                                    <td class="text-danger">Feb 18, 2026</td>
+                                    <td>Staff</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();">View</button>
+                                    </td>
+                                </tr>
+                                <tr onclick="openMatterDetail('aaaa4444')" style="cursor: pointer;">
+                                    <td>
+                                        <strong>Evans, Susan – Amendment</strong>
+                                        <div class="text-sm text-muted">S.D. Texas</div>
+                                    </td>
+                                    <td>Smith Legal Group</td>
+                                    <td><span class="kanban-tag amendment">Amendment</span></td>
+                                    <td><span class="status-badge delivered">Delivered</span></td>
+                                    <td><span class="status-badge clear">Complete</span></td>
+                                    <td><span class="status-badge clear">Clear</span></td>
+                                    <td>Feb 10, 2026</td>
+                                    <td>Turea</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();">View</button>
+                                    </td>
+                                </tr>
+                                <tr onclick="openMatterDetail('aaaa5555')" style="cursor: pointer;">
+                                    <td>
+                                        <strong>Foster, William – Ch 7</strong>
+                                        <div class="text-sm text-muted">E.D. Texas</div>
+                                    </td>
+                                    <td class="text-danger">Davis Bankruptcy Law</td>
+                                    <td><span class="kanban-tag ch7">Ch 7</span></td>
+                                    <td><span class="status-badge paused-ar">Paused – AR</span></td>
+                                    <td><span class="status-badge clear">Complete</span></td>
+                                    <td><span class="status-badge clear">Clear</span></td>
+                                    <td>Feb 25, 2026</td>
+                                    <td>Staff</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();">View</button>
+                                    </td>
+                                </tr>
+                                <tr onclick="openMatterDetail('m6')" style="cursor: pointer;">
+                                    <td>
+                                        <strong>Wilson, James – Ch 7</strong>
+                                        <div class="text-sm text-muted">N.D. Texas</div>
+                                    </td>
+                                    <td>Johnson & Associates</td>
+                                    <td><span class="kanban-tag ch7">Ch 7</span></td>
+                                    <td><span class="status-badge conflicts-review">Conflicts Review</span></td>
+                                    <td><span class="status-badge clear">Complete</span></td>
+                                    <td><span class="status-badge potential">Potential</span></td>
+                                    <td>Feb 22, 2026</td>
+                                    <td>Turea</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- New Matter Modal -->
+    <div class="modal-overlay" id="new-matter-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Matter</h3>
+                <button class="modal-close" onclick="closeModal('new-matter-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="new-matter-form">
+                    <div class="form-group">
+                        <label class="form-label">Firm *</label>
+                        <select class="form-select" id="matter-firm" required>
+                            <option value="">Select firm...</option>
+                            <option value="11111111-1111-1111-1111-111111111111">Johnson & Associates</option>
+                            <option value="22222222-2222-2222-2222-222222222222">Smith Legal Group</option>
+                            <option value="33333333-3333-3333-3333-333333333333">Davis Bankruptcy Law</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Matter Name *</label>
+                        <input type="text" class="form-input" id="matter-name" placeholder="e.g., Smith, John – Ch 7" required>
+                        <div class="form-help">Format: Last, First – Case Type</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Case Type *</label>
+                        <select class="form-select" id="matter-case-type" required>
+                            <option value="">Select type...</option>
+                            <option value="ch7">Chapter 7</option>
+                            <option value="ch13">Chapter 13</option>
+                            <option value="amendment">Amendment/Modification</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">District</label>
+                        <input type="text" class="form-input" id="matter-district" placeholder="e.g., N.D. Texas">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Deadline</label>
+                        <input type="date" class="form-input" id="matter-deadline">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Debtor Name *</label>
+                        <input type="text" class="form-input" id="debtor-name" placeholder="Full legal name" required>
+                        <div class="form-help">For conflicts checking</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Spouse Name (if applicable)</label>
+                        <input type="text" class="form-input" id="spouse-name" placeholder="Full legal name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-checkbox">
+                            <input type="checkbox" id="matter-rush">
+                            <span>Rush (24-48 hour turnaround)</span>
+                        </label>
+                        <div class="form-help">Rush fee of $150 will be applied</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('new-matter-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="createMatter()">Create Matter</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =============================================================================
+        // VIEW MANAGEMENT
+        // =============================================================================
+
+        function setView(view) {
+            const kanbanView = document.getElementById('kanban-view');
+            const tableView = document.getElementById('table-view');
+            const kanbanBtn = document.getElementById('view-kanban');
+            const tableBtn = document.getElementById('view-table');
+
+            if (view === 'kanban') {
+                kanbanView.style.display = 'block';
+                tableView.style.display = 'none';
+                kanbanBtn.classList.add('active');
+                tableBtn.classList.remove('active');
+            } else {
+                kanbanView.style.display = 'none';
+                tableView.style.display = 'block';
+                kanbanBtn.classList.remove('active');
+                tableBtn.classList.add('active');
+            }
+
+            localStorage.setItem('mattersView', view);
+        }
+
+        // =============================================================================
+        // MATTER MANAGEMENT
+        // =============================================================================
+
+        function showNewMatterModal() {
+            document.getElementById('new-matter-modal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function createMatter() {
+            const form = document.getElementById('new-matter-form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const matterData = {
+                firm_id: document.getElementById('matter-firm').value,
+                matter_name: document.getElementById('matter-name').value,
+                case_type: document.getElementById('matter-case-type').value,
+                district: document.getElementById('matter-district').value,
+                deadline: document.getElementById('matter-deadline').value,
+                debtor_name: document.getElementById('debtor-name').value,
+                spouse_name: document.getElementById('spouse-name').value,
+                rush: document.getElementById('matter-rush').checked
+            };
+
+            console.log('Creating matter:', matterData);
+            // In production:
+            // 1. Create matter in Supabase
+            // 2. Create input checklist from templates
+            // 3. Create entity records for debtor/spouse
+            // 4. Run conflicts check automatically
+
+            alert('Matter created! Input checklist has been generated and conflicts check is running.');
+            closeModal('new-matter-modal');
+            form.reset();
+        }
+
+        function openMatterDetail(matterId) {
+            console.log('Opening matter:', matterId);
+            window.location.href = `matter-detail.html?id=${matterId}`;
+        }
+
+        // =============================================================================
+        // FILTERING
+        // =============================================================================
+
+        function applyFilters() {
+            const firm = document.getElementById('filter-firm').value;
+            const type = document.getElementById('filter-type').value;
+            const rush = document.getElementById('filter-rush').value;
+            const assigned = document.getElementById('filter-assigned').value;
+            const search = document.getElementById('search-matters').value.toLowerCase();
+
+            console.log('Applying filters:', { firm, type, rush, assigned, search });
+            // In production: Filter both Kanban cards and table rows
+        }
+
+        // Add filter event listeners
+        ['filter-firm', 'filter-type', 'filter-rush', 'filter-assigned'].forEach(id => {
+            document.getElementById(id).addEventListener('change', applyFilters);
+        });
+        document.getElementById('search-matters').addEventListener('input', applyFilters);
+
+        // =============================================================================
+        // DRAG AND DROP (Kanban)
+        // =============================================================================
+
+        // In production: Implement drag-and-drop with validation rules
+        // - Cannot move to In Progress unless inputs complete AND conflicts cleared
+        // - Cannot move to Delivered unless QC complete
+        // - Moving to Revision increments revision_rounds
+
+        // =============================================================================
+        // INITIALIZATION
+        // =============================================================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Restore saved view preference
+            const savedView = localStorage.getItem('mattersView') || 'kanban';
+            setView(savedView);
+        });
+
+        // Close modal on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

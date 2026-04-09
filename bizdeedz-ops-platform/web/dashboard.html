@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - BizDeedz Ops Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="24" height="24" rx="6" fill="#2563eb"/>
+                        <path d="M7 8h10M7 12h10M7 16h6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    BizDeedz Ops
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a href="dashboard.html" class="nav-link active">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7" rx="1"/>
+                            <rect x="14" y="3" width="7" height="7" rx="1"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1"/>
+                            <rect x="14" y="14" width="7" height="7" rx="1"/>
+                        </svg>
+                        Dashboard
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Work</div>
+                    <a href="matters.html" class="nav-link">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                        Matters
+                        <span class="nav-badge" id="nav-active-matters">12</span>
+                    </a>
+                    <a href="firms.html" class="nav-link">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                            <polyline points="9,22 9,12 15,12 15,22"/>
+                        </svg>
+                        Firms
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Billing</div>
+                    <a href="billing.html" class="nav-link">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="1" y="4" width="22" height="16" rx="2"/>
+                            <line x1="1" y1="10" x2="23" y2="10"/>
+                        </svg>
+                        Invoices & AR
+                        <span class="nav-badge" id="nav-overdue">2</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports</div>
+                    <a href="#" class="nav-link">
+                        <svg class="nav-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="20" x2="18" y2="10"/>
+                            <line x1="12" y1="20" x2="12" y2="4"/>
+                            <line x1="6" y1="20" x2="6" y2="14"/>
+                        </svg>
+                        Metrics
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <h1 class="page-title">Dashboard</h1>
+                <div class="page-actions">
+                    <button class="btn btn-secondary" onclick="refreshDashboard()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 4v6h-6M1 20v-6h6"/>
+                            <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                        </svg>
+                        Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="showNewMatterModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        New Matter
+                    </button>
+                </div>
+            </header>
+
+            <div class="page-body">
+                <!-- Alerts Section -->
+                <div id="alerts-container">
+                    <div class="alert alert-warning" id="ar-alert" style="display: none;">
+                        <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                        <div class="alert-content">
+                            <div class="alert-title">AR Alert: Overdue Invoices</div>
+                            <span id="ar-alert-text">2 invoices are overdue. 1 firm may need to be paused.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Delivered This Week</div>
+                        <div class="kpi-value" id="kpi-delivered-week">8</div>
+                        <div class="kpi-change positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                            </svg>
+                            +3 from last week
+                        </div>
+                    </div>
+                    <div class="kpi-card success">
+                        <div class="kpi-label">SLA Hit Rate</div>
+                        <div class="kpi-value percent" id="kpi-sla">92</div>
+                        <div class="kpi-change positive">Target: 85%</div>
+                    </div>
+                    <div class="kpi-card warning">
+                        <div class="kpi-label">AR Outstanding</div>
+                        <div class="kpi-value money" id="kpi-ar">4,250</div>
+                        <div class="kpi-change negative">2 invoices overdue</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Unbilled WIP</div>
+                        <div class="kpi-value money" id="kpi-wip">1,850</div>
+                        <div class="kpi-change">Friday invoice run</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Active Rush</div>
+                        <div class="kpi-value" id="kpi-rush">2</div>
+                        <div class="kpi-change">24-48hr deadline</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Avg Revisions</div>
+                        <div class="kpi-value" id="kpi-revisions">1.2</div>
+                        <div class="kpi-change positive">Target: ≤1.5</div>
+                    </div>
+                </div>
+
+                <!-- Queue Cards -->
+                <h3 class="mb-4">Work Queues</h3>
+                <div class="queue-grid">
+                    <!-- Waiting Inputs Queue -->
+                    <div class="queue-card">
+                        <div class="queue-header">
+                            <div class="queue-title">
+                                <span class="queue-dot waiting-inputs"></span>
+                                Waiting Inputs
+                            </div>
+                            <div class="queue-count" id="queue-waiting-count">3</div>
+                        </div>
+                        <div class="queue-list" id="queue-waiting-list">
+                            <div class="queue-item" onclick="openMatter('aaaa3333')">
+                                <div>
+                                    <div class="queue-item-name">Clark, David – Ch 7</div>
+                                    <div class="queue-item-meta">Smith Legal • 5 days</div>
+                                </div>
+                                <span class="queue-item-badge overdue">5 days</span>
+                            </div>
+                            <div class="queue-item" onclick="openMatter('matter2')">
+                                <div>
+                                    <div class="queue-item-name">Garcia, Maria – Ch 13</div>
+                                    <div class="queue-item-meta">Johnson & Associates • 2 days</div>
+                                </div>
+                            </div>
+                            <div class="queue-item" onclick="openMatter('matter3')">
+                                <div>
+                                    <div class="queue-item-name">Lee, Robert – Ch 7</div>
+                                    <div class="queue-item-meta">Davis Bankruptcy • 1 day</div>
+                                </div>
+                                <span class="queue-item-badge rush">Rush</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Conflicts Review Queue -->
+                    <div class="queue-card">
+                        <div class="queue-header">
+                            <div class="queue-title">
+                                <span class="queue-dot conflicts"></span>
+                                Conflicts Review
+                            </div>
+                            <div class="queue-count" id="queue-conflicts-count">1</div>
+                        </div>
+                        <div class="queue-list" id="queue-conflicts-list">
+                            <div class="queue-item" onclick="openMatter('conflict1')">
+                                <div>
+                                    <div class="queue-item-name">Wilson, James – Ch 7</div>
+                                    <div class="queue-item-meta">Potential match found</div>
+                                </div>
+                                <span class="status-badge potential">Potential</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- QC Ready Queue -->
+                    <div class="queue-card">
+                        <div class="queue-header">
+                            <div class="queue-title">
+                                <span class="queue-dot qc"></span>
+                                QC Ready
+                            </div>
+                            <div class="queue-count" id="queue-qc-count">2</div>
+                        </div>
+                        <div class="queue-list" id="queue-qc-list">
+                            <div class="queue-item" onclick="openMatter('aaaa2222')">
+                                <div>
+                                    <div class="queue-item-name">Baker, Jennifer – Ch 13</div>
+                                    <div class="queue-item-meta">Johnson & Associates</div>
+                                </div>
+                                <span class="queue-item-badge rush">Rush</span>
+                            </div>
+                            <div class="queue-item" onclick="openMatter('qc2')">
+                                <div>
+                                    <div class="queue-item-name">Thompson, Lisa – Amendment</div>
+                                    <div class="queue-item-meta">Smith Legal</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paused AR Queue -->
+                    <div class="queue-card">
+                        <div class="queue-header">
+                            <div class="queue-title">
+                                <span class="queue-dot paused"></span>
+                                Paused – AR
+                            </div>
+                            <div class="queue-count" id="queue-paused-count">1</div>
+                        </div>
+                        <div class="queue-list" id="queue-paused-list">
+                            <div class="queue-item" onclick="openMatter('aaaa5555')">
+                                <div>
+                                    <div class="queue-item-name">Foster, William – Ch 7</div>
+                                    <div class="queue-item-meta">Davis Bankruptcy • Invoice 8+ days</div>
+                                </div>
+                                <span class="status-badge paused-ar">Paused</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Deliveries Table -->
+                <div class="data-table-container">
+                    <div class="data-table-header">
+                        <h3 class="data-table-title">Recent Deliveries</h3>
+                        <div class="data-table-actions">
+                            <button class="btn btn-sm btn-secondary">View All</button>
+                        </div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Matter</th>
+                                <th>Firm</th>
+                                <th>Type</th>
+                                <th>Delivered</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-deliveries">
+                            <tr>
+                                <td><a href="#">Evans, Susan – Amendment</a></td>
+                                <td>Smith Legal Group</td>
+                                <td><span class="kanban-tag amendment">Amendment</span></td>
+                                <td>Feb 3, 2026</td>
+                                <td><span class="status-badge delivered">Delivered</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary">View</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><a href="#">Martinez, Carlos – Ch 7</a></td>
+                                <td>Johnson & Associates</td>
+                                <td><span class="kanban-tag ch7">Ch 7</span></td>
+                                <td>Feb 2, 2026</td>
+                                <td><span class="status-badge complete">Complete</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary">View</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><a href="#">Brown, Angela – Ch 13</a></td>
+                                <td>Smith Legal Group</td>
+                                <td><span class="kanban-tag ch13">Ch 13</span></td>
+                                <td>Feb 1, 2026</td>
+                                <td><span class="status-badge revision">Revision</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary">View</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- AR Aging Summary -->
+                <div class="data-table-container">
+                    <div class="data-table-header">
+                        <h3 class="data-table-title">AR Aging</h3>
+                        <div class="data-table-actions">
+                            <button class="btn btn-sm btn-primary" onclick="runFridayInvoices()">Run Friday Invoices</button>
+                        </div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Firm</th>
+                                <th>Invoice #</th>
+                                <th>Amount</th>
+                                <th>Days Outstanding</th>
+                                <th>Aging Bucket</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ar-aging-table">
+                            <tr>
+                                <td>Davis Bankruptcy Law</td>
+                                <td>INV-2026-001</td>
+                                <td class="font-mono">$650.00</td>
+                                <td>8</td>
+                                <td><span class="status-badge overdue">8+ Days</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger">Pause Firm</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Smith Legal Group</td>
+                                <td>INV-2026-003</td>
+                                <td class="font-mono">$550.00</td>
+                                <td>5</td>
+                                <td><span class="status-badge partial">4-7 Days</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary">Send Reminder</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- New Matter Modal -->
+    <div class="modal-overlay" id="new-matter-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Matter</h3>
+                <button class="modal-close" onclick="closeModal('new-matter-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="new-matter-form">
+                    <div class="form-group">
+                        <label class="form-label">Firm *</label>
+                        <select class="form-select" id="matter-firm" required>
+                            <option value="">Select firm...</option>
+                            <option value="11111111-1111-1111-1111-111111111111">Johnson & Associates</option>
+                            <option value="22222222-2222-2222-2222-222222222222">Smith Legal Group</option>
+                            <option value="33333333-3333-3333-3333-333333333333">Davis Bankruptcy Law</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Matter Name *</label>
+                        <input type="text" class="form-input" id="matter-name" placeholder="e.g., Smith, John – Ch 7" required>
+                        <div class="form-help">Format: Last, First – Case Type</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Case Type *</label>
+                        <select class="form-select" id="matter-case-type" required>
+                            <option value="">Select type...</option>
+                            <option value="ch7">Chapter 7</option>
+                            <option value="ch13">Chapter 13</option>
+                            <option value="amendment">Amendment/Modification</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">District</label>
+                        <input type="text" class="form-input" id="matter-district" placeholder="e.g., N.D. Texas">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Deadline</label>
+                        <input type="date" class="form-input" id="matter-deadline">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-checkbox">
+                            <input type="checkbox" id="matter-rush">
+                            <span>Rush (24-48 hour turnaround)</span>
+                        </label>
+                        <div class="form-help">Rush fee of $150 will be applied</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('new-matter-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="createMatter()">Create Matter</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =============================================================================
+        // SAMPLE DATA (In production, this comes from Supabase via Retool queries)
+        // =============================================================================
+
+        const sampleKPIs = {
+            deliveredThisWeek: 8,
+            slaHitRate: 92,
+            arOutstanding: 4250,
+            unbilledWip: 1850,
+            activeRush: 2,
+            avgRevisions: 1.2
+        };
+
+        const sampleQueueCounts = {
+            assigned: 2,
+            waitingInputs: 3,
+            conflictsReview: 1,
+            inProgress: 5,
+            qc: 2,
+            revision: 1,
+            pausedAr: 1
+        };
+
+        // =============================================================================
+        // DASHBOARD FUNCTIONS
+        // =============================================================================
+
+        function refreshDashboard() {
+            console.log('Refreshing dashboard data...');
+            // In production: Retool query refresh
+            // For demo: show loading state briefly
+            document.querySelectorAll('.kpi-value').forEach(el => {
+                el.style.opacity = '0.5';
+            });
+            setTimeout(() => {
+                document.querySelectorAll('.kpi-value').forEach(el => {
+                    el.style.opacity = '1';
+                });
+            }, 500);
+        }
+
+        function updateKPIs(data) {
+            document.getElementById('kpi-delivered-week').textContent = data.deliveredThisWeek;
+            document.getElementById('kpi-sla').textContent = data.slaHitRate;
+            document.getElementById('kpi-ar').textContent = data.arOutstanding.toLocaleString();
+            document.getElementById('kpi-wip').textContent = data.unbilledWip.toLocaleString();
+            document.getElementById('kpi-rush').textContent = data.activeRush;
+            document.getElementById('kpi-revisions').textContent = data.avgRevisions;
+        }
+
+        function updateNavBadges() {
+            const totalActive = Object.values(sampleQueueCounts).reduce((a, b) => a + b, 0);
+            document.getElementById('nav-active-matters').textContent = totalActive;
+        }
+
+        // =============================================================================
+        // MODAL FUNCTIONS
+        // =============================================================================
+
+        function showNewMatterModal() {
+            document.getElementById('new-matter-modal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function createMatter() {
+            const form = document.getElementById('new-matter-form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const matterData = {
+                firm_id: document.getElementById('matter-firm').value,
+                matter_name: document.getElementById('matter-name').value,
+                case_type: document.getElementById('matter-case-type').value,
+                district: document.getElementById('matter-district').value,
+                deadline: document.getElementById('matter-deadline').value,
+                rush: document.getElementById('matter-rush').checked
+            };
+
+            console.log('Creating matter:', matterData);
+            // In production: Retool mutation to Supabase
+
+            // Show success and close modal
+            alert('Matter created successfully! Input checklist has been generated.');
+            closeModal('new-matter-modal');
+            form.reset();
+        }
+
+        // =============================================================================
+        // NAVIGATION FUNCTIONS
+        // =============================================================================
+
+        function openMatter(matterId) {
+            console.log('Opening matter:', matterId);
+            // In production: window.location.href = `matter-detail.html?id=${matterId}`;
+            alert(`Opening matter: ${matterId}`);
+        }
+
+        function runFridayInvoices() {
+            if (confirm('Generate invoices for all unbilled work this week?')) {
+                console.log('Running Friday invoice generation...');
+                // In production: Trigger Make.com scenario or Retool workflow
+                alert('Invoice generation started. Check the Invoices page for drafts.');
+            }
+        }
+
+        // =============================================================================
+        // ALERTS
+        // =============================================================================
+
+        function checkAlerts() {
+            // Show AR alert if there are overdue invoices
+            const arAlert = document.getElementById('ar-alert');
+            if (sampleQueueCounts.pausedAr > 0) {
+                arAlert.style.display = 'flex';
+            }
+        }
+
+        // =============================================================================
+        // INITIALIZATION
+        // =============================================================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateKPIs(sampleKPIs);
+            updateNavBadges();
+            checkAlerts();
+        });
+
+        // Close modal on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
