@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(scripts/*.bat)",
+      "Bash(powershell -File scripts/*.ps1)",
+      "Bash(cmd /c scripts/*.bat)",
+      "Read(*)",
+      "Write(output/**)",
+      "Write(.claude/**)",
+      "Write(docs/**)",
+      "Write(scripts/**)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git reset --hard *)"
+    ]
+  },
+  "hooks": {
+    "notification": {
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/claude_notify.ps1",
+      "events": [
+        "needs_input",
+        "run_completed",
+        "run_failed"
+      ]
+    }
+  },
+  "env": {
+    "BIZDEEDZ_LOG_DIR": "output/logs"
+  }
+}
