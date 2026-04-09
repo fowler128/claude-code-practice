@@ -7,7 +7,8 @@
       "Read(*)",
       "Write(output/**)",
       "Write(.claude/**)",
-      "Write(docs/**)"
+      "Write(docs/**)",
+      "Write(scripts/**)"
     ],
     "deny": [
       "Bash(rm -rf *)",
@@ -16,7 +17,7 @@
   },
   "hooks": {
     "notification": {
-      "command": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"param([string]$Title,[string]$Message) Add-Type -AssemblyName System.Windows.Forms; $ni = New-Object System.Windows.Forms.NotifyIcon; $ni.Icon = [System.Drawing.SystemIcons]::Information; $ni.BalloonTipTitle = $Title; $ni.BalloonTipText = $Message; $ni.Visible = $true; $ni.ShowBalloonTip(8000); Start-Sleep -Seconds 9; $ni.Dispose()\"",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/claude_notify.ps1",
       "events": [
         "needs_input",
         "run_completed",

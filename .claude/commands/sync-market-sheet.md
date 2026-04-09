@@ -1,20 +1,21 @@
 # Sync Market Sheet
 
-Run only the Google Sheets sync path and verify expected artifacts.
+Run only the Google Sheets sync setup/sync pathway without rerunning the full live content pipeline.
 
 ## Steps
-1. Run:
-   - `cmd /c scripts\\setup_google_sheets_sync.bat` (optional if first-time setup is needed)
-   - `cmd /c scripts\\run_pipeline_live_to_google_sheets.bat`
-2. Validate expected outputs exist (when applicable):
+1. Ensure log folder exists:
+   - `powershell -NoProfile -Command "New-Item -ItemType Directory -Force output/logs | Out-Null"`
+2. Run sync-only script:
+   - `cmd /c scripts\\setup_google_sheets_sync.bat`
+3. Validate expected sync outputs still exist:
    - `output/`
    - `output/logs/`
-   - any CSV files documented by the repo runbook or sync docs
-3. Return:
+   - latest sync artifacts referenced by `docs/google-sheets-sync-setup.md` (if present)
+4. Return:
    - pass/fail
-   - missing files (if any)
-   - next action to recover
+   - missing artifacts (if any)
+   - next action
 
 ## Notes
-- Do not run full setup unless credentials are missing or invalid.
-- Keep operator feedback concise.
+- This command is intentionally sync-only.
+- Do not trigger `run_pipeline_live.bat` from this command.
