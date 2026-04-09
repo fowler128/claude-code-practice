@@ -1,0 +1,39 @@
+{
+  "_comment": "Model routing configuration. Update model names here to switch providers without touching workflows.",
+  "models": {
+    "cheap_classifier": {
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "temperature": 0,
+      "max_tokens": 256,
+      "_note": "Used for high-volume classification. Prioritize cost over capability."
+    },
+    "mid_enricher": {
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5-20251001",
+      "temperature": 0.2,
+      "max_tokens": 512,
+      "_note": "Scaffold only. Not active in V1. Used for enrichment when score >= 4 and confidence != high.",
+      "active": false
+    },
+    "premium_digest": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-6",
+      "temperature": 0.4,
+      "max_tokens": 2048,
+      "_note": "Used once per day for digest synthesis only. Never used for classification."
+    }
+  },
+  "routing": {
+    "min_score_to_keep": 4,
+    "rule_score_threshold": 3,
+    "classifier_excerpt_limit": 900,
+    "enricher_excerpt_limit": 1400,
+    "batch_digest": true,
+    "_notes": {
+      "min_score_to_keep": "Only items with AI score 4 or 5 are stored in Google Sheets",
+      "rule_score_threshold": "Items must pass rule scoring >= 3 before being sent to any AI model",
+      "batch_digest": "Send all daily high-value items in a single digest synthesis call, not individually"
+    }
+  }
+}

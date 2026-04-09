@@ -1,0 +1,253 @@
+{
+  "name": "BizDeedz — Daily Digest",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 7 * * *"
+            }
+          ]
+        },
+        "timezone": "America/Chicago"
+      },
+      "id": "node_cron_digest",
+      "name": "Cron — 7:30 AM Central",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300],
+      "notes": "Runs 30 minutes after collector (7:00 AM) to ensure signals are collected first. Increased from 20 min to provide buffer for slow Apify runs."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build today's date range for filtering Google Sheets rows\nconst now = new Date();\nconst todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();\nconst todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toISOString();\n\nconst dateStr = now.toLocaleDateString('en-US', {\n  year: 'numeric', month: 'long', day: 'numeric',\n  timeZone: 'America/Chicago'\n});\n\nreturn [{ json: { todayStart, todayEnd, dateStr, run_at: now.toISOString() } }];"
+      },
+      "id": "node_build_date_filter",
+      "name": "Build Today's Date Filter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [400, 300],
+      "notes": "Computes today's date range for filtering rows from Google Sheets."
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $env.GOOGLE_SHEETS_SPREADSHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "High_Value_Signals",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": []
+        },
+        "options": {
+          "returnAllMatches": true
+        }
+      },
+      "id": "node_read_sheets",
+      "name": "Google Sheets — Read Today's Signals",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [650, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Sheets"
+        }
+      },
+      "notes": "Reads all rows from High_Value_Signals. Filtered to today's captures in the next step."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filter to today's signals only\nconst items = $input.all();\nconst todayStart = $('Build Today\\'s Date Filter').first().json.todayStart;\nconst todayEnd = $('Build Today\\'s Date Filter').first().json.todayEnd;\n\nconst todaySignals = items.filter(item => {\n  const capturedAt = item.json.captured_at || '';\n  return capturedAt >= todayStart && capturedAt < todayEnd;\n});\n\n// Sort by score desc so digest model sees strongest signals first\nconst sorted = todaySignals.sort((a, b) => (b.json.score || 0) - (a.json.score || 0));\n\nreturn [{ json: {\n  signals: sorted.map(i => i.json),\n  count: sorted.length,\n  dateStr: $('Build Today\\'s Date Filter').first().json.dateStr\n} }];"
+      },
+      "id": "node_filter_today",
+      "name": "Filter Today's Signals",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300],
+      "notes": "Filters rows to today only. Sorts by score descending so digest model sees best signals first."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.count }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node_if_signals_exist",
+      "name": "IF — Signals Exist Today",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1100, 300],
+      "notes": "True branch: signals found, proceed to digest synthesis. False branch: no signals, send fallback email."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build compact batch input for the premium digest synthesis call.\n// Each signal line includes score so the model can prioritize.\n\nconst data = $input.first().json;\nconst signals = data.signals || [];\n\nconst lines = signals.map((s, i) => {\n  const num = i + 1;\n  return [\n    `[${num}] LANE: ${s.lane || 'Unknown'} | SCORE: ${s.score || 0} | TYPE: ${s.signal_type || 'Unknown'} | CLUSTER: ${s.keyword_cluster || ''}`,\n    `SOURCE: ${s.source || 'Unknown'} (${s.source_type || ''})`,\n    `TITLE: ${s.title || '(no title)'}`,\n    `URL: ${s.url || ''}`,\n    `KEYWORDS: ${s.matched_keywords || ''}`,\n    '',\n  ].join('\\n');\n});\n\nreturn [{\n  json: {\n    digest_input: lines.join('\\n'),\n    signal_count: signals.length,\n    dateStr: data.dateStr,\n  }\n}];"
+      },
+      "id": "node_build_digest_input",
+      "name": "Build Digest Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1350, 200],
+      "notes": "Formats signals as compact batch input. Includes score field so digest model can prioritize. Signals already sorted score-desc from previous step."
+    },
+    {
+      "parameters": {
+        "model": "={{ $env.DIGEST_MODEL || 'claude-sonnet-4-6' }}",
+        "options": {
+          "temperature": 0.4,
+          "maxTokens": 2048
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "user",
+              "content": "=You are a senior market intelligence analyst serving two brands:\n\n- BizDeedz: a legal operations and workflow automation consultancy for law firms (especially small firms and bankruptcy practices). Consulting offer: operational assessment, workflow redesign, AI adoption, intake repair, knowledge management.\n- Turea Simpson: a thought leader and consultant for legal ops professionals. Audience: paralegals moving into ops, current legal ops managers and directors, Black women in leadership, people navigating career growth in legal operations.\n\nSynthesize today's high-value signals into an executive digest. Be direct and specific. No vague summaries. No filler.\n\nDate: {{ $json.dateStr }}\nTotal signals: {{ $json.signal_count }}\n\nTODAY'S SIGNALS (sorted by score, highest first):\n{{ $json.digest_input }}\n\n---\n\nGenerate the digest using this exact structure:\n\n## Top 5 BizDeedz Signals\n\nFor each: who is struggling, what they are struggling with, and what consulting offer this validates.\n\n1. **[Signal theme]** — [Who is struggling and what the specific problem is]. [What BizDeedz offer this validates: intake repair / workflow redesign / AI adoption / knowledge management / bankruptcy ops.]\n2-5. ...\n\n## Top 5 Turea Simpson Signals\n\nFor each: who is speaking, what they are experiencing, and what Turea content angle this opens.\n\n1. **[Signal theme]** — [Who is speaking and what they are experiencing]. [Turea content angle: leadership capacity / career elevation / women in leadership / change management / legal ops strategy.]\n2-5. ...\n\n## 3 Recurring Patterns Today\n\n1. **[Pattern name]** — [What is repeating and why it matters right now]\n2-3. ...\n\n## 3 Content Ideas\n\nEach must include the specific audience, the core tension, and the opening line of the post.\n\n1. **[Post title]** (Brand: BizDeedz/Turea/Both | Format: LinkedIn/newsletter/short-form)\n   Audience: [specific person this speaks to]\n   Tension: [the core truth or frustration this captures]\n   Opening line: \"[Write the actual first line of the post]\"\n2-3. ...\n\n## 2 Consulting or Opportunity Signals\n\n1. **[Signal]** — [Why this looks like an opportunity]. Suggested action: [DM / write response post / reach out to publication / pitch a talk]\n2. ...\n\n## Recommended Post Angle for Today\n\n**Brand**: BizDeedz / Turea Simpson\n**Platform**: LinkedIn / Newsletter\n**Opening line**: \"[Write the actual first line of the post]\"\n**Why now**: [One sentence on why this angle is timely based on today's signals]\n\n---\n\nRules:\n- Never restate a signal verbatim — interpret and synthesize\n- Be specific about who is struggling (firm admin / solo attorney / legal ops director / paralegal)\n- Content ideas must include an actual opening line, not just a topic\n- Score 5 signals appear first in each section\n- If fewer than 5 signals exist for a brand, only list what is available\n- Plain markdown only"
+            }
+          ]
+        }
+      },
+      "id": "node_premium_digest",
+      "name": "Premium Digest (Claude Sonnet)",
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [1600, 200],
+      "credentials": {
+        "anthropicApi": {
+          "name": "Anthropic"
+        }
+      },
+      "notes": "Single batch digest synthesis call using the premium model. Called ONCE per day, not per signal. Prompt matches prompts/summarize_daily_digest.md: includes who-is-struggling, consulting offer validation, and required post opening lines."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse and format digest for email\nconst digestData = $input.first().json;\nconst dateStr = $('Build Digest Input').first().json.dateStr;\nconst signalCount = $('Build Digest Input').first().json.signal_count;\n\nconst digestText = digestData.content?.[0]?.text || digestData.text || digestData.message?.content || 'Digest generation failed.';\n\n// Simple HTML wrapper\nconst htmlBody = `\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <style>\n    body { font-family: Georgia, serif; max-width: 680px; margin: 0 auto; padding: 24px; color: #1a1a1a; }\n    h1 { font-size: 22px; border-bottom: 2px solid #333; padding-bottom: 8px; }\n    h2 { font-size: 16px; color: #444; margin-top: 28px; }\n    p { line-height: 1.6; }\n    .meta { font-size: 13px; color: #888; margin-bottom: 24px; }\n    .footer { font-size: 12px; color: #aaa; border-top: 1px solid #eee; padding-top: 12px; margin-top: 32px; }\n  </style>\n</head>\n<body>\n  <h1>BizDeedz Signal Engine — Daily Digest</h1>\n  <p class=\"meta\">Date: ${dateStr} &nbsp;|&nbsp; High-Value Signals Today: ${signalCount}</p>\n  <div>${digestText.replace(/\\n/g, '<br>').replace(/## (.+)/g, '<h2>$1</h2>').replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>')}</div>\n  <div class=\"footer\">Generated by BizDeedz Signal Engine &nbsp;|&nbsp; Powered by n8n + AI</div>\n</body>\n</html>`;\n\nreturn [{ json: {\n  subject: `BizDeedz Signal Digest — ${dateStr}`,\n  htmlBody,\n  plainText: digestText,\n  dateStr,\n  signalCount,\n} }];"
+      },
+      "id": "node_format_email",
+      "name": "Format Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1850, 200],
+      "notes": "Formats the digest into HTML email body."
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.GMAIL_USER }}",
+        "toEmail": "={{ $env.EMAIL_PRIMARY }},{{ $env.EMAIL_SECONDARY }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "html",
+        "message": "={{ $json.htmlBody }}",
+        "options": {}
+      },
+      "id": "node_send_email",
+      "name": "Send Email (Gmail)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [2100, 200],
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail"
+        }
+      },
+      "notes": "Sends digest to EMAIL_PRIMARY and EMAIL_SECONDARY."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build no-signals email when collector found nothing today\nconst dateStr = $('Build Today\\'s Date Filter').first().json.dateStr;\nreturn [{ json: {\n  subject: `BizDeedz Signal Digest — ${dateStr} (No Signals Today)`,\n  htmlBody: `<html><body><p>No high-value signals were collected today (${dateStr}).</p><p>The collector ran but found no items meeting the quality threshold. This is normal on low-activity days.</p></body></html>`,\n  plainText: `No high-value signals collected today (${dateStr}).`,\n} }];"
+      },
+      "id": "node_no_signals_email",
+      "name": "No Signals — Fallback Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1350, 450],
+      "notes": "Sends a brief fallback email if no signals were collected today. Prevents silent failures."
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.GMAIL_USER }}",
+        "toEmail": "={{ $env.EMAIL_PRIMARY }},{{ $env.EMAIL_SECONDARY }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "html",
+        "message": "={{ $json.htmlBody }}",
+        "options": {}
+      },
+      "id": "node_send_no_signals_email",
+      "name": "Send No-Signals Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1600, 450],
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail"
+        }
+      },
+      "notes": "Sends fallback email when no signals were collected."
+    }
+  ],
+  "connections": {
+    "Cron — 7:30 AM Central": {
+      "main": [[{ "node": "Build Today's Date Filter", "type": "main", "index": 0 }]]
+    },
+    "Build Today's Date Filter": {
+      "main": [[{ "node": "Google Sheets — Read Today's Signals", "type": "main", "index": 0 }]]
+    },
+    "Google Sheets — Read Today's Signals": {
+      "main": [[{ "node": "Filter Today's Signals", "type": "main", "index": 0 }]]
+    },
+    "Filter Today's Signals": {
+      "main": [[{ "node": "IF — Signals Exist Today", "type": "main", "index": 0 }]]
+    },
+    "IF — Signals Exist Today": {
+      "main": [
+        [{ "node": "Build Digest Input", "type": "main", "index": 0 }],
+        [{ "node": "No Signals — Fallback Email", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Digest Input": {
+      "main": [[{ "node": "Premium Digest (Claude Sonnet)", "type": "main", "index": 0 }]]
+    },
+    "Premium Digest (Claude Sonnet)": {
+      "main": [[{ "node": "Format Email", "type": "main", "index": 0 }]]
+    },
+    "Format Email": {
+      "main": [[{ "node": "Send Email (Gmail)", "type": "main", "index": 0 }]]
+    },
+    "No Signals — Fallback Email": {
+      "main": [[{ "node": "Send No-Signals Email", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "meta": {
+    "description": "Reads today's high-value signals from Google Sheets (sorted by score), synthesizes into a digest using the premium model (one batch call), and sends the digest email at 7:30 AM Central. Prompt requires who-is-struggling, consulting offer validation, and post opening lines.",
+    "version": "1.1.0",
+    "brand": "BizDeedz Signal Engine MVP"
+  }
+}

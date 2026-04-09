@@ -1,0 +1,394 @@
+{
+  "name": "BizDeedz — Daily Collector",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * *"
+            }
+          ]
+        },
+        "timezone": "America/Chicago"
+      },
+      "id": "node_cron_collector",
+      "name": "Cron — 7:00 AM Central",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300],
+      "notes": "Triggers daily at 7:00 AM America/Chicago. Adjust cron here if schedule changes."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Load configuration files\n// In production, these are read from the config/ directory mounted into n8n.\n// For n8n Cloud, store configs as workflow variables or load via HTTP Request from storage.\n\nconst sources = {\n  reddit_subreddits: ['legaltech', 'lawyers', 'LawFirm', 'smallbusiness', 'Entrepreneur'],\n  rss_feeds_node: 'load_from_rss_feeds_config'\n};\n\nreturn [{ json: { sources, run_date: new Date().toISOString() } }];"
+      },
+      "id": "node_load_config",
+      "name": "Load Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [400, 300],
+      "notes": "Loads source config. In production, replace with HTTP Request node reading config/sources.json from your storage."
+    },
+    {
+      "parameters": {
+        "authentication": "headerAuth",
+        "url": "https://api.apify.com/v2/acts/trudax~reddit-scraper-lite/run-sync-get-dataset-items",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "token",
+              "value": "={{ $env.APIFY_API_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "startUrls",
+              "value": "={{ $json.sources.reddit_subreddits.map(sub => ({ url: `https://www.reddit.com/r/${sub}/new/?limit=25` })) }}"
+            },
+            {
+              "name": "maxItems",
+              "value": 125
+            },
+            {
+              "name": "proxy",
+              "value": { "useApifyProxy": true }
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "node_reddit_source",
+      "name": "Reddit — Apify Scraper",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 200],
+      "notes": "Pulls posts from the 5 active V1 subreddits via Apify Reddit Scraper Lite actor. Requires APIFY_API_TOKEN env var."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalize Reddit items to standard signal shape\nconst items = $input.all();\nconst normalized = [];\n\nfor (const item of items) {\n  const post = item.json;\n  normalized.push({\n    source: post.communityName || post.subreddit || 'reddit',\n    source_type: 'reddit',\n    title: post.title || '',\n    body: post.text || post.selftext || post.body || '',\n    url: post.url || post.link || '',\n    author: post.authorName || post.author || '',\n    published_at: post.createdAt || post.created_utc || '',\n    upvotes: post.upVotes || post.score || 0,\n    comment_count: post.commentsCount || post.num_comments || 0,\n  });\n}\n\nreturn normalized.map(item => ({ json: item }));"
+      },
+      "id": "node_normalize_reddit",
+      "name": "Normalize Reddit Items",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 350],
+      "notes": "Maps Apify Reddit output to the standard signal schema before merge."
+    },
+    {
+      "parameters": {
+        "feedUrl": "={{ $env.RSS_FEED_URLS || 'https://www.artificiallawyer.com/feed/,https://www.lawsitesblog.com/feed,https://legaltechtrends.com/feed/,https://lawdroid.com/feed/,https://legalevolution.org/feed/' }}",
+        "options": {
+          "includeItemContent": true
+        }
+      },
+      "id": "node_rss_source",
+      "name": "RSS — Feed Reader",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [650, 500],
+      "notes": "Reads all active RSS feeds. Feed URLs are comma-separated. Edit RSS_FEED_URLS env var or replace with config-driven HTTP Request nodes."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalize RSS items to standard signal shape\nconst items = $input.all();\nconst normalized = [];\n\nfor (const item of items) {\n  const feed = item.json;\n  normalized.push({\n    source: feed.creator || feed.feedUrl || 'rss',\n    source_type: 'rss',\n    title: feed.title || '',\n    body: feed.contentSnippet || feed.content || feed.summary || '',\n    url: feed.link || feed.guid || '',\n    author: feed.creator || feed.author || '',\n    published_at: feed.isoDate || feed.pubDate || '',\n    upvotes: 0,\n    comment_count: 0,\n  });\n}\n\nreturn normalized.map(item => ({ json: item }));"
+      },
+      "id": "node_normalize_rss",
+      "name": "Normalize RSS Items",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 650],
+      "notes": "Maps RSS feed output to the standard signal schema before merge."
+    },
+    {
+      "parameters": {
+        "mode": "append"
+      },
+      "id": "node_merge",
+      "name": "Merge All Sources",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [900, 400],
+      "notes": "Combines Reddit and RSS normalized items into a single stream."
+    },
+    {
+      "parameters": {
+        "jsCode": "// normalizeContent.js logic inlined\n// Strips HTML, lowercases, builds ai_excerpt (title + first 800 chars body)\n\nfunction stripHtml(text) {\n  if (!text) return '';\n  return text.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\\s+/g, ' ').trim();\n}\n\nconst items = $input.all();\nconst normalized = [];\n\nfor (const item of items) {\n  const raw = item.json;\n  const cleanTitle = stripHtml(raw.title || '').trim();\n  const cleanBody = stripHtml(raw.body || '').trim();\n  const normalized_text = `${cleanTitle} ${cleanBody}`.toLowerCase();\n  const ai_excerpt = `${cleanTitle}\\n\\n${cleanBody.slice(0, 800)}`.trim();\n\n  normalized.push({\n    ...raw,\n    title: cleanTitle,\n    normalized_text,\n    ai_excerpt,\n  });\n}\n\nreturn normalized.map(item => ({ json: item }));"
+      },
+      "id": "node_normalize_content",
+      "name": "Normalize Content",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 400],
+      "notes": "Cleans HTML, lowercases, and builds normalized_text + ai_excerpt. Based on scripts/normalizeContent.js."
+    },
+    {
+      "parameters": {
+        "jsCode": "// dedupeHash.js logic inlined\n// SHA256(title + url). Check against known hashes loaded from Google Sheets.\n\nconst crypto = require('crypto');\n\nconst items = $input.all();\nconst withHashes = [];\n\nfor (const item of items) {\n  const raw = item.json;\n  const t = (raw.title || '').toLowerCase().trim().replace(/\\s+/g, ' ');\n  const u = (raw.url || '').toLowerCase().trim().replace(/\\/+$/, '');\n  const dedupe_hash = crypto.createHash('sha256').update(`${t}::${u}`, 'utf8').digest('hex');\n  withHashes.push({ ...raw, dedupe_hash });\n}\n\n// NOTE: In production, load existing hashes from Google Sheets High_Value_Signals\n// and filter them here before returning. For MVP, we return all with hashes.\n// Add a Google Sheets Read node before this step and pass existing hashes via $vars.\nreturn withHashes.map(item => ({ json: item }));"
+      },
+      "id": "node_dedupe",
+      "name": "Dedupe Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, 400],
+      "notes": "Generates SHA256 dedupe hash per item. In production, connect to Google Sheets Read node above this to filter already-processed hashes."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Keyword Match + Rule Score\n// Inline implementation of keywordMatcher.js + ruleScore.js\n// IMPORTANT: Keep keyword lists in sync with config/keywords.json\n// Thresholds: min_rule_score=4, min_content_length=80 chars\n\n// ── Keyword clusters (from config/keywords.json) ─────────────────────────────\nconst CLUSTERS = {\n  // BizDeedz clusters\n  knowledge_management: [\n    'shared drive chaos','legal templates scattered',\"can't find the precedent\",\n    'work product scattered','no one knows where the files are',\n    'reinventing the wheel every case','redoing work we already did',\n    'duplicate work law firm','no standard template',\n    'knowledge walks out the door','when attorneys leave they take everything'\n  ],\n  adoption: [\n    'nobody uses the system',\"lawyers won't use it\",'attorneys ignore the software',\n    \"attorneys won't follow the process\",'each attorney does it differently',\n    'no one follows the same process','staff keeps reverting to old way',\n    'law firm software not adopted','practice management software not used',\n    'clio not being used','mycase problems','legal software rollout failed',\n    'ai rollout problems','legal ai implementation','ai resistance law firm'\n  ],\n  intake_handoff: [\n    'client intake broken','intake is a disaster','intake keeps failing',\n    'we rebuilt our intake','case handoff problems','case setup errors',\n    'case fell through the cracks','client called and nobody called back',\n    'missed the follow-up','new client slipping through','law firm backlog',\n    'cases sitting untouched','paralegal overwhelmed with intake','file went cold',\n    'we had to reopen the file','legal workflow bottleneck',\n    'rework because of intake error','billing errors from bad intake'\n  ],\n  bankruptcy_operations: [\n    'bankruptcy workflow','chapter 13 process','chapter 7 process','bankruptcy intake',\n    'bankruptcy case management','chapter 13 backlog','bankruptcy backlog',\n    'trustee requirements','341 meeting prep','means test calculation',\n    'bankruptcy software','bankruptcy document preparation','bankruptcy paralegal',\n    'petition preparation','schedules and statements','creditor matrix',\n    'bankruptcy filing errors','chapter 13 plan problems'\n  ],\n  law_firm_operations: [\n    'law firm operations consulting','law firm process improvement',\n    'law firm systems are broken','law firm running inefficiently',\n    'small law firm struggling','solo practitioner overwhelmed','managing a law firm',\n    'legal billing errors','trust accounting problems','missed deadlines law firm',\n    'statute of limitations risk','paralegal quit','legal assistant overwhelmed',\n    'legal assistant keeps making errors','admin is the bottleneck',\n    'attorney is the bottleneck','we keep recreating the wheel'\n  ],\n  // Turea clusters\n  leadership_capacity: [\n    'leadership burnout','legal ops burnout','director level burnout','decision fatigue',\n    'overwhelmed in leadership','management burnout','executive burnout',\n    'doing everyone else job','no one on my team can make decisions',\n    'my team keeps escalating everything','no bandwidth left',\n    'leadership boundaries at work'\n  ],\n  legal_ops_leadership: [\n    'director of legal operations','legal ops director','legal operations manager',\n    'legal ops leadership','legal ops transformation','building a legal ops function',\n    'legal ops from scratch','legal ops strategy','cloc conference',\n    'corporate legal operations','legal ops best practices','legal ops team',\n    'in-house legal operations','law department efficiency'\n  ],\n  career_elevation: [\n    'paralegal to legal ops','legal ops career path','legal ops career','legal ops job',\n    'director of legal operations salary','legal ops manager job',\n    'breaking into legal ops','getting promoted in legal','legal ops certification',\n    'stuck as a paralegal','want to move into legal ops','leaving law firm for corporate',\n    'transition from law firm to in-house','career pivot into operations',\n    'got promoted now what','imposter syndrome director','overlooked for promotion at work'\n  ],\n  women_in_leadership: [\n    'black women in leadership','women of color in leadership','women leaders burnout',\n    'executive presence women','being the only woman in the room',\n    'being the only black woman in the room','women overlooked for promotion',\n    'code switching at work','navigating corporate as a black woman',\n    'invisible contributions at work','not taken seriously at work'\n  ],\n  change_management: [\n    'leadership keeps changing direction','ai resistance at work','operationalizing ai',\n    'team resists new process','nobody follows the new system','change management in legal',\n    'rolling out new process','getting buy-in from leadership',\n    'process change nobody adopts','new software rollout failed','legal transformation stuck'\n  ]\n};\n\nconst BIZ_CLUSTERS = new Set(['knowledge_management','adoption','intake_handoff','bankruptcy_operations','law_firm_operations']);\nconst TUREA_CLUSTERS = new Set(['leadership_capacity','legal_ops_leadership','career_elevation','women_in_leadership','change_management']);\nconst HIGH_SPECIFICITY = new Set(['intake_handoff','bankruptcy_operations','legal_ops_leadership','career_elevation']);\n\nconst PAIN_PHRASES = [\n  'our processes are a mess','nobody follows the process',\"we can't find anything\",\n  'shared drive mess','my team is drowning','cases keep getting stuck',\n  'we are doing everything manually','too much rework','workflow is broken',\n  'intake is a mess','backlog is growing',\"lawyers won't use it\",\n  'every attorney does it differently','no standard process',\n  'we keep recreating the wheel',\"can't find the file\",'paralegal quit again',\n  'assistant keeps making the same mistake',\n  'client called three times and nobody called back',\n  \"i've been doing this manually for years\",'we are still using spreadsheets for this',\n  'no one updates the tracker','admin is a bottleneck','the attorney is the bottleneck',\n  'case fell through the cracks','file went cold',\n  'i am the only one who knows how to do this','got promoted but feel lost',\n  'doing everything myself','no one on my team can make a decision',\n  \"i've been overlooked again\",'nobody sees the work i am doing',\n  'invisible at work','thinking about leaving'\n];\n\nconst NEGATIVE_KEYWORDS = [\n  'bar exam','law school','lsat','law student','passing the bar',\n  'looking for a lawyer','need an attorney','found a good attorney',\n  'recommend a lawyer','personal injury','car accident settlement',\n  'divorce attorney','criminal defense','dui lawyer','immigration attorney',\n  'landlord tenant','cryptocurrency','bitcoin','nft','dropshipping',\n  'affiliate marketing','make money online','passive income','real estate investing',\n  'stock market tips','how to rank on google','social media followers',\n  'instagram growth','vendor spotlight','press release',\n  'we are excited to announce','pleased to announce','product launch'\n];\n\nconst PRIORITY_SUBS = new Set(['legaltech','lawyers','lawfirm']);\nconst MIN_SCORE = 4;\nconst MIN_LENGTH = 80;\n\n// ── Processing ────────────────────────────────────────────────────────────────\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const raw = item.json;\n  const text = (raw.normalized_text || '').toLowerCase();\n\n  // Hard disqualifier 1: content too short\n  if (text.length < MIN_LENGTH) {\n    results.push({ ...raw, rule_pass: false, rule_score: 0, disqualify_reason: `too_short:${text.length}`, lane: 'Ignore', matched_keywords: [], keyword_cluster: [] });\n    continue;\n  }\n\n  // Hard disqualifier 2: negative keyword present\n  let negMatch = null;\n  for (const neg of NEGATIVE_KEYWORDS) {\n    if (text.includes(neg)) { negMatch = neg; break; }\n  }\n  if (negMatch) {\n    results.push({ ...raw, rule_pass: false, rule_score: 0, disqualify_reason: `negative_keyword:${negMatch}`, lane: 'Ignore', matched_keywords: [], keyword_cluster: [] });\n    continue;\n  }\n\n  // Keyword matching per cluster\n  const matched_biz_clusters = [];\n  const matched_turea_clusters = [];\n  const all_matched_keywords = [];\n\n  for (const [cluster, keywords] of Object.entries(CLUSTERS)) {\n    const hits = keywords.filter(kw => text.includes(kw));\n    if (hits.length > 0) {\n      all_matched_keywords.push(...hits);\n      if (BIZ_CLUSTERS.has(cluster)) matched_biz_clusters.push(cluster);\n      if (TUREA_CLUSTERS.has(cluster)) matched_turea_clusters.push(cluster);\n    }\n  }\n\n  const matched_pain = PAIN_PHRASES.filter(p => text.includes(p));\n  const has_bizdeedz = matched_biz_clusters.length > 0;\n  const has_turea = matched_turea_clusters.length > 0;\n  const has_pain = matched_pain.length > 0;\n  const keyword_cluster = [...matched_biz_clusters, ...matched_turea_clusters];\n\n  // Lane assignment\n  let lane = 'Ignore';\n  if (has_bizdeedz && has_turea) lane = 'Both';\n  else if (has_bizdeedz) lane = 'BizDeedz';\n  else if (has_turea) lane = 'Turea';\n\n  // Rule scoring\n  let rule_score = 0;\n  const rule_breakdown = {};\n\n  if (has_bizdeedz) { rule_score += 2; rule_breakdown.bizdeedz_keyword = 2; }\n  if (has_turea)    { rule_score += 2; rule_breakdown.turea_keyword = 2; }\n  if (has_pain)     { rule_score += 2; rule_breakdown.pain_phrase = 2; }\n\n  // Dual match bonus: brand keyword + pain phrase = practitioner describing a real problem\n  if ((has_bizdeedz || has_turea) && has_pain) {\n    rule_score += 1;\n    rule_breakdown.dual_match_bonus = 1;\n  }\n\n  // Specificity bonus: high-specificity cluster only appears in practitioner content\n  if (keyword_cluster.some(c => HIGH_SPECIFICITY.has(c))) {\n    rule_score += 1;\n    rule_breakdown.specificity_bonus = 1;\n  }\n\n  // Priority source\n  const src = (raw.source || '').toLowerCase().replace('r/', '');\n  if (raw.source_type === 'reddit' && PRIORITY_SUBS.has(src)) {\n    rule_score += 1;\n    rule_breakdown.priority_source = 1;\n  }\n  if (raw.source_type === 'rss') {\n    rule_score += 1;\n    rule_breakdown.priority_source = 1;\n  }\n\n  // High engagement (Reddit only)\n  if (raw.source_type === 'reddit' && ((raw.upvotes || 0) >= 10 || (raw.comment_count || 0) >= 5)) {\n    rule_score += 1;\n    rule_breakdown.high_engagement = 1;\n  }\n\n  const rule_pass = lane !== 'Ignore' && rule_score >= MIN_SCORE;\n\n  results.push({\n    ...raw,\n    matched_keywords: [...new Set([...all_matched_keywords, ...matched_pain])],\n    keyword_cluster,\n    lane,\n    has_bizdeedz,\n    has_turea,\n    has_pain,\n    rule_score,\n    rule_breakdown,\n    rule_pass,\n    disqualify_reason: null,\n  });\n}\n\nreturn results.map(item => ({ json: item }));"
+      },
+      "id": "node_keyword_rule_score",
+      "name": "Keyword Match + Rule Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 400],
+      "notes": "Runs keyword matching and rule scoring inline. Hard disqualifiers: negative keyword present or content < 80 chars. Scoring: +2 BizDeedz keyword, +2 Turea keyword, +2 pain phrase, +1 dual match bonus, +1 specificity bonus, +1 priority source, +1 high engagement. Threshold: >= 4. Keep in sync with config/keywords.json and config/scoring.json."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.rule_pass }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            },
+            {
+              "leftValue": "={{ $json.lane }}",
+              "rightValue": "Ignore",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node_if_rule_pass",
+      "name": "IF — Rule Score Pass",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1700, 400],
+      "notes": "Gate: only items with rule_pass=true AND lane != Ignore continue to AI classification. Threshold is >= 4. Everything else is dropped — no AI tokens consumed. False branch is intentionally empty."
+    },
+    {
+      "parameters": {
+        "model": "={{ $env.CLASSIFIER_MODEL || 'gpt-4o-mini' }}",
+        "options": {
+          "temperature": 0,
+          "maxTokens": 256
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a signal classifier. Return ONLY valid JSON. No explanation, no markdown wrapper, no backticks."
+            },
+            {
+              "role": "user",
+              "content": "=Classify this signal for BizDeedz (legal ops consultancy for law firms) and Turea Simpson (legal ops leadership thought leader).\n\nSignal:\n{{ $json.ai_excerpt.slice(0, 900) }}\n\nMatched keywords: {{ $json.matched_keywords.join(', ') }}\nSource: {{ $json.source }} ({{ $json.source_type }})\nRule score: {{ $json.rule_score }}\n\nScoring guide:\n5 = A practitioner (paralegal, firm admin, legal ops manager, attorney) describes a specific operational failure or career pain. Concrete and maps directly to a BizDeedz offer or Turea content angle.\n4 = Clear relevance. Specific problem or trend with identifiable opportunity.\n3 = Relevant topic discussed generally. No specific pain or person named.\n2 = Adjacent topic. Tangentially related.\n1 = Noise, vendor marketing, academic content, or off-topic.\n\nDOWNGRADE to 1-2 if: content reads like a vendor press release, product announcement, sponsored blog, legal education, or describes a general industry trend with no practitioner pain.\n\nReturn exactly this JSON object — nothing else:\n{\"lane\":\"BizDeedz|Turea|Both|Ignore\",\"score\":1,\"signal_type\":\"buyer pain|adoption barrier|workflow gap|market trend|content idea|speaking angle|competitor move|career signal|ignore\",\"keyword_cluster\":[\"cluster_name\"],\"confidence\":\"high|medium|low\",\"keep\":true}"
+            }
+          ]
+        }
+      },
+      "id": "node_cheap_classifier",
+      "name": "Cheap Classifier (GPT-4o-mini)",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.3,
+      "position": [1950, 300],
+      "credentials": {
+        "openAiApi": {
+          "name": "OpenAI"
+        }
+      },
+      "notes": "Cheap classifier call. Max 900 chars of signal. Returns lane, score, signal_type, keyword_cluster, confidence, keep. Prompt includes vendor-blog downgrade rule. Never sends full bodies."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse classifier JSON output and merge with original item\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const raw = item.json;\n  let classification = {};\n\n  try {\n    // Extract JSON from the AI response — handles both raw JSON and ```json blocks\n    const responseText = raw.message?.content || raw.text || raw.choices?.[0]?.message?.content || '';\n    const jsonMatch = responseText.match(/\\{[\\s\\S]*\\}/);\n    if (jsonMatch) {\n      classification = JSON.parse(jsonMatch[0]);\n    }\n  } catch (e) {\n    classification = { lane: 'Ignore', score: 0, keep: false, confidence: 'low', parse_error: e.message };\n  }\n\n  results.push({\n    ...raw,\n    lane: classification.lane || raw.lane || 'Ignore',\n    score: classification.score || 0,\n    signal_type: classification.signal_type || 'ignore',\n    keyword_cluster: classification.keyword_cluster || raw.keyword_cluster || [],\n    confidence: classification.confidence || 'low',\n    keep: classification.keep === true || (classification.score >= 4),\n    parse_error: classification.parse_error || null,\n  });\n}\n\nreturn results.map(item => ({ json: item }));"
+      },
+      "id": "node_parse_classification",
+      "name": "Parse Classification",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2150, 300],
+      "notes": "Parses JSON from classifier response. Handles errors gracefully — parse failures default to Ignore/score=0. Merges classification fields back into item."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Lead Radar — Tag Offer\n// Evaluates each item against the primary offer criteria from config/offer-map.json.\n// Sets lead_radar=true and recommended_offer when a signal is a strong candidate\n// for the AI Readiness Audit for Law Firms offer.\n//\n// Criteria for lead_radar=true (all must be met):\n//   1. score >= 4\n//   2. lane is BizDeedz or Both\n//   3. signal_type is buyer pain, workflow gap, or adoption barrier\n//   4. at least one keyword_cluster is in the offer's trigger_clusters\n\n// Primary offer config (mirrors config/offer-map.json — keep in sync)\nconst PRIMARY_OFFER = 'AI Readiness Audit for Law Firms';\nconst OFFER_TRIGGER_CLUSTERS = new Set([\n  'knowledge_management',\n  'adoption',\n  'intake_handoff',\n  'law_firm_operations',\n  'bankruptcy_operations'\n]);\nconst OFFER_TRIGGER_SIGNAL_TYPES = new Set(['buyer pain', 'workflow gap', 'adoption barrier']);\nconst OFFER_LANES = new Set(['BizDeedz', 'Both']);\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const s = item.json;\n\n  const score = s.score || 0;\n  const lane = s.lane || 'Ignore';\n  const signal_type = s.signal_type || 'ignore';\n  const clusters = Array.isArray(s.keyword_cluster) ? s.keyword_cluster : [];\n\n  // Check all four criteria\n  const meetsScore = score >= 4;\n  const meetsLane = OFFER_LANES.has(lane);\n  const meetsSignalType = OFFER_TRIGGER_SIGNAL_TYPES.has(signal_type);\n  const meetsCluster = clusters.some(c => OFFER_TRIGGER_CLUSTERS.has(c));\n\n  const lead_radar = meetsScore && meetsLane && meetsSignalType && meetsCluster;\n\n  results.push({\n    ...s,\n    lead_radar,\n    recommended_offer: lead_radar ? PRIMARY_OFFER : null,\n  });\n}\n\nreturn results.map(item => ({ json: item }));"
+      },
+      "id": "node_lead_radar",
+      "name": "Lead Radar — Tag Offer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2350, 300],
+      "notes": "Tags items with lead_radar=true and recommended_offer='AI Readiness Audit for Law Firms' when all four criteria are met: score>=4, lane=BizDeedz/Both, signal_type=buyer pain/workflow gap/adoption barrier, and at least one keyword_cluster in the offer trigger list. Keep trigger lists in sync with config/offer-map.json."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.keep }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node_if_score_keep",
+      "name": "IF — Score >= 4 (Keep)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2550, 300],
+      "notes": "Final gate: only items with keep=true (AI score >= 4) are written to Google Sheets. False branch is intentionally empty."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare the final row for Google Sheets\nconst items = $input.all();\nconst rows = [];\n\nfor (const item of items) {\n  const s = item.json;\n  rows.push({\n    captured_at: new Date().toISOString(),\n    source: s.source || '',\n    source_type: s.source_type || '',\n    title: (s.title || '').slice(0, 500),\n    url: s.url || '',\n    author: s.author || '',\n    published_at: s.published_at || '',\n    matched_keywords: Array.isArray(s.matched_keywords) ? s.matched_keywords.join(', ') : '',\n    lane: s.lane || '',\n    signal_type: s.signal_type || '',\n    keyword_cluster: Array.isArray(s.keyword_cluster) ? s.keyword_cluster.join(', ') : '',\n    score: s.score || 0,\n    confidence: s.confidence || '',\n    rule_score: s.rule_score || 0,\n    lead_radar: s.lead_radar === true,\n    recommended_offer: s.recommended_offer || '',\n    summary: '',\n    why_it_matters: '',\n    recommended_action: '',\n    status: 'new',\n    notes: '',\n    dedupe_hash: s.dedupe_hash || '',\n  });\n}\n\nreturn rows.map(row => ({ json: row }));"
+      },
+      "id": "node_prepare_sheet_row",
+      "name": "Prepare Sheet Row",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2750, 300],
+      "notes": "Maps final signal data to Google Sheets schema. Includes rule_score, lead_radar, and recommended_offer for audit visibility and lead routing."
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $env.GOOGLE_SHEETS_SPREADSHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "High_Value_Signals",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        }
+      },
+      "id": "node_sheets_append",
+      "name": "Google Sheets — Append (High_Value_Signals)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [2750, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Sheets"
+        }
+      },
+      "notes": "Appends high-value signals to the High_Value_Signals sheet. Row includes lead_radar and recommended_offer columns. Requires GOOGLE_SHEETS_SPREADSHEET_ID env var and Google Sheets credential."
+    }
+  ],
+  "connections": {
+    "Cron — 7:00 AM Central": {
+      "main": [[{ "node": "Load Config", "type": "main", "index": 0 }]]
+    },
+    "Load Config": {
+      "main": [
+        [
+          { "node": "Reddit — Apify Scraper", "type": "main", "index": 0 },
+          { "node": "RSS — Feed Reader", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Reddit — Apify Scraper": {
+      "main": [[{ "node": "Normalize Reddit Items", "type": "main", "index": 0 }]]
+    },
+    "Normalize Reddit Items": {
+      "main": [[{ "node": "Merge All Sources", "type": "main", "index": 0 }]]
+    },
+    "RSS — Feed Reader": {
+      "main": [[{ "node": "Normalize RSS Items", "type": "main", "index": 0 }]]
+    },
+    "Normalize RSS Items": {
+      "main": [[{ "node": "Merge All Sources", "type": "main", "index": 1 }]]
+    },
+    "Merge All Sources": {
+      "main": [[{ "node": "Normalize Content", "type": "main", "index": 0 }]]
+    },
+    "Normalize Content": {
+      "main": [[{ "node": "Dedupe Check", "type": "main", "index": 0 }]]
+    },
+    "Dedupe Check": {
+      "main": [[{ "node": "Keyword Match + Rule Score", "type": "main", "index": 0 }]]
+    },
+    "Keyword Match + Rule Score": {
+      "main": [[{ "node": "IF — Rule Score Pass", "type": "main", "index": 0 }]]
+    },
+    "IF — Rule Score Pass": {
+      "main": [
+        [{ "node": "Cheap Classifier (GPT-4o-mini)", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Cheap Classifier (GPT-4o-mini)": {
+      "main": [[{ "node": "Parse Classification", "type": "main", "index": 0 }]]
+    },
+    "Parse Classification": {
+      "main": [[{ "node": "Lead Radar — Tag Offer", "type": "main", "index": 0 }]]
+    },
+    "Lead Radar — Tag Offer": {
+      "main": [[{ "node": "IF — Score >= 4 (Keep)", "type": "main", "index": 0 }]]
+    },
+    "IF — Score >= 4 (Keep)": {
+      "main": [
+        [{ "node": "Prepare Sheet Row", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Prepare Sheet Row": {
+      "main": [[{ "node": "Google Sheets — Append (High_Value_Signals)", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "meta": {
+    "description": "Collects Reddit and RSS signals daily at 7:00 AM Central. Hard disqualifiers: negative keywords, content < 80 chars. Rule filter (threshold 4) with dual-match and specificity bonuses. Classifier with vendor-blog downgrade rule. Lead Radar node tags qualifying signals with lead_radar=true and recommended_offer. Stores score >= 4 items to Google Sheets.",
+    "version": "1.2.0",
+    "brand": "BizDeedz Signal Engine MVP"
+  }
+}

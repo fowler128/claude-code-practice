@@ -1,0 +1,58 @@
+{
+  "_comment": "Rule-based pre-filter scoring config. Adjust weights here without touching scripts.",
+  "rules": {
+    "bizdeedz_keyword_match": {
+      "points": 2,
+      "description": "At least one BizDeedz keyword matched"
+    },
+    "turea_keyword_match": {
+      "points": 2,
+      "description": "At least one Turea keyword matched"
+    },
+    "pain_phrase_match": {
+      "points": 2,
+      "description": "At least one pain/problem phrase matched"
+    },
+    "dual_match_bonus": {
+      "points": 1,
+      "description": "BOTH a brand keyword AND a pain phrase matched. Highest-quality signal type — someone is describing a specific problem in brand-relevant territory."
+    },
+    "specificity_bonus": {
+      "points": 1,
+      "description": "A high-specificity cluster matched. These clusters only appear in content describing real operational problems, not vendor blogs or academic articles."
+    },
+    "priority_source": {
+      "points": 1,
+      "description": "Signal came from a priority subreddit or high-priority RSS feed"
+    },
+    "high_engagement": {
+      "points": 1,
+      "description": "Reddit post has above-threshold upvotes or comment count — indicates resonance with others in the community"
+    }
+  },
+  "high_specificity_clusters": [
+    "bankruptcy_operations",
+    "intake_handoff",
+    "legal_ops_leadership",
+    "career_elevation"
+  ],
+  "_scoring_examples": {
+    "excellent_signal": "bankruptcy intake + pain phrase + dual_match_bonus + priority source + specificity_bonus = 2+2+1+1+1 = 7",
+    "good_signal": "intake_handoff keyword + priority source + specificity_bonus = 2+1+1 = 4 (passes)",
+    "borderline": "broad keyword only + RSS = 2+1 = 3 (FAILS — threshold is 4)",
+    "noise": "no keywords = 0 (FAILS immediately)"
+  },
+  "thresholds": {
+    "min_rule_score": 4,
+    "min_content_length_chars": 80,
+    "reddit_upvote_threshold": 10,
+    "reddit_comment_threshold": 5
+  },
+  "ai_score_labels": {
+    "1": "Noise - irrelevant or vendor marketing",
+    "2": "Weak signal - topic adjacent but no clear pain or opportunity",
+    "3": "Moderate - relevant topic but no specific problem or action",
+    "4": "Strong signal - specific pain, trend, or opportunity with clear relevance to BizDeedz or Turea",
+    "5": "High-value - practitioner describing a specific operational failure, career friction, or market gap that directly maps to an offer or content angle"
+  }
+}

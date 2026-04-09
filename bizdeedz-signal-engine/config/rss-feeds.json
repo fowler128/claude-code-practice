@@ -1,0 +1,56 @@
+{
+  "_comment": "RSS feed configuration. Add or remove feeds here without touching workflows. Set active:false to disable a feed without deleting it.",
+  "feeds": [
+    {
+      "name": "Artificial Lawyer",
+      "url": "https://www.artificiallawyer.com/feed/",
+      "active": true,
+      "priority": "high",
+      "tags": ["legaltech", "AI", "legal ops"]
+    },
+    {
+      "name": "LawSites",
+      "url": "https://www.lawsitesblog.com/feed",
+      "active": true,
+      "priority": "high",
+      "tags": ["legaltech", "law practice", "legal tools"]
+    },
+    {
+      "name": "Legal Tech Trends",
+      "url": "https://legaltechtrends.com/feed/",
+      "active": true,
+      "priority": "high",
+      "tags": ["legaltech", "trends", "innovation"]
+    },
+    {
+      "name": "LawDroid Manifesto",
+      "url": "https://lawdroid.com/feed/",
+      "active": true,
+      "priority": "high",
+      "tags": ["legaltech", "AI", "automation"]
+    },
+    {
+      "name": "Legal Evolution",
+      "url": "https://legalevolution.org/feed/",
+      "active": true,
+      "priority": "high",
+      "tags": ["legal ops", "legal market", "innovation"]
+    }
+  ],
+  "_scaffold_feeds": [
+    {
+      "name": "Above The Law",
+      "url": "https://abovethelaw.com/feed/",
+      "active": false,
+      "priority": "medium",
+      "tags": ["legal news", "law firm"]
+    },
+    {
+      "name": "Law Technology Today",
+      "url": "https://www.lawtechnologytoday.org/feed/",
+      "active": false,
+      "priority": "medium",
+      "tags": ["legaltech", "practice management"]
+    }
+  ]
+}

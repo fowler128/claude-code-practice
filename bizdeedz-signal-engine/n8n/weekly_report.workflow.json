@@ -1,0 +1,204 @@
+{
+  "name": "BizDeedz — Weekly Report (Scaffold — Not Active V1)",
+  "notes": "SCAFFOLD ONLY. Not active in V1. Activate in Phase 2. See docs/roadmap.md.",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * 1"
+            }
+          ]
+        },
+        "timezone": "America/Chicago"
+      },
+      "id": "node_cron_weekly",
+      "name": "Cron — Monday 8:00 AM Central",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300],
+      "notes": "Runs every Monday at 8:00 AM Central. Activate in Phase 2."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build date range for last 7 days\nconst now = new Date();\nconst weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();\nconst weekEnd = now.toISOString();\n\nconst dateStr = `Week ending ${now.toLocaleDateString('en-US', {\n  year: 'numeric', month: 'long', day: 'numeric',\n  timeZone: 'America/Chicago'\n})}`;\n\nreturn [{ json: { weekStart, weekEnd, dateStr } }];"
+      },
+      "id": "node_build_week_range",
+      "name": "Build Week Date Range",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [400, 300],
+      "notes": "Calculates last 7 days date range."
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $env.GOOGLE_SHEETS_SPREADSHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "High_Value_Signals",
+          "mode": "name"
+        },
+        "options": {
+          "returnAllMatches": true
+        }
+      },
+      "id": "node_read_week_signals",
+      "name": "Read Last 7 Days from Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [650, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Sheets"
+        }
+      },
+      "notes": "Reads all signals. Next step filters to last 7 days."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filter to last 7 days and build compact batch input\nconst items = $input.all();\nconst weekStart = $('Build Week Date Range').first().json.weekStart;\nconst weekEnd = $('Build Week Date Range').first().json.weekEnd;\n\nconst weekSignals = items.filter(item => {\n  const capturedAt = item.json.captured_at || '';\n  return capturedAt >= weekStart && capturedAt <= weekEnd;\n});\n\n// Build compact signal list (title, lane, cluster, score)\nconst lines = weekSignals.map((item, i) => {\n  const s = item.json;\n  return `[${i+1}] LANE: ${s.lane} | SCORE: ${s.score} | TYPE: ${s.signal_type} | CLUSTER: ${s.keyword_cluster}\\nTITLE: ${s.title}\\n`;\n});\n\nreturn [{\n  json: {\n    weekly_signals_input: lines.join('\\n'),\n    signal_count: weekSignals.length,\n    dateStr: $('Build Week Date Range').first().json.dateStr,\n  }\n}];"
+      },
+      "id": "node_filter_week",
+      "name": "Filter + Format Week Signals",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300],
+      "notes": "Filters to last 7 days and builds compact input for weekly report synthesis."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.signal_count }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node_if_week_signals_exist",
+      "name": "IF — Signals Exist This Week",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1100, 300],
+      "notes": "Guard: if zero signals this week, skip synthesis entirely to avoid confusing LLM output. True branch proceeds. False branch terminates — no email sent (silence is fine for a zero-signal week)."
+    },
+    {
+      "parameters": {
+        "model": "={{ $env.DIGEST_MODEL || 'claude-sonnet-4-6' }}",
+        "options": {
+          "temperature": 0.4,
+          "maxTokens": 3000
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "user",
+              "content": "=You are a strategic market intelligence analyst for BizDeedz and Turea Simpson.\n\nSynthesize the past 7 days of high-value signals into a strategic weekly report.\n\nPeriod: {{ $json.dateStr }}\nTotal signals this week: {{ $json.signal_count }}\n\nSIGNALS:\n{{ $json.weekly_signals_input }}\n\nGenerate a weekly report using this structure:\n\n## Recurring Pain Themes This Week\n1. **[Theme]** — [description and frequency note]\n2-3. ...\n\n## Strongest BizDeedz Themes\n1. **[Theme]** — [why it matters and what it suggests]\n2-3. ...\n\n## Strongest Turea Simpson Themes\n1. **[Theme]** — [why it resonates and what content it supports]\n2-3. ...\n\n## Rising Tools or Topics\n1. **[Tool/Topic]** — [what it is and why gaining attention]\n2. ...\n\n## Suggested Offer or Positioning Changes\n- [Observation and suggestion]\n- [Observation and suggestion]\n\n## 5 Post Ideas for Next Week\n1. **[Post title]** (Brand: BizDeedz/Turea/Both | Platform: LinkedIn/Newsletter) — [brief angle]\n2-5. ...\n\n## 3 Business Development Opportunities\n1. **[Opportunity]** — [source, context, recommended next step]\n2-3. ...\n\nBe substantive. Synthesize across signals — do not list individual items."
+            }
+          ]
+        }
+      },
+      "id": "node_weekly_synthesis",
+      "name": "Weekly Report Synthesis (Premium)",
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [1350, 200],
+      "credentials": {
+        "anthropicApi": {
+          "name": "Anthropic"
+        }
+      },
+      "notes": "Single premium model call for weekly synthesis. Based on prompts/summarize_weekly_report.md."
+    },
+    {
+      "parameters": {
+        "jsCode": "const reportData = $input.first().json;\nconst dateStr = $('Filter + Format Week Signals').first().json.dateStr;\nconst signalCount = $('Filter + Format Week Signals').first().json.signal_count;\n\nconst reportText = reportData.content?.[0]?.text || reportData.text || 'Weekly report generation failed.';\n\nconst htmlBody = `\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <style>\n    body { font-family: Georgia, serif; max-width: 700px; margin: 0 auto; padding: 24px; color: #1a1a1a; }\n    h1 { font-size: 22px; border-bottom: 2px solid #333; padding-bottom: 8px; }\n    h2 { font-size: 16px; color: #444; margin-top: 28px; }\n    .meta { font-size: 13px; color: #888; margin-bottom: 24px; }\n    .footer { font-size: 12px; color: #aaa; border-top: 1px solid #eee; padding-top: 12px; margin-top: 32px; }\n  </style>\n</head>\n<body>\n  <h1>BizDeedz Signal Engine — Weekly Report</h1>\n  <p class=\"meta\">${dateStr} &nbsp;|&nbsp; Signals analyzed: ${signalCount}</p>\n  <div>${reportText.replace(/\\n/g, '<br>').replace(/## (.+)/g, '<h2>$1</h2>').replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>')}</div>\n  <div class=\"footer\">BizDeedz Signal Engine Weekly Report</div>\n</body>\n</html>`;\n\nreturn [{ json: {\n  subject: `BizDeedz Weekly Intelligence Report — ${dateStr}`,\n  htmlBody,\n  plainText: reportText,\n} }];"
+      },
+      "id": "node_format_weekly_email",
+      "name": "Format Weekly Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1600, 200],
+      "notes": "Formats weekly report as HTML email."
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.GMAIL_USER }}",
+        "toEmail": "={{ $env.EMAIL_PRIMARY }},{{ $env.EMAIL_SECONDARY }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "html",
+        "message": "={{ $json.htmlBody }}",
+        "options": {}
+      },
+      "id": "node_send_weekly_email",
+      "name": "Send Weekly Report Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1850, 200],
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail"
+        }
+      },
+      "notes": "Sends weekly report to both recipients."
+    }
+  ],
+  "connections": {
+    "Cron — Monday 8:00 AM Central": {
+      "main": [[{ "node": "Build Week Date Range", "type": "main", "index": 0 }]]
+    },
+    "Build Week Date Range": {
+      "main": [[{ "node": "Read Last 7 Days from Sheets", "type": "main", "index": 0 }]]
+    },
+    "Read Last 7 Days from Sheets": {
+      "main": [[{ "node": "Filter + Format Week Signals", "type": "main", "index": 0 }]]
+    },
+    "Filter + Format Week Signals": {
+      "main": [[{ "node": "IF — Signals Exist This Week", "type": "main", "index": 0 }]]
+    },
+    "IF — Signals Exist This Week": {
+      "main": [
+        [{ "node": "Weekly Report Synthesis (Premium)", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Weekly Report Synthesis (Premium)": {
+      "main": [[{ "node": "Format Weekly Email", "type": "main", "index": 0 }]]
+    },
+    "Format Weekly Email": {
+      "main": [[{ "node": "Send Weekly Report Email", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "meta": {
+    "description": "SCAFFOLD ONLY — NOT ACTIVE IN V1. Weekly report workflow for Phase 2. Zero-signals guard added: synthesis is skipped entirely if no signals this week. Reads last 7 days from Google Sheets, synthesizes trends, emails Monday mornings.",
+    "version": "1.1.0-scaffold",
+    "brand": "BizDeedz Signal Engine MVP",
+    "phase": "Phase 2"
+  }
+}
