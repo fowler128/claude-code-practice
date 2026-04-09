@@ -1,0 +1,40 @@
+{
+  "name": "openclaw",
+  "version": "1.0.0",
+  "description": "OpenClaw - Automation Runtime for BizDeedz Platform OS",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "job:inbox-scan": "ts-node src/jobs/inbox-scan.ts",
+    "test": "jest"
+  },
+  "keywords": [
+    "automation",
+    "workflow",
+    "legal-tech"
+  ],
+  "author": "BizDeedz Platform OS",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "dotenv": "^16.3.1",
+    "uuid": "^9.0.1",
+    "chokidar": "^3.5.3",
+    "crypto": "^1.0.1",
+    "winston": "^3.11.0",
+    "cron": "^3.1.6",
+    "mime-types": "^2.1.35"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "@types/uuid": "^9.0.7",
+    "@types/mime-types": "^2.1.4",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.11"
+  }
+}

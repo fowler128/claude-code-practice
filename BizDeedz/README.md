@@ -9,11 +9,20 @@ BizDeedz Filing Tracker is built using the **EDGE** (Efficiency, Data, Governanc
 ## Features
 
 - **Unified Dashboard**: Track all filings across multiple Texas counties in one place
-- **Real-time Status Updates**: Monitor filing status (Draft, Pending, Accepted, Rejected)
+- **Status Management**: Monitor filing status (Draft, Pending, Accepted, Rejected)
 - **Overdue Alerts**: Automatic notifications when filings exceed 48-hour pending threshold
 - **Audit Trail**: Complete status history logging for compliance (FLOW Witness)
 - **2026 Texas Court Rules**: Built-in compliance with latest court requirements
 - **Holiday Detection**: Automatic detection of Texas court holidays that may affect filings
+
+## Development Status
+
+**Note**: Firebase integration is currently in placeholder state. The following features require Firebase SDK configuration to be fully functional:
+- Real-time status updates (listener implementation is commented out)
+- Cloud data persistence (returns empty data arrays)
+- Authentication services (demo mode only)
+
+See `FirebaseService.swift` for implementation details and setup instructions.
 
 ## Tech Stack
 

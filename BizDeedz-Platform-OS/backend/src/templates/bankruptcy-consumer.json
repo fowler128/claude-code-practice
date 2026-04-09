@@ -1,0 +1,190 @@
+{
+  "playbook_id": "bankruptcy_consumer_v1",
+  "version": "1.0",
+  "practice_area_id": "bankruptcy",
+  "matter_type_id": "bk_consumer",
+  "name": "Bankruptcy - Consumer (General)",
+  "description": "Consumer bankruptcy (Chapter 7 or Chapter 13) workflow template",
+  "lanes": [
+    {
+      "lane_id": "intake_triage",
+      "name": "Intake & Triage",
+      "order": 1,
+      "roles": ["intake_specialist", "paralegal"]
+    },
+    {
+      "lane_id": "engagement_conflicts",
+      "name": "Engagement & Conflicts",
+      "order": 2,
+      "roles": ["paralegal", "attorney"]
+    },
+    {
+      "lane_id": "document_collection",
+      "name": "Document Collection",
+      "order": 3,
+      "roles": ["paralegal"]
+    },
+    {
+      "lane_id": "drafting_prep",
+      "name": "Drafting / Case Prep",
+      "order": 4,
+      "roles": ["paralegal"]
+    },
+    {
+      "lane_id": "attorney_review",
+      "name": "Attorney Review / Approval",
+      "order": 5,
+      "roles": ["attorney"]
+    },
+    {
+      "lane_id": "filing_submission",
+      "name": "Filing / Submission",
+      "order": 6,
+      "roles": ["paralegal", "attorney"]
+    },
+    {
+      "lane_id": "post_filing",
+      "name": "Post-Filing / Case Management",
+      "order": 7,
+      "roles": ["paralegal", "attorney"]
+    },
+    {
+      "lane_id": "billing_closeout",
+      "name": "Billing & Closeout",
+      "order": 8,
+      "roles": ["billing_specialist", "paralegal"]
+    }
+  ],
+  "statuses": [
+    {"status_code": "BK-01", "name": "New Lead", "lane_id": "intake_triage", "order": 1},
+    {"status_code": "BK-02", "name": "Intake In Progress", "lane_id": "intake_triage", "order": 2},
+    {"status_code": "BK-03", "name": "Intake Complete (Pending Gate 0)", "lane_id": "intake_triage", "order": 3},
+    {"status_code": "BK-04", "name": "Conflicts Check Pending (Gate 1)", "lane_id": "engagement_conflicts", "order": 4},
+    {"status_code": "BK-05", "name": "Conflicts Cleared", "lane_id": "engagement_conflicts", "order": 5},
+    {"status_code": "BK-06", "name": "Engagement Sent", "lane_id": "engagement_conflicts", "order": 6},
+    {"status_code": "BK-07", "name": "Engagement Signed", "lane_id": "engagement_conflicts", "order": 7},
+    {"status_code": "BK-08", "name": "Retainer Pending", "lane_id": "engagement_conflicts", "order": 8},
+    {"status_code": "BK-09", "name": "Retainer Received (Activate Matter)", "lane_id": "engagement_conflicts", "order": 9},
+    {"status_code": "BK-10", "name": "Docs Requested", "lane_id": "document_collection", "order": 10},
+    {"status_code": "BK-11", "name": "Partial Docs Received", "lane_id": "document_collection", "order": 11},
+    {"status_code": "BK-12", "name": "Docs Complete (Pending Gate 2)", "lane_id": "document_collection", "order": 12},
+    {"status_code": "BK-13", "name": "Data Entry / Case Setup", "lane_id": "drafting_prep", "order": 13},
+    {"status_code": "BK-14", "name": "Schedules & Forms Drafting", "lane_id": "drafting_prep", "order": 14},
+    {"status_code": "BK-15", "name": "Means Test / Financial Analysis", "lane_id": "drafting_prep", "order": 15},
+    {"status_code": "BK-16", "name": "Ready for Attorney Review", "lane_id": "drafting_prep", "order": 16},
+    {"status_code": "BK-17", "name": "Attorney Review In Progress", "lane_id": "attorney_review", "order": 17},
+    {"status_code": "BK-18", "name": "Returned for Corrections (Defect Log)", "lane_id": "attorney_review", "order": 18},
+    {"status_code": "BK-19", "name": "Approved for Filing", "lane_id": "attorney_review", "order": 19},
+    {"status_code": "BK-20", "name": "Filing Scheduled", "lane_id": "filing_submission", "order": 20},
+    {"status_code": "BK-21", "name": "Filed / Submitted", "lane_id": "filing_submission", "order": 21},
+    {"status_code": "BK-22", "name": "Filing Issue / Rejection (Defect Log)", "lane_id": "filing_submission", "order": 22},
+    {"status_code": "BK-23", "name": "Trustee / Court Requests Pending", "lane_id": "post_filing", "order": 23},
+    {"status_code": "BK-24", "name": "Post-Filing Complete", "lane_id": "post_filing", "order": 24},
+    {"status_code": "BK-25", "name": "Invoice Pending / Balance Due", "lane_id": "billing_closeout", "order": 25},
+    {"status_code": "BK-26", "name": "Closed Out", "lane_id": "billing_closeout", "order": 26}
+  ],
+  "required_artifacts": [
+    {"artifact_type_id": "intake_form", "required_at_status": "BK-03", "gate_id": "gate_0"},
+    {"artifact_type_id": "engagement_unsigned", "required_at_status": "BK-06", "gate_id": "gate_0"},
+    {"artifact_type_id": "engagement_signed", "required_at_status": "BK-07", "gate_id": "gate_1"},
+    {"artifact_type_id": "payment_confirm", "required_at_status": "BK-09", "gate_id": "gate_1"},
+    {"artifact_type_id": "identity_doc", "required_at_status": "BK-12", "gate_id": "gate_2"},
+    {"artifact_type_id": "financial_doc", "required_at_status": "BK-12", "gate_id": "gate_2"},
+    {"artifact_type_id": "draft_filing", "required_at_status": "BK-16", "gate_id": "gate_2"},
+    {"artifact_type_id": "final_filing", "required_at_status": "BK-21", "gate_id": null}
+  ],
+  "qc_gates": [
+    {
+      "gate_id": "gate_0",
+      "name": "Intake Completeness Gate",
+      "status_code": "BK-03",
+      "criteria": [
+        "Identity and contact fields complete",
+        "Chapter type selected or flagged for attorney decision",
+        "Baseline document request triggered"
+      ]
+    },
+    {
+      "gate_id": "gate_1",
+      "name": "Conflicts Gate",
+      "status_code": "BK-04",
+      "criteria": [
+        "Conflicts check completed and logged",
+        "Engagement letter signed",
+        "Retainer received"
+      ]
+    },
+    {
+      "gate_id": "gate_2",
+      "name": "Pre-Submission Gate",
+      "status_code": "BK-12",
+      "criteria": [
+        "Required documents complete or exceptions recorded",
+        "Internal validation checklist complete",
+        "Client review sign-off captured"
+      ]
+    }
+  ],
+  "sla_rules": [
+    {"status_code": "BK-01", "sla_hours": 24, "escalation_enabled": true, "escalation_roles": ["ops_lead"]},
+    {"status_code": "BK-02", "sla_hours": 48, "escalation_enabled": true, "escalation_roles": ["ops_lead"]},
+    {"status_code": "BK-06", "sla_hours": 24, "escalation_enabled": false, "escalation_roles": []},
+    {"status_code": "BK-10", "sla_hours": 8, "escalation_enabled": false, "escalation_roles": []},
+    {"status_code": "BK-12", "sla_hours": 96, "escalation_enabled": true, "escalation_roles": ["attorney", "ops_lead"]},
+    {"status_code": "BK-16", "sla_hours": 48, "escalation_enabled": true, "escalation_roles": ["attorney"]}
+  ],
+  "automation_rules": [
+    {
+      "rule_name": "Generate Starter Tasks on Matter Create",
+      "trigger_type": "matter_created",
+      "trigger_conditions": {},
+      "action_type": "create_tasks",
+      "action_config": {
+        "tasks": [
+          {"task_type": "conflicts_check", "title": "Run conflicts check", "assigned_role": "paralegal", "sla_hours": 24},
+          {"task_type": "engagement_prep", "title": "Prepare engagement letter", "assigned_role": "paralegal", "sla_hours": 48},
+          {"task_type": "retainer_setup", "title": "Set up retainer invoice", "assigned_role": "billing_specialist", "sla_hours": 24}
+        ]
+      }
+    },
+    {
+      "rule_name": "Create Document Request Tasks",
+      "trigger_type": "status_changed",
+      "trigger_conditions": {"new_status": "BK-10"},
+      "action_type": "create_tasks",
+      "action_config": {
+        "tasks": [
+          {"task_type": "document_request", "title": "Send document request to client", "assigned_role": "paralegal", "sla_hours": 4},
+          {"task_type": "reminder_schedule", "title": "Schedule document reminders (Day 2, 5, 10)", "assigned_role": "paralegal", "sla_hours": 8}
+        ]
+      }
+    },
+    {
+      "rule_name": "Escalate on SLA Breach",
+      "trigger_type": "sla_breach",
+      "trigger_conditions": {},
+      "action_type": "escalate_and_notify",
+      "action_config": {
+        "notify_roles": ["ops_lead", "attorney"],
+        "update_matter": {"risk_tier": "medium"}
+      }
+    },
+    {
+      "rule_name": "Handle Returned for Corrections",
+      "trigger_type": "status_changed",
+      "trigger_conditions": {"new_status": "BK-18"},
+      "action_type": "log_defect_and_create_task",
+      "action_config": {
+        "require_defect_reason": true,
+        "increment_defect_count": true,
+        "create_task": {"task_type": "correction", "title": "Address attorney corrections", "assigned_role": "paralegal"}
+      }
+    }
+  ],
+  "ai_actions_allowed": [
+    {"action_type": "extract_financial_data", "risk_level": "low", "requires_approval": false, "allowed_roles": ["paralegal", "attorney"]},
+    {"action_type": "build_creditor_list", "risk_level": "low", "requires_approval": false, "allowed_roles": ["paralegal"]},
+    {"action_type": "generate_missing_docs_email", "risk_level": "medium", "requires_approval": true, "allowed_roles": ["paralegal", "attorney"]},
+    {"action_type": "summarize_trustee_request", "risk_level": "low", "requires_approval": false, "allowed_roles": ["paralegal", "attorney"]}
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "playbook_id": "immigration_petition_v1",
+  "version": "1.0",
+  "practice_area_id": "immigration",
+  "matter_type_id": "im_petition",
+  "name": "Immigration - Petition/Application",
+  "description": "General immigration petitions and applications workflow",
+  "lanes": [
+    {"lane_id": "intake_triage", "name": "Intake & Triage", "order": 1, "roles": ["intake_specialist", "paralegal"]},
+    {"lane_id": "engagement_conflicts", "name": "Engagement & Conflicts", "order": 2, "roles": ["paralegal", "attorney"]},
+    {"lane_id": "document_collection", "name": "Document Collection", "order": 3, "roles": ["paralegal"]},
+    {"lane_id": "drafting_prep", "name": "Drafting / Case Prep", "order": 4, "roles": ["paralegal"]},
+    {"lane_id": "attorney_review", "name": "Attorney Review / Approval", "order": 5, "roles": ["attorney"]},
+    {"lane_id": "filing_submission", "name": "Filing / Submission", "order": 6, "roles": ["paralegal", "attorney"]},
+    {"lane_id": "post_filing", "name": "Post-Submission / Case Management", "order": 7, "roles": ["paralegal", "attorney"]},
+    {"lane_id": "billing_closeout", "name": "Billing & Closeout", "order": 8, "roles": ["billing_specialist", "paralegal"]}
+  ],
+  "statuses": [
+    {"status_code": "IM-01", "name": "New Lead", "lane_id": "intake_triage", "order": 1},
+    {"status_code": "IM-02", "name": "Intake In Progress", "lane_id": "intake_triage", "order": 2},
+    {"status_code": "IM-03", "name": "Intake Complete (Pending Gate 0)", "lane_id": "intake_triage", "order": 3},
+    {"status_code": "IM-04", "name": "Conflicts Check Pending (Gate 1)", "lane_id": "engagement_conflicts", "order": 4},
+    {"status_code": "IM-05", "name": "Conflicts Cleared", "lane_id": "engagement_conflicts", "order": 5},
+    {"status_code": "IM-06", "name": "Engagement Sent", "lane_id": "engagement_conflicts", "order": 6},
+    {"status_code": "IM-07", "name": "Engagement Signed", "lane_id": "engagement_conflicts", "order": 7},
+    {"status_code": "IM-08", "name": "Fee/Retainer Pending", "lane_id": "engagement_conflicts", "order": 8},
+    {"status_code": "IM-09", "name": "Fee/Retainer Received (Activate Matter)", "lane_id": "engagement_conflicts", "order": 9},
+    {"status_code": "IM-10", "name": "Docs Requested", "lane_id": "document_collection", "order": 10},
+    {"status_code": "IM-11", "name": "Partial Docs Received", "lane_id": "document_collection", "order": 11},
+    {"status_code": "IM-12", "name": "Docs Complete (Pending Gate 2)", "lane_id": "document_collection", "order": 12},
+    {"status_code": "IM-13", "name": "Forms Preparation", "lane_id": "drafting_prep", "order": 13},
+    {"status_code": "IM-14", "name": "Supporting Evidence Assembly", "lane_id": "drafting_prep", "order": 14},
+    {"status_code": "IM-15", "name": "Translations/Certifications Pending", "lane_id": "drafting_prep", "order": 15},
+    {"status_code": "IM-16", "name": "Ready for Attorney Review", "lane_id": "drafting_prep", "order": 16},
+    {"status_code": "IM-17", "name": "Attorney Review In Progress", "lane_id": "attorney_review", "order": 17},
+    {"status_code": "IM-18", "name": "Returned for Corrections (Defect Log)", "lane_id": "attorney_review", "order": 18},
+    {"status_code": "IM-19", "name": "Approved for Submission", "lane_id": "attorney_review", "order": 19},
+    {"status_code": "IM-20", "name": "Packet Finalized", "lane_id": "filing_submission", "order": 20},
+    {"status_code": "IM-21", "name": "Submitted / Filed", "lane_id": "filing_submission", "order": 21},
+    {"status_code": "IM-22", "name": "Rejected / Returned by Agency (Defect Log)", "lane_id": "filing_submission", "order": 22},
+    {"status_code": "IM-23", "name": "Receipt Notice Logged", "lane_id": "post_filing", "order": 23},
+    {"status_code": "IM-24", "name": "RFE/NOID Received (Task plan generated)", "lane_id": "post_filing", "order": 24},
+    {"status_code": "IM-25", "name": "Response Submitted", "lane_id": "post_filing", "order": 25},
+    {"status_code": "IM-26", "name": "Decision Received", "lane_id": "post_filing", "order": 26},
+    {"status_code": "IM-27", "name": "Case Complete", "lane_id": "post_filing", "order": 27},
+    {"status_code": "IM-28", "name": "Invoice Pending / Balance Due", "lane_id": "billing_closeout", "order": 28},
+    {"status_code": "IM-29", "name": "Closed Out", "lane_id": "billing_closeout", "order": 29}
+  ],
+  "required_artifacts": [
+    {"artifact_type_id": "intake_form", "required_at_status": "IM-03", "gate_id": "gate_0"},
+    {"artifact_type_id": "engagement_signed", "required_at_status": "IM-07", "gate_id": "gate_1"},
+    {"artifact_type_id": "payment_confirm", "required_at_status": "IM-09", "gate_id": "gate_1"},
+    {"artifact_type_id": "identity_doc", "required_at_status": "IM-12", "gate_id": "gate_2"},
+    {"artifact_type_id": "evidence_packet", "required_at_status": "IM-14", "gate_id": "gate_2"},
+    {"artifact_type_id": "final_filing", "required_at_status": "IM-21", "gate_id": null}
+  ],
+  "qc_gates": [
+    {
+      "gate_id": "gate_0",
+      "name": "Intake Completeness Gate",
+      "status_code": "IM-03",
+      "criteria": ["Matter type selected", "Timeline and status history captured"]
+    },
+    {
+      "gate_id": "gate_1",
+      "name": "Conflicts Gate",
+      "status_code": "IM-04",
+      "criteria": ["Conflicts completed and logged"]
+    },
+    {
+      "gate_id": "gate_2",
+      "name": "Pre-Submission Gate",
+      "status_code": "IM-12",
+      "criteria": ["Forms validated", "Evidence index assembled", "Translations complete if needed"]
+    }
+  ],
+  "sla_rules": [
+    {"status_code": "IM-01", "sla_hours": 24, "escalation_enabled": true, "escalation_roles": ["ops_lead"]},
+    {"status_code": "IM-12", "sla_hours": 24, "escalation_enabled": false, "escalation_roles": []},
+    {"status_code": "IM-16", "sla_hours": 48, "escalation_enabled": true, "escalation_roles": ["attorney"]}
+  ],
+  "automation_rules": [
+    {
+      "rule_name": "Generate Starter Tasks",
+      "trigger_type": "matter_created",
+      "trigger_conditions": {},
+      "action_type": "create_tasks",
+      "action_config": {
+        "tasks": [
+          {"task_type": "conflicts_check", "title": "Run conflicts check", "assigned_role": "paralegal", "sla_hours": 24},
+          {"task_type": "engagement_prep", "title": "Prepare engagement letter", "assigned_role": "paralegal", "sla_hours": 48}
+        ]
+      }
+    }
+  ],
+  "ai_actions_allowed": [
+    {"action_type": "generate_evidence_checklist", "risk_level": "low", "requires_approval": false, "allowed_roles": ["paralegal"]},
+    {"action_type": "summarize_client_history", "risk_level": "low", "requires_approval": false, "allowed_roles": ["paralegal", "attorney"]},
+    {"action_type": "draft_rfe_response_outline", "risk_level": "medium", "requires_approval": true, "allowed_roles": ["attorney"]},
+    {"action_type": "extract_key_dates_from_notices", "risk_level": "low", "requires_approval": false, "allowed_roles": ["paralegal"]}
+  ]
+}
